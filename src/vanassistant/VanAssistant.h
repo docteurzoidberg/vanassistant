@@ -53,11 +53,11 @@ public:
 
     //engine->DrawTriangle({0,0}, {0, (float) engine->GetScreenWidth()}, {(float) engine->GetScreenWidth(), (float) engine->GetScreenHeight()}, RED);
 
-    //DrawTitle();
+    DrawTitle();
          
     //starfield->Render();
     //grid->Render(); 
-    faceModel->Render();
+    //faceModel->Render();
 
     //DrawFPS(GetFPS());
   }
@@ -104,7 +104,9 @@ private:
 
   void DrawTitle() {
     //TODO
-    //engine->drawString(10, 10, "VanAssistant", color::WHITE, "mono18");
+    engine->SetFont("mono18");
+    engine->SetCursorPos(0, 40);
+    engine->DrawText("ABCD", 40, 40, WHITE);
   }
 
   void DrawFPS(int fps) {

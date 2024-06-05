@@ -201,16 +201,19 @@ struct hwbutton
 /// Font glyph structure (taken from Adafruit GFX library)
 struct fontglyph {
     uint16_t bitmapOffset; // Pointer into GFXfont->bitmap
-    uint8_t width, height; // Bitmap dimensions in pixels
+    uint8_t width;
+    uint8_t height; // Bitmap dimensions in pixels
     uint8_t xAdvance;      // Distance to advance cursor (x axis)
-    int8_t xOffset, yOffset; // Dist from cursor pos to UL corner
+    int8_t xOffset;
+    int8_t yOffset; // Dist from cursor pos to UL corner
 };
 
 /// Font structure (take from Adafruit GFX library)
 struct font {
     uint8_t *bitmap;       // Glyph bitmaps, concatenated
     fontglyph *glyph;       // Glyph array
-    uint8_t first, last;   // ASCII extents
+    uint16_t first;
+    uint16_t last;   // ASCII extents
     uint8_t yAdvance;      // Newline distance (y axis)
 };
 
@@ -233,6 +236,7 @@ public:
   virtual void LoadFont(const std::string& fontName, const font* font) = 0;
   virtual void SetFont(const std::string& fontName) = 0;
   virtual void DrawText(const std::string& text, float x, float y, color color) = 0;
+  virtual void SetCursorPos(uint16_t x, uint16_t y) = 0;
 
   virtual int GetScreenWidth() = 0; 
   virtual int GetScreenHeight() = 0;  
