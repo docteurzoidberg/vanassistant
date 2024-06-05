@@ -34,7 +34,7 @@ public:
     UpdateCursorBlink(now);
   }
 
-  void DrawText(int x, int y, color color = color::WHITE) {
+  void DrawText(int x, int y, color color = WHITE) {
     if (displayText) {
       std::string toDraw = currentText.substr(0, currentIndex);
 		  //TODO

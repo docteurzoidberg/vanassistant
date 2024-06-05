@@ -28,20 +28,31 @@ public:
     return ScreenHeight();
   }
 
-  void DrawLine(float x1, float y1, float x2, float y2, color color) override {
-    pge->DrawLine(x1, y1, x2, y2, olc::Pixel(color));
+  void DrawLine(int x1, int y1, int x2, int y2, color color) override {
+    pge->DrawLine(x1, y1, x2, y2, ColorToPixel(color));
   }
 
-  void DrawTriangle(const vec3d& p1, const vec3d& p2, const vec3d& p3, color color) override {
-    pge->DrawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, olc::Pixel(color));
+  void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) override {
+    pge->DrawTriangle(x1, y1, x2, y2, x3, y3, ColorToPixel(color));
+    //pge->DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, ColorToPixel(color));
+    //.pge->DrawLine((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
+    //pge->DrawLine((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, ColorToPixel(color));
   }
 
   void FillRect(int x, int y, int w, int h, color color) override {
-    pge->FillRect(x, y, w, h, olc::Pixel((uint32_t)color));
+    pge->FillRect(x, y, w, h, ColorToPixel(color));
+  }
+
+  void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) override {
+    pge->FillTriangle((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
+  }
+
+  void FillCircle(int x, int y, int radius, color color) override {
+    pge->FillCircle(x, y, radius, ColorToPixel(color));
   }
 
   void Clear(color color) override {
-    pge->Clear(olc::Pixel((uint32_t)color));
+    pge->Clear(ColorToPixel(color));
   }
 
   void LoadFont(const std::string& fontName, const font* font) override {
@@ -65,7 +76,7 @@ public:
           for (uint8_t yy = 0; yy < glyph->height; yy++) {
             for (uint8_t xx = 0; xx < glyph->width; xx++) {
               if (bitmap[yy * ((glyph->width + 7) / 8) + xx / 8] & (1 << (xx % 8))) {
-                pge->Draw(cursor_x + glyph->xOffset + xx, cursor_y + glyph->yOffset + yy, olc::Pixel(color));
+                pge->Draw(cursor_x + glyph->xOffset + xx, cursor_y + glyph->yOffset + yy, ColorToPixel(color));
               }
             }
           }
@@ -73,6 +84,10 @@ public:
         }
       }
     }
+  }
+
+  olc::Pixel ColorToPixel(color color) {
+    return olc::Pixel(color.r, color.g, color.b, color.a);
   }
 
   void ReadKeys() override {

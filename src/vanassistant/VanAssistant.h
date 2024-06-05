@@ -41,23 +41,25 @@ public:
   */
   void Update(float elapsedTime) {
     textAnimator->Update();
-    faceModel->Update();
+    faceModel->Update(elapsedTime);
   }
 
   /**
   * Render the assistant
   */
   void Render() {
-    //TODO
-    engine->Clear(color::BLACK);
 
-    DrawTitle();
+    engine->Clear(BLACK);
+
+    //engine->DrawTriangle({0,0}, {0, (float) engine->GetScreenWidth()}, {(float) engine->GetScreenWidth(), (float) engine->GetScreenHeight()}, RED);
+
+    //DrawTitle();
          
-    starfield->Render();
-    grid->Render(); 
+    //starfield->Render();
+    //grid->Render(); 
     faceModel->Render();
 
-    DrawFPS(GetFPS());
+    //DrawFPS(GetFPS());
   }
 
   /**
@@ -65,6 +67,7 @@ public:
   */
   void ToggleDebug() {
     bShowDebug = !bShowDebug;
+    faceModel->ToggleDebugTriangle();
   }
 
   /**
@@ -78,14 +81,14 @@ public:
   * Debug next triangle
   */
   void DbgNextTriangle() {
-    faceModel->dbgNextTriangle();
+    faceModel->DbgNextTriangle();
   }
 
   /**
   * Debug previous triangle
   */
   void DbgPrevTriangle() {
-    faceModel->dbgPrevTriangle();
+    faceModel->DbgPrevTriangle();
   }
 
 private: 

@@ -32,16 +32,163 @@ struct mat4x4 {
   float m[4][4] = { 0 };
 };
 
-enum color {
-  WHITE = 0xFFFFFF,
-  BLACK = 0x000000,
-  RED = 0xFF0000,
-  GREEN = 0x00FF00,
-  BLUE = 0x0000FF,
-  YELLOW = 0xFFFF00,
-  CYAN = 0x00FFFF,
-  MAGENTA = 0xFF00FF
+constexpr uint8_t  nDefaultAlpha = 0xFF;
+constexpr uint32_t nDefaultColor = (nDefaultAlpha << 24);
+
+struct color
+{
+  union
+  {
+    uint32_t n = nDefaultColor;
+    struct { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
+  };
+
+  enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
+
+  color();
+  color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha);
+  color(uint32_t p);
+  color& operator = (const color& v) = default;
+  bool   operator ==(const color& p) const;
+  bool   operator !=(const color& p) const;
+  color  operator * (const float i) const;
+  color  operator / (const float i) const;
+  color& operator *=(const float i);
+  color& operator /=(const float i);
+  color  operator + (const color& p) const;
+  color  operator - (const color& p) const;
+  color& operator +=(const color& p);
+  color& operator -=(const color& p);
+  color  operator * (const color& p) const;
+  color& operator *=(const color& p);
+  color  inv() const;
 };
+
+color ColorF(float red, float green, float blue, float alpha = 1.0f);
+color ColorLerp(const color& p1, const color& p2, float t);
+
+static const color
+  GREY(192, 192, 192), DARK_GREY(128, 128, 128), VERY_DARK_GREY(64, 64, 64),
+  RED(255, 0, 0), DARK_RED(128, 0, 0), VERY_DARK_RED(64, 0, 0),
+  YELLOW(255, 255, 0), DARK_YELLOW(128, 128, 0), VERY_DARK_YELLOW(64, 64, 0),
+  GREEN(0, 255, 0), DARK_GREEN(0, 128, 0), VERY_DARK_GREEN(0, 64, 0),
+  CYAN(0, 255, 255), DARK_CYAN(0, 128, 128), VERY_DARK_CYAN(0, 64, 64),
+  BLUE(0, 0, 255), DARK_BLUE(0, 0, 128), VERY_DARK_BLUE(0, 0, 64),
+  MAGENTA(255, 0, 255), DARK_MAGENTA(128, 0, 128), VERY_DARK_MAGENTA(64, 0, 64),
+  WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0);
+
+
+  inline color::color()
+  { r = 0; g = 0; b = 0; a = nDefaultAlpha; }
+
+  inline color::color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+  { n = red | (green << 8) | (blue << 16) | (alpha << 24); } // Thanks jarekpelczar 
+
+  inline color::color(uint32_t p)
+  { n = p; }
+
+  inline bool color::operator==(const color& p) const
+  { return n == p.n; }
+
+  inline bool color::operator!=(const color& p) const
+  { return n != p.n; }
+
+  inline color color::operator * (const float i) const
+  {
+    float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
+    float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
+    float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
+    return color(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+  }
+
+  inline color color::operator / (const float i) const
+  {
+    float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
+    float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
+    float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
+    return color(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+  }
+
+  inline color& color::operator *=(const float i)
+  {
+    this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
+    this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
+    this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
+    return *this;
+  }
+
+  inline color& color::operator /=(const float i)
+  {
+    this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
+    this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
+    this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
+    return *this;
+  }
+
+  inline color color::operator + (const color& p) const
+  {
+    uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+    uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+    uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+    return color(nR, nG, nB, a);
+  }
+
+  inline color color::operator - (const color& p) const
+  {
+    uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+    uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+    uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+    return color(nR, nG, nB, a);
+  }
+
+  inline color& color::operator += (const color& p)
+  {
+    this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+    this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+    this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+    return *this;
+  }
+
+  inline color& color::operator -= (const color& p) // Thanks Au Lit
+  {
+    this->r = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+    this->g = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+    this->b = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+    return *this;
+  }
+
+  inline color color::operator * (const color& p) const
+  {
+    uint8_t nR = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+    uint8_t nG = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+    uint8_t nB = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+    uint8_t nA = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
+    return color(nR, nG, nB, nA);
+  }
+
+  inline color& color::operator *=(const color& p)
+  {
+    this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+    this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+    this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+    this->a = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
+    return *this;
+  }
+
+  inline color color::inv() const
+  {
+    uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
+    uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
+    uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
+    return color(nR, nG, nB, a);
+  }
+
+  inline color ColorF(float red, float green, float blue, float alpha)
+  { return color(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f)); }
+
+  inline color ColorLerp(const color& p1, const color& p2, float t)
+  { return (p2 * t) + p1 * (1.0f - t); }
+
 
 ///Represents a pysical button state (keyboard, mouse, etc) that can be pressed, released or held (taken from olcPixelGameEngine.h)
 struct hwbutton
@@ -75,10 +222,12 @@ public:
   virtual hwbutton GetKey(int key) = 0;
 
   // Drawing methods
-  virtual void DrawLine(float x1, float y1, float x2, float y2, color color) = 0;
-  virtual void DrawTriangle(const vec3d& p1, const vec3d& p2, const vec3d& p3, color color) = 0;
+  virtual void DrawLine(int x1, int y1, int x2, int y2, color color) = 0;
+  virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) = 0;
   virtual void Clear(color color) = 0;
   virtual void FillRect(int x, int y, int w, int h, color color) = 0;
+  virtual void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) = 0;
+  virtual void FillCircle(int x, int y, int radius, color color) = 0;
 
   // Font-related methods
   virtual void LoadFont(const std::string& fontName, const font* font) = 0;
