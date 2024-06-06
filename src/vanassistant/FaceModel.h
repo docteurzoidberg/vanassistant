@@ -3,12 +3,12 @@
 #include "../../include/IDrzEngine.h"
 
 #include "Model.h"
-#include "Animated3DObject.h"
+#include "AnimatedObject.h"
 #include <cmath>
 #include <iostream>
 
 //Mouth part animations
-class MouthPart : public Animated3DObject {
+class MouthPart : public AnimatedObject {
   public:
 
     //Animation keys
@@ -17,7 +17,7 @@ class MouthPart : public Animated3DObject {
       CLOSE
     };
 
-    MouthPart(IDrzEngine* engine, Model* model) : Animated3DObject(engine, model) { 
+    MouthPart(IDrzEngine* engine, Model* model) : AnimatedObject(engine, model) { 
       //associate the vertices of the mouth with the corresponding triangles + point indexes
       // clang-format off
       tps = {
@@ -59,9 +59,8 @@ class MouthPart : public Animated3DObject {
           {0.090822,-0.6476,0.691661},        //=v[43]
         },
       }; 
+      SetupAnimatedObject();
       // clang-format on
-      //loads tps into refs to the actual vertices
-      load(); 
     }
 };
  
@@ -242,7 +241,7 @@ class FaceModel : public Model {
     FaceModel(IDrzEngine* engine) : engine(engine), Model(&verts, &faces)  {
 
       //Load model tri and faces
-      LoadModel();
+      SetupModel();
 
       //Animated parts
       mouth = new MouthPart(engine, this);

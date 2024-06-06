@@ -12,11 +12,11 @@ class Model {
     
     }
     
-    void LoadModel() {
+    void SetupModel() {
       std::cout << "Vert count: " << verts->size() << std::endl;
       std::cout << "Face count: " << faces->size() << std::endl;
       std::cout << "Loading model" << std::endl;
-      LoadTriRefs();
+      _loadTriRefs();
       std::cout << "Model loaded with " << tris.size() << " triangles" << std::endl;
     }
 
@@ -25,7 +25,7 @@ class Model {
     std::vector<triangleref> tris;
 
   private:
-    void LoadTriRefs() {
+    void _loadTriRefs() {
       for (int i=0; i<faces->size(); i++) {
         face* f = &faces->at(i);
         vec3d* p0 = &verts->at(f->f[0] - 1);

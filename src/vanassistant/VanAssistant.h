@@ -54,10 +54,11 @@ public:
   * @param elapsedTime time since the last frame in seconds
   */
   void Update(float elapsedTime) {
-    scene->Update(elapsedTime);
+   
     //textAnimator->Update();
     //starfield->Update(elapsedTime);
-    //faceModel->Update(elapsedTime);
+    faceModel->Update(elapsedTime); 
+    scene->Update(elapsedTime);
   }
 
   /**
