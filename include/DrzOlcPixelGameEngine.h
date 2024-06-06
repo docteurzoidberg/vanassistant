@@ -4,19 +4,24 @@
 #include "olcPGEX_Font.h"
 
 #include "IDrzEngine.h"
+#include <chrono>
 #include <cstdint>
 
 class DrzOlcPixelGameEngine : public olc::PixelGameEngine, public IDrzEngine {
 
 public:
-  DrzOlcPixelGameEngine(olc::PixelGameEngine* p) : pge(p) {}
-
-
-  uint32_t Now() override {
-    //return time in milliseconds
-    return static_cast <uint32_t> (GetElapsedTime() * 1000);
+  DrzOlcPixelGameEngine(olc::PixelGameEngine* p) : pge(p) { 
+    startedAt = std::chrono::system_clock::now();
   }
-  
+
+  long Now() override {
+    auto elapsed = std::chrono::system_clock::now() - startedAt;
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+    return millis.count();
+  }
+   
+  /* Get */
+
   float GetRandomFloat() override {
     //return random float between 0 and 1
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -25,8 +30,53 @@ public:
   int GetScreenWidth() override {
     return ScreenWidth();
   }
+
   int GetScreenHeight() override {
     return ScreenHeight();
+  }
+
+  uint32_t GetFPS() override {
+    return pge->GetFPS();
+  }
+
+  hwbutton GetKey(uint8_t key) override {
+    olc::HWButton olcbutton = pge->GetKey(static_cast<olc::Key>(key));
+    return { 
+      olcbutton.bPressed, 
+      olcbutton.bReleased, 
+      olcbutton.bHeld 
+    };
+  }
+
+  /* Set */
+
+  void SetFont(const std::string& fontName) override {
+    if (fonts.find(fontName) != fonts.end()) {
+      currentFont = fonts[fontName];
+    }
+  }
+
+  void SetFont(const font* f) override {
+    currentFont = f;
+  }
+
+  void SetCursorPos(uint16_t x, uint16_t y) override {
+    cursorX = x;
+    cursorY = y;
+  }
+
+  void SetWrap(bool w) override {
+    wrap = w;
+  }
+
+  /* Drawing methods */
+
+  void Clear(color color) override {
+    pge->Clear(ColorToPixel(color));
+  }
+
+  void DrawPixel(int x, int y, color color) override {
+    pge->Draw(x, y, ColorToPixel(color));
   }
 
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
@@ -52,77 +102,34 @@ public:
     pge->FillCircle(x, y, radius, ColorToPixel(color));
   }
 
-  void Clear(color color) override {
-    pge->Clear(ColorToPixel(color));
-  }
+  /* Text */
 
-  void LoadFont(const std::string& fontName, const font* font) override {
+  const font* LoadFont(const std::string& fontName, const font* font) override {
     fonts[fontName] = font;
-  }
-
-  void SetFont(const std::string& fontName) override {
-    if (fonts.find(fontName) != fonts.end()) {
-      currentFont = fonts[fontName];
-    }
+    return font;
   }
 
   void DrawText(const std::string& text, float x, float y, color color) override {
     if(!currentFont) return;
     write(text);
-    /*
-    if (currentFont) {
-      float cursor_x = x;
-      float cursor_y = y;
-      for (char c : text) {
-        if (c >= currentFont->first && c <= currentFont->last) {
-          fontglyph* glyph = currentFont->glyph + (c - currentFont->first);
-          uint8_t* bitmap = currentFont->bitmap + glyph->bitmapOffset;
-          for (uint8_t yy = 0; yy < glyph->height; yy++) {
-            for (uint8_t xx = 0; xx < glyph->width; xx++) {
-              if (bitmap[yy * ((glyph->width + 7) / 8) + xx / 8] & (1 << (xx % 8))) {
-                pge->Draw(cursor_x + glyph->xOffset + xx, cursor_y + glyph->yOffset + yy, ColorToPixel(color));
-              }
-            }
-          }
-          cursor_x += glyph->xAdvance;
-        }
-      }
-    }
-    */
-  }
-
-  void SetCursorPos(uint16_t x, uint16_t y) override {
-    cursorX = x;
-    cursorY = y;
-  }
-
-  olc::Pixel ColorToPixel(color color) {
-    return olc::Pixel(color.r, color.g, color.b, color.a);
-  }
-
-  void ReadKeys() override {
-    //TODO
-  }
-
-  hwbutton GetKey(int key) override {
-    olc::HWButton olcbutton = pge->GetKey(static_cast<olc::Key>(key));
-    return { 
-      olcbutton.bPressed, 
-      olcbutton.bReleased, 
-      olcbutton.bHeld 
-    };
   }
 
 private:
   olc::PixelGameEngine* pge;
   std::map<std::string, const font*> fonts;
   const font* currentFont = nullptr;
-
-  uint16_t cursorX=0, cursorY=0;
+  uint16_t cursorX=0;
+  uint16_t cursorY=0;
   bool wrap = false;
   color textcolor = WHITE;
   color textbgcolor = BLACK;
 
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> startedAt;
+  
+
+  olc::Pixel ColorToPixel(color color) {
+    return olc::Pixel(color.r, color.g, color.b, color.a);
+  }
 
   void DrawChar(uint16_t x, uint16_t y, unsigned char c, color fg, color bg) {
     c -= (unsigned char) currentFont->first;
@@ -184,5 +191,4 @@ private:
   size_t write(const std::string &s) {
     return write(s.c_str(), s.length());
   }
-
 };

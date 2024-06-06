@@ -2,6 +2,7 @@
 
 //Base class for model animated parts
 
+#include <iostream>
 #include <queue>
 #include <chrono>
 
@@ -30,17 +31,12 @@ class Animated3DObject {
         _updateAnimation();
       } else {
         if (!animQueue.empty()) {
-          auto kd = animQueue.front();
-          currentAnimationIndex = kd.index;
-          currentAnimationDuration = kd.duration;
-          //TODO
-          //std::cout << "Starting animation " << currentAnimationIndex << " at speed " << currentAnimationDuration << std::endl;
-          animQueue.pop();
-          isAnimating = true;
-          animationStartTime = engine->Now();
+
+          _startAnimation();
         } 
       }
     }
+    
     //associate the vertices with the corresponding triangles + point indexes
     std::vector<trianglepointindex> tps;
 
@@ -52,8 +48,6 @@ class Animated3DObject {
 
     void load() {
       for (auto b : tps) {
-        //TODO
-        //std::cout << "triIndex: " << b.triIndex << " pointIndex: " << b.pointIndex << std::endl;
         verts.push_back(model->tris[b.triIndex].p[b.pointIndex]);
       }
     }
@@ -62,42 +56,64 @@ class Animated3DObject {
     IDrzEngine* engine;
     Model* model;
     bool isAnimating;
-    uint16_t currentAnimationIndex;
-    float currentAnimationDuration; //in seconds
+    uint16_t currentAnimationIndex;     //index of the current animation keyframe
+    float currentAnimationDuration;     //in seconds
+    double currentAnimationStartTime;   //in ms
+
     std::queue<animkeyduration> animQueue;
-    uint32_t animationStartTime; //in ms
+
+    // In your class, add a vector to store the initial positions of vertices
+    std::vector<vec3d> lastVertPositions;
 
     //move the vertices according toward current animation keyframe using speed as a factor
     void _updateAnimation() {
-      
+
       auto now = engine->Now();
- 
-      float elapsedTime = (now - animationStartTime)/1000.0f;
-
-      float t = elapsedTime/(currentAnimationDuration*1000);
-
+      double elapsedTime = (now - currentAnimationStartTime)/1000.0f; //in seconds
+      double t = elapsedTime/currentAnimationDuration;
+      
+      //if animation reached duration, stop it
       if (t >= 1.0f) {
         t = 1.0f;
         isAnimating = false;
       }
+
+      //move vertices
       for (size_t i = 0; i < verts.size(); ++i) {
         vec3d* v = verts[i];
-        const vec3d& start = *v;
-        const vec3d& target = kf_points[currentAnimationIndex][i];
-        v->x = start.x + (target.x - start.x) * t;
-        v->y = start.y + (target.y - start.y) * t;
-        v->z = start.z + (target.z - start.z) * t;
-      }
-       if (!isAnimating) {
-        //TODO: add debug message
-        //std::cout << "Animation " << currentAnimationIndex << " finished" << std::endl;
-
-        // Ensure final position is exactly the target position
-        for (size_t i = 0; i < verts.size(); ++i) {
-          vec3d* v = verts[i];
+        if(isAnimating) {
+          const vec3d initial = lastVertPositions[i];
+          const vec3d* target = &kf_points[currentAnimationIndex][i];
+          // Linear interpolation based on t
+          v->x = (1.0f - t) * initial.x + t * target->x;
+          v->y = (1.0f - t) * initial.y + t * target->y;
+          v->z = (1.0f - t) * initial.z + t * target->z;
+        } else {
+          // Ensure final position is exactly the target position
           const vec3d& target = kf_points[currentAnimationIndex][i];
           *v = target;
         }
       }
     }
+
+    void _startAnimation() {
+
+      //pop the next animation from the queue
+      animkeyduration akd = animQueue.front();
+      animQueue.pop();
+
+      // Set the current animation index and duration
+      currentAnimationIndex = akd.index;
+      currentAnimationDuration = akd.duration;
+      currentAnimationStartTime = engine->Now();
+
+      // Save the initial positions of vertices
+      lastVertPositions.clear();
+      for (vec3d* v : verts) {
+        lastVertPositions.push_back(*v);
+      }
+
+      isAnimating = true;
+    }
+    
 };

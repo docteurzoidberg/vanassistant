@@ -6,12 +6,13 @@
 
 class TextAnimator {
 public:
-  TextAnimator(IDrzEngine* engine, float typeSpeed, float pauseTime, float cursorBlinkRate)
+  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate)
     : engine(engine), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate),
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true) {
 
     //Todo: load font
     //font = std::make_unique<olc::Font>( "./sprites/test3d/font_monocode_14.png");
+    this->f = f;
 
     lastUpdate = engine->Now();
     lastCursorBlink = engine->Now();
@@ -37,7 +38,10 @@ public:
   void DrawText(int x, int y, color color = WHITE) {
     if (displayText) {
       std::string toDraw = currentText.substr(0, currentIndex);
-		  //TODO
+		  //TODO 
+      engine->SetCursorPos(0, 0);
+      engine->SetFont(f); //TODO: set font
+      engine->DrawText(toDraw, x, y, WHITE);
       //font->DrawStringPropDecal( {(float)x,(float)y}, toDraw, olc::WHITE, {1.0f, 1.0f} );
       //pge->DrawString(x, y, toDraw, color);
       DrawCursor(x, y, toDraw, color);
@@ -46,6 +50,7 @@ public:
 
 private:
   IDrzEngine* engine;
+  const font* f;
   std::queue<std::string> textQueue;
   std::string currentText;
   size_t currentIndex;

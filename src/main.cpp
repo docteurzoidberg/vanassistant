@@ -16,7 +16,7 @@ public:
 	}
 
   bool OnUserUpdate(float fElapsedTime) override {
-    ReadInputs();
+    ReadInputs(fElapsedTime);
     vanassistant->Update(fElapsedTime);
     vanassistant->Render();
     return true;
@@ -25,7 +25,7 @@ public:
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
   
-  void ReadInputs() {
+  void ReadInputs(float fElapsedTime) {
         
     // ESC: exit the app
     if(GetKey(olc::Key::ESCAPE).bPressed) {
@@ -43,14 +43,17 @@ private:
     }
 
     // UP: show next triangle
-    if(GetKey(olc::Key::UP).bPressed) {
-      vanassistant->DbgNextTriangle();
-    }
+    //if(GetKey(olc::Key::UP).bPressed) {
+    //  vanassistant->DbgNextTriangle();
+    //}
 
     // DOWN: show previous triangle
-    if(GetKey(olc::Key::DOWN).bPressed) {
-      vanassistant->DbgPrevTriangle();
-    }
+    //if(GetKey(olc::Key::DOWN).bPressed) {
+    //  vanassistant->DbgPrevTriangle();
+    //}
+
+    
+
   }
 };
 

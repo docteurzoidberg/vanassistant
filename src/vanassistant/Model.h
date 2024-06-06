@@ -24,16 +24,16 @@ class Model {
     std::vector<face>* faces;
     std::vector<triangleref> tris;
 
-    private:
-      void LoadTriRefs() {
-        for (int i=0; i<faces->size(); i++) {
-          face* f = &faces->at(i);
-          vec3d* p0 = &verts->at(f->f[0] - 1);
-          vec3d* p1 = &verts->at(f->f[1] - 1);
-          vec3d* p2 = &verts->at(f->f[2] - 1);
-          tris.push_back({
-            p0, p1, p2
-          });
-        } 
-      }
+  private:
+    void LoadTriRefs() {
+      for (int i=0; i<faces->size(); i++) {
+        face* f = &faces->at(i);
+        vec3d* p0 = &verts->at(f->f[0] - 1);
+        vec3d* p1 = &verts->at(f->f[1] - 1);
+        vec3d* p2 = &verts->at(f->f[2] - 1);
+        tris.push_back({
+          p0, p1, p2
+        });
+      } 
+    }
 };
