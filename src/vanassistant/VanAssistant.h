@@ -25,7 +25,7 @@
 //#include "FaceModel.h"
 #include "ScoutModel.h"
 
-#include "../sam/ESP8266SAM.h"
+#include "../sam/mysam.h"
 
 class VanAssistant {
 
@@ -103,7 +103,7 @@ public:
     auto textsize = engine->GetTextBounds(text, 0, 20);
     std::cout << "Text size: w=" << textsize.w << " h=" << textsize.h << std::endl;
 
-    ESP8266SAM *sam = new ESP8266SAM;
+    MySam *sam = new MySam();
     if(!sam->Init()) {
       std::cout << "Failed to initialize SAM" << std::endl;
     }
