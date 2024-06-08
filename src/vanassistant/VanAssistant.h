@@ -107,7 +107,8 @@ public:
     if(!sam->Init()) {
       std::cout << "Failed to initialize SAM" << std::endl;
     }
-    //sam->Say("Can you hear me now?");
+    std::string text1 = "HELLO";
+    sam->Say(text1);
     //sam->Say("Can you hear me now?");
   }
   
