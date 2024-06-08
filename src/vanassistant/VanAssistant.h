@@ -25,7 +25,7 @@
 //#include "FaceModel.h"
 #include "ScoutModel.h"
 
-#include "../sam/mysam.h"
+#include "MySam.h"
 
 class VanAssistant {
 
@@ -107,9 +107,16 @@ public:
     if(!sam->Init()) {
       std::cout << "Failed to initialize SAM" << std::endl;
     }
-    std::string text1 = "HELLO";
+    std::string text1 = "Hello, I am your assistant.";
+    std::string text2 = "I am here to help you.";
+    std::string text3 = "Shall we play a game ?";
     sam->Say(text1);
-    //sam->Say("Can you hear me now?");
+    
+    //Drzoid: only first text is spoken, the rest are ignored...
+    //+thread is blocked we sam speaks
+
+    //sam->Say(text2);
+    //sam->Say(text3);
   }
   
   /**
@@ -141,8 +148,6 @@ public:
   void Render() {
 
     engine->Clear(BLACK);
-
-    
      
     //DrawTitle();
 
