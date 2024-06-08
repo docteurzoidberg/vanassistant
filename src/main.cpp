@@ -42,6 +42,11 @@ private:
       vanassistant->ToggleFps();
     }
 
+    //R: toggle render mode
+    if(GetKey(olc::Key::R).bPressed) {
+      vanassistant->ToggleRenderMode();
+    }
+
     // UP: show next triangle
     //if(GetKey(olc::Key::UP).bPressed) {
     //  vanassistant->DbgNextTriangle();
@@ -51,8 +56,6 @@ private:
     //if(GetKey(olc::Key::DOWN).bPressed) {
     //  vanassistant->DbgPrevTriangle();
     //}
-
-    
 
   }
 };

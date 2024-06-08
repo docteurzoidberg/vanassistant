@@ -28,6 +28,23 @@ public:
 
   void Render() {
     //TODO
+    int pixelX;
+    int pixelY;
+    int pixelRadius;
+      for(auto &star : stars){
+      star.z-= 0.1f;
+      if(star.z <= 0){
+        star.z = engine->GetScreenWidth();
+      }
+      pixelX = (star.x - centerX) * (focalLength / star.z);
+      pixelX += centerX;
+      pixelY = (star.y - centerY) * (focalLength / star.z);
+      pixelY += centerY;
+      pixelRadius = 1 * (focalLength / star.z);
+      uint8_t brightness = star.o * 255;
+      auto pixelColor = color(brightness,brightness,brightness);
+      engine->FillRect(pixelX, pixelY, pixelRadius, pixelRadius, pixelColor);
+    }
   }
   
   std::vector<star> stars;

@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <string>
 
+struct rect {
+	int x, y, w, h;
+};
+
 struct vec2d {
   float x, y;
 };
@@ -254,6 +258,8 @@ public:
 
   virtual int GetScreenWidth() = 0; 
   virtual int GetScreenHeight() = 0;  
+
+	virtual rect GetTextBounds(const std::string& text, int x, int y) = 0;
 
   //retreive a random float between 0 and 1
   virtual float GetRandomFloat() = 0;

@@ -1,6 +1,7 @@
 {
   "env": {
     "myIncludePath": [
+      "/usr/include/SDL",
       "${workspaceFolder}/include",
       "${workspaceFolder}/src"
     ],

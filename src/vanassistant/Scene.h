@@ -7,6 +7,11 @@
 
 #include "Model.h"
 
+enum RenderMode {
+  RENDER_WIREFRAME,
+  RENDER_SOLID
+};
+
 class Scene {
 
   public:
@@ -19,7 +24,9 @@ class Scene {
     float fNear = 0.1f;
     float fFar = 1000.0f;
     float fAspectRatio = 1.0f;
-    float fTheta =  2* 3.14159f;
+    //float fTheta =  2* 3.14159f;
+
+    RenderMode renderMode = RENDER_SOLID;
 
     Scene(IDrzEngine* engine) : engine(engine) {
       
@@ -52,39 +59,27 @@ class Scene {
 
     void Update(float fElapsedTime) {
 
-      mat4x4 matRotZ, matRotX;
-      
-      // Rotation Z
-      matRotZ.m[0][0] = cosf(fTheta);
-      matRotZ.m[0][1] = sinf(fTheta);
-      matRotZ.m[1][0] = -sinf(fTheta);
-      matRotZ.m[1][1] = cosf(fTheta);
-      matRotZ.m[2][2] = 1;
-      matRotZ.m[3][3] = 1;
-
-      // Rotation X
-      matRotX.m[0][0] = 1;
-      matRotX.m[1][1] = cosf(fTheta * 0.5f);
-      matRotX.m[1][2] = sinf(fTheta * 0.5f);
-      matRotX.m[2][1] = -sinf(fTheta * 0.5f);
-      matRotX.m[2][2] = cosf(fTheta * 0.5f);
-
       vecTrianglesToRaster.clear();
 
       for (auto model : models) {
+
+        //Apply model rotations
+        model->Update(fElapsedTime);
+
+
         for (auto tri : model->tris) {
 
           trianglec triProjected, triTranslated, triRotatedZ, triRotatedZX;
 
           // Rotate in Z-Axis
-          MultiplyMatrixVector(*tri.p[0], triRotatedZ.p[0], matRotZ);
-          MultiplyMatrixVector(*tri.p[1], triRotatedZ.p[1], matRotZ);
-          MultiplyMatrixVector(*tri.p[2], triRotatedZ.p[2], matRotZ);
+          MultiplyMatrixVector(*tri.p[0], triRotatedZ.p[0], model->matRotZ);
+          MultiplyMatrixVector(*tri.p[1], triRotatedZ.p[1], model->matRotZ);
+          MultiplyMatrixVector(*tri.p[2], triRotatedZ.p[2], model->matRotZ);
 
           // Rotate in X-Axis
-          MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-          MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-          MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+          MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], model->matRotX);
+          MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], model->matRotX);
+          MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], model->matRotX);
 
 
           // Offset into the screen
@@ -158,7 +153,7 @@ class Scene {
         return z1 > z2;
       });
 
-      std::cout << "Scene updated, triangles: " << vecTrianglesToRaster.size() << std::endl;
+      //std::cout << "Scene updated, triangles: " << vecTrianglesToRaster.size() << std::endl;
       //std::cout << "Yaw: " << fYaw << " Camera: {" << vCamera.x << ", " << vCamera.y << ", " << vCamera.z << "} LookDir: {" << vLookDir.x << ", " << vLookDir.y << ", " << vLookDir.z << "}" << std::endl;
     }
 
@@ -166,7 +161,13 @@ class Scene {
      	// Loop through all transformed, viewed, projected, and sorted triangles
       for (auto &t : vecTrianglesToRaster) {
         // Draw the transformed, viewed, clipped, projected, sorted, clipped triangles
-        engine->FillTriangle({t.p[0].x, t.p[0].y}, {t.p[1].x, t.p[1].y}, {t.p[2].x, t.p[2].y}, t.col);
+        if (renderMode == RENDER_WIREFRAME) {
+          engine->DrawLine(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.col);
+          engine->DrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.col);
+          engine->DrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, t.col);
+        } else {
+          engine->FillTriangle({t.p[0].x, t.p[0].y}, {t.p[1].x, t.p[1].y}, {t.p[2].x, t.p[2].y}, t.col);
+        }
       }
     }
 
@@ -177,6 +178,14 @@ class Scene {
     /// Toggle debug mode
     void ToggleDebugTriangles() {
       bDebugTriangles = !bDebugTriangles;
+    }
+
+    void ToggleRenderMode() {
+      if (renderMode == RENDER_SOLID) {
+        renderMode = RENDER_WIREFRAME;
+      } else {
+        renderMode = RENDER_SOLID;
+      }
     }
 
     /// Show next triangle (Debug)

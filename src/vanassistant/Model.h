@@ -2,6 +2,7 @@
 
 #include "../../include/IDrzEngine.h"
 
+#include <cstdint>
 #include <iostream>
 #include <vector>
 
@@ -11,7 +12,9 @@ class Model {
     Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){
     
     }
-    
+
+    virtual void Update(float fElapsedTime) = 0;
+
     void SetupModel() {
       std::cout << "Vert count: " << verts->size() << std::endl;
       std::cout << "Face count: " << faces->size() << std::endl;
@@ -24,6 +27,9 @@ class Model {
     std::vector<face>* faces;
     std::vector<triangleref> tris;
 
+    //std::cout << "Model update" << std::endl;
+    mat4x4 matRotZ, matRotX; 
+      
   private:
     void _loadTriRefs() {
       for (int i=0; i<faces->size(); i++) {

@@ -1,16 +1,23 @@
 CXX      := -c++
+CC			 := -gcc
 CXXFLAGS := -std=c++17
-LDFLAGS  := -lX11 -lGL -lpthread -lpng -lstdc++fs
+CCFLAGS  := -std=c99
+LDFLAGS  := -lX11 -lGL -lpthread -lpng -lstdc++fs -L/usr/lib/x86_64-linux-gnu -lSDL
 OBJ_DIR  := ./obj
 APP_DIR  := ./bin
 TARGET   := vanassistant
-INCLUDE  := -Iinclude/
+INCLUDE  := -Iinclude/ -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 SRC      :=                      \
    $(wildcard src/*.cpp)         \
 
+CSRC      :=                      \
+   $(wildcard src/sam/*.c)         \
+
+COBJECTS  := $(CSRC:%.c=$(OBJ_DIR)/sam/%.o)
 OBJECTS  := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
-         := $(OBJECTS:.o=.d)
+         := $(OBJECTS:.o=.d) \
+				 	$(COBJECTS:.o=.d)
 
 all: build $(APP_DIR)/$(TARGET)
 
@@ -18,7 +25,11 @@ $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -MMD -o $@
 
-$(APP_DIR)/$(TARGET): $(OBJECTS)
+$(OBJ_DIR)/sam/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -MMD -o $@
+
+$(APP_DIR)/$(TARGET): $(OBJECTS) $(COBJECTS)
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $(APP_DIR)/$(TARGET) $^ $(LDFLAGS)
 

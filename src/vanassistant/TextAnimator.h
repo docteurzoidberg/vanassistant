@@ -39,13 +39,16 @@ public:
     if (displayText) {
       std::string toDraw = currentText.substr(0, currentIndex);
 		  //TODO 
-      engine->SetCursorPos(0, 0);
       engine->SetFont(f); //TODO: set font
       engine->DrawText(toDraw, x, y, WHITE);
       //font->DrawStringPropDecal( {(float)x,(float)y}, toDraw, olc::WHITE, {1.0f, 1.0f} );
       //pge->DrawString(x, y, toDraw, color);
       DrawCursor(x, y, toDraw, color);
     }
+  }
+
+  const font* GetFont() {
+    return f;
   }
 
 private:
@@ -74,7 +77,7 @@ private:
   }
 
   void UpdateTyping(uint32_t now) {
-    if (now - lastUpdate >= typeSpeed) {
+    if (now - lastUpdate >= typeSpeed*1000) {
       currentIndex++;
       lastUpdate = now;
       if (currentIndex > currentText.size()) {
@@ -88,20 +91,20 @@ private:
   }
 
   void HandlePause(const uint32_t now) {
-    if (firstMessage || now - lastUpdate >= pauseTime) {
+    if (firstMessage || now - lastUpdate >= pauseTime*1000) {
       if (!textQueue.empty()) {
         StartTyping();
         firstMessage = false;
       }
     }
 
-    if (textQueue.empty() && now - lastPauseStart >= pauseTime) {
+    if (textQueue.empty() && now - lastPauseStart >= pauseTime*1000) {
       displayText = false;
     }
   }
 
   void UpdateCursorBlink(uint32_t now) {
-    if (now - lastCursorBlink >= cursorBlinkRate) {
+    if (now - lastCursorBlink >= cursorBlinkRate*1000) {
       cursorVisible = !cursorVisible;
       lastCursorBlink = now;
     }
@@ -109,8 +112,17 @@ private:
 
   void DrawCursor(int x, int y, const std::string& toDraw, color color) {
     if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
-      int cursorX = x + toDraw.length() * 8; // Assuming each character is 8 pixels wide
-      engine->FillRect(cursorX, y, 8, 14, color); // Draw the cursor as an 8x8 rectangle
+
+      engine->SetFont(f);
+      auto textSize = engine->GetTextBounds(toDraw,x,y);
+
+      auto cursorWidth = 8;
+      auto cursorHeight = f->yAdvance - 4;
+
+      int cursorX = x + textSize.w+2;
+      int cursorY = y - f->yAdvance +6;
+     
+      engine->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor as an 8x8 rectangle
     }
   }
 };
