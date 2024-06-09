@@ -6,8 +6,8 @@
 
 class TextAnimator {
 public:
-  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate, bool fillBg = true)
-    : engine(engine), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate),
+  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)
+    : engine(engine), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), col(col), xOffset(xOffset), yOffset(yOffset),
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
     this->f = f;
@@ -32,18 +32,18 @@ public:
     UpdateCursorBlink(now);
   }
 
-  void Render(int x, int y, color color = WHITE) {
+  void Render() {
     if (displayText) {
       //draw black rectangle behind text
       if(fillBg) {
-        engine->FillRect(0, y-18, engine->GetScreenWidth() , 24, BLACK);
+        engine->FillRect(0, yOffset-18, engine->GetScreenWidth() , 24, BLACK);
       }
       std::string toDraw = currentText.substr(0, currentIndex);
 		  //TODO 
       engine->SetFont(f); //TODO: set font
-      engine->DrawText(toDraw, x, y-2, WHITE);
+      engine->DrawText(toDraw, xOffset, yOffset-2, WHITE);
     
-      DrawCursor(x, y, toDraw, color);
+      DrawCursor(xOffset, yOffset, toDraw, col);
     }
   }
 
@@ -68,6 +68,9 @@ private:
   bool firstMessage;
   bool displayText;
   bool fillBg = true;
+  int xOffset;
+  int yOffset;
+  color col;
 
   void StartTyping() {
     currentText = textQueue.front();

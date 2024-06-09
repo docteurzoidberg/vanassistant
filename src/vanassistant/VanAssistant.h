@@ -71,9 +71,9 @@ public:
       0.05f, 
       0.5f,
       2,
-      34,
+      4,
       engine->GetScreenWidth(), 
-      engine->GetScreenHeight(),
+      engine->GetScreenHeight()-30,
       5,
       8
     );
@@ -93,7 +93,7 @@ public:
     verticalTextAnimator->QueueText("Line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8");
     verticalTextAnimator->QueueText("Line9\nline10\nline11\nline12\nline13\nline14\nline15\nline16");
 
-    textAnimator = new TextAnimator(engine, solidmono8, 0.1f, 1.5f, 0.5f);
+    textAnimator = new TextAnimator(engine, solidmono8, 0.1f, 1.5f, 0.5f, 4, engine->GetScreenHeight() - 6);
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
     textAnimator->QueueText("Hello, I am your assistant.");
@@ -154,7 +154,6 @@ public:
   */
   void Render() {
 
-    auto animatedTextOffset = engine->GetScreenHeight()-4;
 
     engine->Clear(BLACK);
     
@@ -162,7 +161,7 @@ public:
     starfield->Render();
     road->Render(); 
     scene->Render();
-    textAnimator->Render(2,animatedTextOffset);
+    textAnimator->Render();
          
     //faceModel->Render();
     DrawTitle();
@@ -223,9 +222,9 @@ private:
   bool bShowDebug = false;
 
   void DrawTitle() {
-    engine->FillRect(0,0, engine->GetScreenWidth() , 30, BLACK);
-    engine->SetFont("comp18");
-    engine->DrawText("Van Assistant",4, 20, WHITE);
+    engine->FillRect(0,0, engine->GetScreenWidth() , 4, BLACK);
+    //engine->SetFont("comp18");
+    //engine->DrawText("Van Assistant",4, 20, WHITE);
   }
 
   void DrawFPS(uint32_t fps) {
