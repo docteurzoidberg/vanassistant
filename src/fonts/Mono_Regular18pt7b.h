@@ -4,7 +4,7 @@
 
 #include "../../include/IDrzEngine.h"
 
-const uint8_t Monofont18pt7bBitmaps[] = {
+const uint8_t Mono_Regular18pt7bBitmaps[] = {
   0x00, 0xFF, 0xF7, 0xDF, 0x7D, 0xE7, 0x9E, 0x79, 0xE7, 0x9E, 0x79, 0xE7,
   0x9E, 0x79, 0xE0, 0x00, 0x01, 0xE7, 0x9E, 0x78, 0xF8, 0x7B, 0xE3, 0xFF,
   0x8F, 0xFE, 0x3F, 0xF8, 0xFC, 0xE0, 0x63, 0x81, 0x8C, 0x0E, 0x30, 0x39,
@@ -355,7 +355,7 @@ const uint8_t Monofont18pt7bBitmaps[] = {
   0x3F, 0x83, 0xE0, 0x7F, 0x7E, 0x00, 0xFF, 0xE0, 0x03, 0xFE, 0x00, 0x07,
   0xC0, 0x00, 0x08, 0x00 };
 
-const fontglyph Monofont18pt7bGlyphs[] = {
+const fontglyph Mono_Regular18pt7bGlyphs[] = {
   {     0,   1,   1,  14,    0,    0 },   // 0x20 ' '
   {     1,   6,  25,  16,    3,  -24 },   // 0x21 '!'
   {    20,  14,  10,  18,    0,  -24 },   // 0x22 '"'
@@ -452,9 +452,9 @@ const fontglyph Monofont18pt7bGlyphs[] = {
   {  4089,  13,  39,  17,    0,  -31 },   // 0x7D '}'
   {  4153,  21,  10,  21,    0,  -16 } }; // 0x7E '~'
 
-const font Monofont18pt7b = {
-  (uint8_t  *)Monofont18pt7bBitmaps,
-  (fontglyph *)Monofont18pt7bGlyphs,
+const font Mono_Regular18pt7b = {
+  (uint8_t  *)Mono_Regular18pt7bBitmaps,
+  (fontglyph *)Mono_Regular18pt7bGlyphs,
   0x20, 0x7E, 41 };
 
 // Approx. 4852 bytes

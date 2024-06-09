@@ -32,7 +32,7 @@ public:
     UpdateCursorBlink(now);
   }
 
-  void DrawText(int x, int y, color color = WHITE) {
+  void Render(int x, int y, color color = WHITE) {
     if (displayText) {
       //draw black rectangle behind text
       if(fillBg) {

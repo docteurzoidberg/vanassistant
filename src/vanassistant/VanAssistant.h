@@ -8,9 +8,13 @@
 #define NUM_STARS 750
 #define GRID_SIZE 12
 
-#include "../fonts/Monofont18pt7b.h"
 #include "../fonts/Computerfont18pt7b.h"
-#include "../fonts/Monofont8pt7b.h"
+
+#include "../fonts/Mono_Regular18pt7b.h"
+#include "../fonts/Mono_Regular14pt7b.h"
+#include "../fonts/Mono_Regular12pt7b.h"
+#include "../fonts/Mono_Regular8pt7b.h"
+
 #include "../fonts/Solid_Mono8pt7b.h"
 #include "../fonts/Solid_Mono6pt7b.h"
 #include "../fonts/Solid_Mono4pt7b.h"
@@ -41,11 +45,13 @@ public:
   void Setup() { 
     //Load fonts
     const font* comp18 = engine->LoadFont("comp18", &Computerfont18pt7b);
-    const font* mono18 = engine->LoadFont("mono18", &Monofont18pt7b);
-    const font* mono8 = engine->LoadFont("mono8", &Monofont8pt7b);
-    const font* solidmono8 = engine->LoadFont("mono8", &Solid_Mono8pt7b);
-    const font* solidmono6 = engine->LoadFont("mono6", &Solid_Mono6pt7b);
-    const font* solidmono4 = engine->LoadFont("mono4", &Solid_Mono4pt7b);
+    const font* mono18 = engine->LoadFont("mono18", &Mono_Regular18pt7b);
+    const font* mono14 = engine->LoadFont("mono14", &Mono_Regular14pt7b);
+    const font* mono12 = engine->LoadFont("mono12", &Mono_Regular12pt7b);
+    const font* mono8 = engine->LoadFont("mono8", &Mono_Regular8pt7b);
+    const font* solidmono8 = engine->LoadFont("solidmono8", &Solid_Mono8pt7b);
+    const font* solidmono6 = engine->LoadFont("solidmono6", &Solid_Mono6pt7b);
+    const font* solidmono4 = engine->LoadFont("solidmono4", &Solid_Mono4pt7b);
 
     // Setup
     asmText = new AsmText(engine);
@@ -64,8 +70,8 @@ public:
       0.01f, 
       0.05f, 
       0.5f,
-      0,
-      0,
+      2,
+      34,
       engine->GetScreenWidth(), 
       engine->GetScreenHeight(),
       5,
@@ -110,7 +116,7 @@ public:
     std::string text1 = "Hello, I am your assistant.";
     std::string text2 = "I am here to help you.";
     std::string text3 = "Shall we play a game ?";
-    //sam->Say(text1);
+    sam->Say(text1);
     
     //Drzoid: only first text is spoken, the rest are ignored...
     //+thread is blocked we sam speaks
@@ -148,25 +154,18 @@ public:
   */
   void Render() {
 
+    auto animatedTextOffset = engine->GetScreenHeight()-4;
+
     engine->Clear(BLACK);
     
     verticalTextAnimator->DrawText();
-    //DrawTitle();
-
-    
-
-   
-    
     starfield->Render();
     road->Render(); 
     scene->Render();
-    
-    // Draw text
-    auto offset = engine->GetScreenHeight()-4;
-    textAnimator->DrawText(2,offset);
+    textAnimator->Render(2,animatedTextOffset);
          
     //faceModel->Render();
-    
+    DrawTitle();
     DrawFPS( engine->GetFPS());
   }
 
@@ -224,16 +223,15 @@ private:
   bool bShowDebug = false;
 
   void DrawTitle() {
-    //TODO
-    engine->SetFont("mono18");
-    engine->SetCursorPos(0, 24);
-    engine->DrawText("VanAssistant",0, 0, WHITE);
+    engine->FillRect(0,0, engine->GetScreenWidth() , 30, BLACK);
+    engine->SetFont("comp18");
+    engine->DrawText("Van Assistant",4, 20, WHITE);
   }
 
   void DrawFPS(uint32_t fps) {
     if(bShowFps) {
       //TODO
-      engine->SetFont("mono8");
+      engine->SetFont("solidmono8");
       //engine->SetCursorPos(0, engine->GetScreenHeight()-12);
       auto text = std::to_string(fps);
       auto textsize = engine->GetTextBounds(text, 0, 0);
