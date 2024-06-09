@@ -6,14 +6,11 @@
 
 class TextAnimator {
 public:
-  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate)
+  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate, bool fillBg = true)
     : engine(engine), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate),
-      currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true) {
+      currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
-    //Todo: load font
-    //font = std::make_unique<olc::Font>( "./sprites/test3d/font_monocode_14.png");
     this->f = f;
-
     lastUpdate = engine->Now();
     lastCursorBlink = engine->Now();
     lastPauseStart = engine->Now();
@@ -37,12 +34,15 @@ public:
 
   void DrawText(int x, int y, color color = WHITE) {
     if (displayText) {
+      //draw black rectangle behind text
+      if(fillBg) {
+        engine->FillRect(0, y-18, engine->GetScreenWidth() , 24, BLACK);
+      }
       std::string toDraw = currentText.substr(0, currentIndex);
 		  //TODO 
       engine->SetFont(f); //TODO: set font
-      engine->DrawText(toDraw, x, y, WHITE);
-      //font->DrawStringPropDecal( {(float)x,(float)y}, toDraw, olc::WHITE, {1.0f, 1.0f} );
-      //pge->DrawString(x, y, toDraw, color);
+      engine->DrawText(toDraw, x, y-2, WHITE);
+    
       DrawCursor(x, y, toDraw, color);
     }
   }
@@ -67,6 +67,7 @@ private:
   bool cursorVisible;
   bool firstMessage;
   bool displayText;
+  bool fillBg = true;
 
   void StartTyping() {
     currentText = textQueue.front();

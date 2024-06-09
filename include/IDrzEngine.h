@@ -242,6 +242,7 @@ public:
   virtual void Clear(color color) = 0;
   virtual void DrawPixel(int x, int y, color color) = 0;  
   virtual void DrawLine(int x1, int y1, int x2, int y2, color color) = 0;
+	virtual void DrawLine(vec2d p1, vec2d p2, color color) = 0;
   virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) = 0;
   virtual void FillRect(int x, int y, int w, int h, color color) = 0;
   virtual void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) = 0;
@@ -251,6 +252,7 @@ public:
   virtual const font* LoadFont(const std::string& fontName, const font* font) = 0;
   virtual void SetFont(const std::string& fontName) = 0;
   virtual void SetFont(const font* font) = 0;
+	virtual void SetTextColor(color color) = 0;
   virtual void DrawText(const std::string& text, float x, float y, color color) = 0;
 
   virtual void SetCursorPos(uint16_t x, uint16_t y) = 0;

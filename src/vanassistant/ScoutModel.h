@@ -55,6 +55,7 @@ class ScoutJawModel : public Model {
     //Set the current jaw angle
     void SetAngle(float angle) {
       //TODO
+      currentAnimationAngle = angle;
     }
 
     void Update(float fElapsedTime) override {
@@ -66,8 +67,10 @@ class ScoutJawModel : public Model {
         } 
       } 
 
+
+
       // Rotate the model
-      currentAnimationAngle += 1.0f * 0.01f;
+      //currentAnimationAngle += 1.0f * 0.01f;
 
       // Rotation Z
       matRotZ.m[0][0] = cosf(fTheta);

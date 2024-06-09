@@ -21,7 +21,7 @@
 #include "VerticalTextAnimator.h"
 #include "TextAnimator.h"
 #include "Starfield.h" 
-#include "Grid.h"
+#include "Road.h"
 //#include "FaceModel.h"
 #include "ScoutModel.h"
 
@@ -54,7 +54,7 @@ public:
     scoutHead = new ScoutHeadModel(engine);
     scoutJaw = new ScoutJawModel(engine);
 
-    grid = new Grid(engine, 1000.0f, 200.0f, GRID_SIZE);
+    road = new Road(engine);
     starfield = new Starfield(engine, NUM_STARS);
     
     verticalTextAnimator = new VerticalTextAnimator(
@@ -110,7 +110,7 @@ public:
     std::string text1 = "Hello, I am your assistant.";
     std::string text2 = "I am here to help you.";
     std::string text3 = "Shall we play a game ?";
-    sam->Say(text1);
+    //sam->Say(text1);
     
     //Drzoid: only first text is spoken, the rest are ignored...
     //+thread is blocked we sam speaks
@@ -128,6 +128,7 @@ public:
    
     textAnimator->Update();
     verticalTextAnimator->Update();
+    road->Update(elapsedTime);
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
@@ -148,21 +149,25 @@ public:
   void Render() {
 
     engine->Clear(BLACK);
-     
+    
+    verticalTextAnimator->DrawText();
     //DrawTitle();
 
+    
+
+   
+    
+    starfield->Render();
+    road->Render(); 
+    scene->Render();
+    
     // Draw text
     auto offset = engine->GetScreenHeight()-4;
     textAnimator->DrawText(2,offset);
-
-    verticalTextAnimator->DrawText();
-    starfield->Render();
-    scene->Render();
          
-    //grid->Render(); 
     //faceModel->Render();
     
-    //DrawFPS( engine->GetFPS());
+    DrawFPS( engine->GetFPS());
   }
 
   /**
@@ -210,7 +215,7 @@ private:
   //FaceModel* faceModel;
   ScoutHeadModel* scoutHead;
   ScoutJawModel* scoutJaw;
-  Grid* grid;
+  Road* road;
   Starfield* starfield;
   VerticalTextAnimator* verticalTextAnimator; 
   TextAnimator* textAnimator; 
@@ -228,9 +233,13 @@ private:
   void DrawFPS(uint32_t fps) {
     if(bShowFps) {
       //TODO
-      engine->SetFont("comp18");
-      engine->SetCursorPos(0, engine->GetScreenHeight()-12);
-      engine->DrawText("FPS: " + std::to_string(fps), 0, 0, WHITE);
+      engine->SetFont("mono8");
+      //engine->SetCursorPos(0, engine->GetScreenHeight()-12);
+      auto text = std::to_string(fps);
+      auto textsize = engine->GetTextBounds(text, 0, 0);
+      auto x = engine->GetScreenWidth() - textsize.w - 4;
+      auto y = 18;
+      engine->DrawText(text, x, y, YELLOW);
     }
   }
 };

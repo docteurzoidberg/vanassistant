@@ -75,6 +75,10 @@ public:
     cursorY = y;
   }
 
+  void SetTextColor(color color) override {
+    textcolor = color;
+  }
+
   void SetWrap(bool w) override {
     wrap = w;
   }
@@ -87,6 +91,10 @@ public:
 
   void DrawPixel(int x, int y, color color) override {
     pge->Draw(x, y, ColorToPixel(color));
+  }
+
+  void DrawLine(vec2d p1, vec2d p2, color color) override {
+    pge->DrawLine(p1.x, p1.y, p2.x, p2.y, ColorToPixel(color));
   }
 
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
@@ -125,6 +133,7 @@ public:
       return;
     } 
     SetCursorPos((uint16_t) x, (uint16_t) y);
+    SetTextColor(color);
     write(text);
   }
 
