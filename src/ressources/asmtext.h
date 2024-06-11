@@ -1,8 +1,17 @@
 #pragma once
 
-//TODO: should go into progmem for arduino
+#ifdef ARDUINO
+#include <avr/pgmspace.h>
+#define PROGMEM_ATTRIBUTE PROGMEM
+#define READ_BYTE(address) pgm_read_byte_near(address)
+#define STRLEN_P(str) strlen_P(str)
+#else
+#define PROGMEM_ATTRIBUTE
+#define READ_BYTE(address) (*(address))
+#define STRLEN_P(str) strlen(str)
+#endif
 
-const char * asm_text_buffer = R"(
+const char asm_text_buffer[] PROGMEM_ATTRIBUTE = R"(
 
 ;"Frantic Diamonds"
 ;Written by Six of Style in 6 hours on May 30, 2006

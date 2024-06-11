@@ -12,8 +12,8 @@ public:
     lineIndex = 0;
     lineCount = 0;
     linepos.push_back(0);
-    for (int i = 0; i < strlen(asm_text_buffer); i++) {
-      if (asm_text_buffer[i] == '\n') {
+    for (int i = 0; i < STRLEN_P(asm_text_buffer); i++) {
+      if (READ_BYTE(asm_text_buffer + i) == '\n') {
         //store index into line positions vector
         linepos.push_back(i);
         lineCount++;
@@ -27,18 +27,18 @@ public:
     auto lineStartIndex = linepos[lineIndex];
 
     //find end of line
-    auto lineEndIndex = lineIndex < lineCount - 1 ? linepos[lineIndex+1] : strlen(&asm_text_buffer[lineStartIndex]);
+    auto lineEndIndex = lineIndex < lineCount - 1 ? linepos[lineIndex + 1] : STRLEN_P(&asm_text_buffer[lineStartIndex]);
 
     //copy line to string
-    int j=0;
-    for (int i =  lineStartIndex; i < lineEndIndex; i++) {
-      auto character = asm_text_buffer[i];
-      if(character == '\n' || character == '\r'){
+    int j = 0;
+    for (int i = lineStartIndex; i < lineEndIndex; i++) {
+      char character = READ_BYTE(asm_text_buffer + i);
+      if (character == '\n' || character == '\r') {
         //dont copy newline characters
       } else if (character == '\t') {
         line += "    ";
-        j+=4;
-      } else if (j> 0 && character == ';') {
+        j += 4;
+      } else if (j > 0 && character == ';') {
         //skip comments
         break;
       } else {
