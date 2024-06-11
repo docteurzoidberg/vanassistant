@@ -39,6 +39,7 @@ public:
   
   ///Load assets, initialize variables, etc
   void Setup() { 
+    
     //Load fonts
     const font* comp18 = engine->LoadFont("comp18", &Computerfont18pt7b);
     const font* mono18 = engine->LoadFont("mono18", &Mono_Regular18pt7b);

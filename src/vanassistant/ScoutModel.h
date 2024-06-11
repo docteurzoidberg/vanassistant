@@ -54,6 +54,11 @@ class ScoutJawModel : public Model {
     //Set the current jaw angle
     //map jaw opening to min and max angles
     void SetOpening(float opening) {
+      if(opening < 0.0f) {
+        opening = 0.0f;
+      } else if(opening > 1.0f) {
+        opening = 1.0f;
+      }
       this->opening = opening;
       angle = opening * (maxAngle - minAngle) + minAngle;
       SetAngle(angle);
@@ -1043,6 +1048,12 @@ class ScoutHeadModel : public Model {
     IDrzEngine* engine;
 };
 
+
+struct animframe {
+  float tX, tY, tZ;
+  float rX, rY, rZ;
+};
+
 class Scout {
   public: 
     Scout(IDrzEngine* engine, Scene* scene) {
@@ -1050,6 +1061,7 @@ class Scout {
       rotationDistribution = std::uniform_real_distribution<float>(-1.0f, 1.0f); // Small random rotations in degrees
       translationDistribution = std::uniform_real_distribution<float>(-0.1f, 0.1f); // Small random translations
       InitializeRandomGenerator();
+      _startAnimation();
 
       head = new ScoutHeadModel();
       jaw = new ScoutJawModel();   
@@ -1058,41 +1070,19 @@ class Scout {
     }
 
     void SetJawOpening(float opening) {
+      if(opening < 0.0f) {
+        opening = 0.0f;
+      } else if(opening > 1.0f) {
+        opening = 1.0f;
+      }
       jawOpening = opening;
       jaw->SetOpening( opening);
     }
 
     void Update(float elapsedTime) {
     
-      // Generate small random angles for rotation
-      float deltaPitch = rotationDistribution(generator) * elapsedTime;
-      float deltaYaw = rotationDistribution(generator) * elapsedTime;
-      float deltaRoll = rotationDistribution(generator) * elapsedTime;
+      _updateAnimation(elapsedTime, 1.0f);
       
-      // Convert angles to radians
-      float pitchRad = deltaPitch * (M_PI / 180.0f);
-      float yawRad = deltaYaw * (M_PI / 180.0f);
-      float rollRad = deltaRoll * (M_PI / 180.0f);
-
-      // Create rotation matrices
-      Matrix4x4 pitchMatrix = Matrix4x4::CreateRotationMatrixX(pitchRad);
-      Matrix4x4 yawMatrix = Matrix4x4::CreateRotationMatrixY(yawRad);
-      Matrix4x4 rollMatrix = Matrix4x4::CreateRotationMatrixZ(rollRad);
-
-      // Combine the rotations
-      rotationMatrix = rotationMatrix * pitchMatrix * yawMatrix * rollMatrix;
-
-      // Generate small random translations
-      float deltaX = translationDistribution(generator) * elapsedTime;
-      float deltaY = translationDistribution(generator) * elapsedTime;
-      float deltaZ = translationDistribution(generator) * elapsedTime;
-
-      // Create translation matrix
-      Matrix4x4 translationDelta = Matrix4x4::CreateTranslationMatrix(deltaX, deltaY, deltaZ);
-
-      // Update the translation matrix
-      translationMatrix = translationMatrix * translationDelta;
-
       //Set models matrices
       
       head->rotationMatrix = rotationMatrix;
@@ -1114,9 +1104,73 @@ class Scout {
     Matrix4x4 translationMatrix = Matrix4x4::Identity(); // Initialize with an identity matrix for no initial translation
     
     float jawOpening = 0.0f; //0.0f closed, 1.0f open
+    float t = 0.0f;
+
+    animframe animTarget = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    animframe animCurrent = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    animframe animInitial = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
     void InitializeRandomGenerator() {
       std::random_device rd;
       generator.seed(rd());
+    }
+
+    void _calcNextTarget() {
+      
+      animInitial = animCurrent;
+      animTarget = animCurrent;
+
+      // Generate small random angles for rotation
+      float deltaPitch = rotationDistribution(generator);
+      float deltaYaw = rotationDistribution(generator);
+      float deltaRoll = rotationDistribution(generator);
+      
+      // Convert angles to radians
+      float pitchRad = deltaPitch * (M_PI / 180.0f);
+      float yawRad = deltaYaw * (M_PI / 180.0f);
+      float rollRad = deltaRoll * (M_PI / 180.0f);
+
+      // Generate small random translations
+      float deltaX = translationDistribution(generator);
+      float deltaY = translationDistribution(generator);
+      float deltaZ = translationDistribution(generator);
+
+      // update target
+      animTarget.tX += deltaX;
+      animTarget.tY += deltaY;
+      animTarget.tZ += deltaZ;
+      animTarget.rX += pitchRad;
+      animTarget.rY += yawRad;
+      animTarget.rZ += rollRad;
+    }
+
+    void _startAnimation() {
+      t = 0.0f;
+      _calcNextTarget();
+    }
+
+    void _updateAnimation(float elapsedTime, float speed = 1.0f) {
+
+      //not sure !
+      t += elapsedTime * speed;
+
+      //interpolate
+      animCurrent.tX = animInitial.tX * (1.0f - t) + animTarget.tX * t;
+      animCurrent.tY = animInitial.tY * (1.0f - t) + animTarget.tY * t;
+      animCurrent.tZ = animInitial.tZ * (1.0f - t) + animTarget.tZ * t;
+      animCurrent.rX = animInitial.rX * (1.0f - t) + animTarget.rX * t;
+      animCurrent.rY = animInitial.rY * (1.0f - t) + animTarget.rY * t;
+      animCurrent.rZ = animInitial.rZ * (1.0f - t) + animTarget.rZ * t;
+
+      rotationMatrix = Matrix4x4::CreateRotationMatrix(animCurrent.rX, animCurrent.rY, animCurrent.rZ);
+      translationMatrix = Matrix4x4::CreateTranslationMatrix(animCurrent.tX, animCurrent.tY, animCurrent.tZ);
+
+      //check if anim is done
+      if(t >= 1.0f) {
+        animCurrent = animTarget;
+        _calcNextTarget();
+        t = 0.0f;
+        return;
+      }
     }
 };

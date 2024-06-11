@@ -74,6 +74,13 @@ public:
       return matrix;
     }
 
+    static Matrix4x4 CreateRotationMatrix(float angleX, float angleY, float angleZ) {
+      Matrix4x4 matrixX = Matrix4x4::CreateRotationMatrixX(angleX);
+      Matrix4x4 matrixY = Matrix4x4::CreateRotationMatrixY(angleY);
+      Matrix4x4 matrixZ = Matrix4x4::CreateRotationMatrixZ(angleZ);
+      return matrixZ * matrixY * matrixX;
+    }
+
     static Matrix4x4 CreateTranslationMatrix(float x, float y, float z) {
       Matrix4x4 matrix = Matrix4x4::Identity();
       matrix[0][3] = x;
