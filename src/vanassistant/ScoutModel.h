@@ -1048,7 +1048,6 @@ class ScoutHeadModel : public Model {
     IDrzEngine* engine;
 };
 
-
 struct animframe {
   float tX, tY, tZ;
   float rX, rY, rZ;
