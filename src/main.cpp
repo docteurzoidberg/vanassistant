@@ -1,5 +1,16 @@
 #include "../include/DrzOlcPixelGameEngine.h"
 
+#include "fonts/Computerfont18pt7b.h"
+
+#include "fonts/Mono_Regular18pt7b.h"
+#include "fonts/Mono_Regular14pt7b.h"
+#include "fonts/Mono_Regular12pt7b.h"
+#include "fonts/Mono_Regular8pt7b.h"
+
+#include "fonts/Solid_Mono8pt7b.h"
+#include "fonts/Solid_Mono6pt7b.h"
+#include "fonts/Solid_Mono4pt7b.h"
+ 
 #include "vanassistant/VanAssistant.h"
 
 class Test3D : public DrzOlcPixelGameEngine {
@@ -7,6 +18,15 @@ class Test3D : public DrzOlcPixelGameEngine {
 public:
 	Test3D() : DrzOlcPixelGameEngine(this) {
 		sAppName = "VanAssistant";
+    //Load fonts
+    const font* comp18 = LoadFont("comp18", &Computerfont18pt7b);
+    const font* mono18 = LoadFont("mono18", &Mono_Regular18pt7b);
+    const font* mono14 = LoadFont("mono14", &Mono_Regular14pt7b);
+    const font* mono12 = LoadFont("mono12", &Mono_Regular12pt7b);
+    const font* mono8 = LoadFont("mono8", &Mono_Regular8pt7b);
+    const font* solidmono8 = LoadFont("solidmono8", &Solid_Mono8pt7b);
+    const font* solidmono6 = LoadFont("solidmono6", &Solid_Mono6pt7b);
+    const font* solidmono4 = LoadFont("solidmono4", &Solid_Mono4pt7b);
 	}
 
 	bool OnUserCreate() override {

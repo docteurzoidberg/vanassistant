@@ -1,13 +1,11 @@
 #pragma once
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
 
 #include "Model.h"
 #include "Scene.h"
 
-#include <chrono>
 #include <cmath>
-#include <iostream>
 #include <random>
 
 class ScoutJawModel : public Model {

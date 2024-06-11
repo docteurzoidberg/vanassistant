@@ -1,16 +1,14 @@
 #pragma once
 
-#include "../../include/IDrzEngine.h"
-#include <memory>
+#include <IDrzEngine.h>
 #include <queue>
 
 class TextAnimator {
 public:
-  TextAnimator(IDrzEngine* engine, const font* f, float typeSpeed, float pauseTime, float cursorBlinkRate, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)
-    : engine(engine), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), col(col), xOffset(xOffset), yOffset(yOffset),
+  TextAnimator(IDrzEngine* engine, std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)
+    : engine(engine), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), xOffset(xOffset), yOffset(yOffset),
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
-    this->f = f;
     lastUpdate = engine->Now();
     lastCursorBlink = engine->Now();
     lastPauseStart = engine->Now();
@@ -40,26 +38,24 @@ public:
       }
       std::string toDraw = currentText.substr(0, currentIndex);
 		  //TODO 
-      engine->SetFont(f); //TODO: set font
+      engine->SetFont(fontname); //TODO: set font
       engine->DrawText(toDraw, xOffset, yOffset-2, WHITE);
     
       DrawCursor(xOffset, yOffset, toDraw, col);
     }
   }
 
-  const font* GetFont() {
-    return f;
-  }
-
 private:
   IDrzEngine* engine;
-  const font* f;
+  std::string fontname;
   std::queue<std::string> textQueue;
   std::string currentText;
   size_t currentIndex;
   float typeSpeed;
   float pauseTime;
-  float cursorBlinkRate;
+  float cursorBlinkRate; 
+  float cursorHeight;
+  float cursorWidth;
   uint32_t lastUpdate;
   uint32_t lastCursorBlink;
   uint32_t lastPauseStart;
@@ -117,14 +113,15 @@ private:
   void DrawCursor(int x, int y, const std::string& toDraw, color color) {
     if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
 
-      engine->SetFont(f);
+      engine->SetFont(fontname);
       auto textSize = engine->GetTextBounds(toDraw,x,y);
 
-      auto cursorWidth = 8;
-      auto cursorHeight = f->yAdvance - 4;
+      //todo: do not use font yAdvance... as font isn't exposed in the engine
+      //auto cursorWidth = 8;
+      //auto cursorHeight = f->yAdvance - 4;
 
       int cursorX = x + textSize.w+2;
-      int cursorY = y - f->yAdvance +6;
+      int cursorY = y - cursorHeight;
      
       engine->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor as an 8x8 rectangle
     }
