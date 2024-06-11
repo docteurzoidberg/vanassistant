@@ -1109,11 +1109,28 @@ class Scout {
     animframe animTarget = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animCurrent = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animInitial = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    animframe animTargetMax = {0.03f, 0.03f, 0.03f, 0.2f, 0.2f, 0.2f};
+    animframe animTargetDeltaMax = {0.01f, 0.01f, 0.01f, 0.0005f, 0.0005f, 0.0005f};
 
     void InitializeRandomGenerator() {
       std::random_device rd;
       generator.seed(rd());
+    }
+
+    void _clamp(float& target, float deltaMax) {
+      if(target > deltaMax) {
+        target = deltaMax;
+      } else if (target < -deltaMax) {
+        target = -deltaMax;
+      }
+    }
+
+    void _clampTarget(animframe &target, animframe &deltaMax) {
+      _clamp(target.tX, deltaMax.tX);
+      _clamp(target.tY, deltaMax.tY);
+      _clamp(target.tZ, deltaMax.tZ);
+      _clamp(target.rX, deltaMax.rX);
+      _clamp(target.rY, deltaMax.rY);
+      _clamp(target.rZ, deltaMax.rZ);
     }
 
     void _calcNextTarget() {
@@ -1144,24 +1161,8 @@ class Scout {
       animTarget.rY += yawRad;
       animTarget.rZ += rollRad;
 
-      if(animTarget.tX > animTargetMax.tX) {
-        animTarget.tX = animTargetMax.tX;
-      }
-      if(animTarget.tY > animTargetMax.tY) {
-        animTarget.tY = animTargetMax.tY;
-      }
-      if(animTarget.tZ > animTargetMax.tZ) {
-        animTarget.tZ = animTargetMax.tZ;
-      }
-      if(animTarget.rX > animTargetMax.rX) {
-        animTarget.rX = animTargetMax.rX;
-      }
-      if(animTarget.rY > animTargetMax.rY) {
-        animTarget.rY = animTargetMax.rY;
-      }
-      if(animTarget.rZ > animTargetMax.rZ) {
-        animTarget.rZ = animTargetMax.rZ;
-      }
+      // Clamp target values
+      _clampTarget(animTarget, animTargetDeltaMax);
     }
 
     void _startAnimation() {
