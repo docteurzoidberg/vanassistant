@@ -1082,7 +1082,7 @@ class Scout {
     void Update(float elapsedTime) {
     
       _updateAnimation(elapsedTime, 1.0f);
-      
+
       //Set models matrices
       
       head->rotationMatrix = rotationMatrix;
@@ -1109,6 +1109,7 @@ class Scout {
     animframe animTarget = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animCurrent = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animInitial = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    animframe animTargetMax = {0.03f, 0.03f, 0.03f, 0.2f, 0.2f, 0.2f};
 
     void InitializeRandomGenerator() {
       std::random_device rd;
@@ -1142,6 +1143,25 @@ class Scout {
       animTarget.rX += pitchRad;
       animTarget.rY += yawRad;
       animTarget.rZ += rollRad;
+
+      if(animTarget.tX > animTargetMax.tX) {
+        animTarget.tX = animTargetMax.tX;
+      }
+      if(animTarget.tY > animTargetMax.tY) {
+        animTarget.tY = animTargetMax.tY;
+      }
+      if(animTarget.tZ > animTargetMax.tZ) {
+        animTarget.tZ = animTargetMax.tZ;
+      }
+      if(animTarget.rX > animTargetMax.rX) {
+        animTarget.rX = animTargetMax.rX;
+      }
+      if(animTarget.rY > animTargetMax.rY) {
+        animTarget.rY = animTargetMax.rY;
+      }
+      if(animTarget.rZ > animTargetMax.rZ) {
+        animTarget.rZ = animTargetMax.rZ;
+      }
     }
 
     void _startAnimation() {
