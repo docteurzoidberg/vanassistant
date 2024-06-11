@@ -149,8 +149,6 @@ public:
     return {x1, y1, w1, h1};
   }
 
-
-
 private:
   olc::PixelGameEngine* pge;
   std::map<std::string, const font*> fonts;
@@ -327,9 +325,7 @@ private:
       @param    h      The boundary height, set by function
   */
   /**************************************************************************/
-  void _getTextBounds(const std::string &str, int16_t x, int16_t y,
-                                  int16_t *x1, int16_t *y1, uint16_t *w,
-                                  uint16_t *h) {
+  void _getTextBounds(const std::string &str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
     if (str.length() != 0) {
       _getTextBounds(const_cast<char *>(str.c_str()), x, y, x1, y1, w, h);
     }

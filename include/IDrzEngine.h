@@ -37,6 +37,68 @@ struct mat4x4 {
   float m[4][4] = { 0 };
 };
 
+class Matrix4x4 {
+public:
+    float m[4][4];
+
+    static Matrix4x4 Identity() {
+        Matrix4x4 matrix = {};
+        for (int i = 0; i < 4; ++i) matrix.m[i][i] = 1.0f;
+        return matrix;
+    }
+
+    Matrix4x4 operator*(const Matrix4x4& other) const {
+        Matrix4x4 result = {};
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                for (int k = 0; k < 4; ++k) {
+                    result.m[i][j] += m[i][k] * other.m[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    float* operator[](int index) { return m[index]; }
+    const float* operator[](int index) const { return m[index]; }
+};
+
+ Matrix4x4 CreateRotationMatrixX(float angle) {
+    Matrix4x4 matrix = Matrix4x4::Identity();
+    matrix[1][1] = cos(angle);
+    matrix[1][2] = -sin(angle);
+    matrix[2][1] = sin(angle);
+    matrix[2][2] = cos(angle);
+    return matrix;
+  }
+
+  Matrix4x4 CreateRotationMatrixY(float angle) {
+    Matrix4x4 matrix = Matrix4x4::Identity();
+    matrix[0][0] = cos(angle);
+    matrix[0][2] = sin(angle);
+    matrix[2][0] = -sin(angle);
+    matrix[2][2] = cos(angle);
+    return matrix;
+  }
+
+  Matrix4x4 CreateRotationMatrixZ(float angle) {
+    Matrix4x4 matrix = Matrix4x4::Identity();
+    matrix[0][0] = cos(angle);
+    matrix[0][1] = -sin(angle);
+    matrix[1][0] = sin(angle);
+    matrix[1][1] = cos(angle);
+    return matrix;
+  }
+
+  Matrix4x4 CreateTranslationMatrix(float x, float y, float z) {
+    Matrix4x4 matrix = Matrix4x4::Identity();
+    matrix[0][3] = x;
+    matrix[1][3] = y;
+    matrix[2][3] = z;
+    return matrix;
+  }
+
+
 constexpr uint8_t  nDefaultAlpha = 0xFF;
 constexpr uint32_t nDefaultColor = (nDefaultAlpha << 24);
 

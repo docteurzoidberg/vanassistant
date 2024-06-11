@@ -20,7 +20,7 @@ class Scene {
     mat4x4 matProj;
 
     float fFov = 90.0f;
-    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
+    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
     float fNear = 0.1f;
     float fFar = 1000.0f;
     float fAspectRatio = 1.0f;
@@ -56,6 +56,17 @@ class Scene {
         o.x /= w; o.y /= w; o.z /= w;
       }
     }
+    
+    void MultiplyMatrixVector(vec3d &i, vec3d &o, Matrix4x4 &m) {
+      o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
+      o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
+      o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
+      float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
+      if (w != 0.0f)
+      {
+        o.x /= w; o.y /= w; o.z /= w;
+      }
+    }
 
     void Update(float fElapsedTime) {
 
@@ -66,27 +77,54 @@ class Scene {
         //Apply model rotations
         model->Update(fElapsedTime);
 
-
         for (auto tri : model->tris) {
 
-          trianglec triProjected, triTranslated, triRotatedZ, triRotatedZX;
+          //trianglec triProjected, triTranslated, triRotatedZ, triRotatedZX;
+          trianglec triProjected, triTranslated, triRotated;
 
           // Rotate in Z-Axis
-          MultiplyMatrixVector(*tri.p[0], triRotatedZ.p[0], model->matRotZ);
-          MultiplyMatrixVector(*tri.p[1], triRotatedZ.p[1], model->matRotZ);
-          MultiplyMatrixVector(*tri.p[2], triRotatedZ.p[2], model->matRotZ);
+          //MultiplyMatrixVector(*tri.p[0], triRotatedZ.p[0], model->matRotZ);
+         // MultiplyMatrixVector(*tri.p[1], triRotatedZ.p[1], model->matRotZ);
+          //MultiplyMatrixVector(*tri.p[2], triRotatedZ.p[2], model->matRotZ);
 
           // Rotate in X-Axis
-          MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], model->matRotX);
-          MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], model->matRotX);
-          MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], model->matRotX);
+          //MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], model->matRotX);
+          //MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], model->matRotX);
+          //MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], model->matRotX);
 
+          //refacto: Apply rotationMatrix instead of individual rotations
+          auto rotationMatrix = model->rotationMatrix;
+          MultiplyMatrixVector(*tri.p[0], triRotated.p[0], rotationMatrix);
+          MultiplyMatrixVector(*tri.p[1], triRotated.p[1], rotationMatrix);
+          MultiplyMatrixVector(*tri.p[2], triRotated.p[2], rotationMatrix);
 
+          //refacto: Apply translationMatrix instead of individual translations
+          auto translationMatrix = model->translationMatrix;
+          triTranslated = triRotated;
+
+          triTranslated.p[0].x += translationMatrix.m[0][3];
+          triTranslated.p[0].y += translationMatrix.m[1][3];
+          triTranslated.p[0].z += translationMatrix.m[2][3];
+
+          triTranslated.p[1].x += translationMatrix.m[0][3];
+          triTranslated.p[1].y += translationMatrix.m[1][3];
+          triTranslated.p[1].z += translationMatrix.m[2][3];
+
+          triTranslated.p[2].x += translationMatrix.m[0][3];
+          triTranslated.p[2].y += translationMatrix.m[1][3];
+          triTranslated.p[2].z += translationMatrix.m[2][3];
+          
           // Offset into the screen
-          triTranslated = triRotatedZX;
-          triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-          triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-          triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+          //triTranslated = triRotatedZX;
+          //triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
+          //triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
+          //triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+
+          //Offset into the screen
+          triTranslated.p[0].z = triRotated.p[0].z + 3.0f;
+          triTranslated.p[1].z = triRotated.p[1].z + 3.0f;
+          triTranslated.p[2].z = triRotated.p[2].z + 3.0f;
+
 
            // Use Cross-Product to get surface normal
           vec3d normal, line1, line2;
@@ -205,9 +243,9 @@ class Scene {
 
   private:
     IDrzEngine* engine;
-    std::vector<Model*> models; 
+    std::vector<Model*> models;
     std::vector<trianglec> vecTrianglesToRaster;
-    bool iSceneTriangleCount = 0; 
+    bool iSceneTriangleCount = 0;
     bool bDebugTriangles = false;
     int iDbgTriangleIndex = 0;
 };

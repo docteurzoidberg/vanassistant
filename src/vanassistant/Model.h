@@ -28,7 +28,9 @@ class Model {
     std::vector<triangleref> tris;
 
     //std::cout << "Model update" << std::endl;
-    mat4x4 matRotZ, matRotX; 
+    //mat4x4 matRotZ, matRotX; 
+    Matrix4x4 rotationMatrix;
+    Matrix4x4 translationMatrix;
       
   private:
     void _loadTriRefs() {

@@ -2,11 +2,11 @@
 #include "TextAnimator.h"
 #include <cstdint>
 #include <iostream>
+
 #define SCREEN_W 256
 #define SCREEN_H 240
-
 #define NUM_STARS 750
-#define GRID_SIZE 12
+#define PI 3.14159
 
 #include "../fonts/Computerfont18pt7b.h"
 
@@ -35,13 +35,9 @@ class VanAssistant {
 
 public:
 
-  VanAssistant(IDrzEngine* engine) : engine(engine) {
-
-  }
-
-  /**
-  * Load assets, initialize variables, etc
-  */
+  VanAssistant(IDrzEngine* engine) : engine(engine) {}
+  
+  ///Load assets, initialize variables, etc
   void Setup() { 
     //Load fonts
     const font* comp18 = engine->LoadFont("comp18", &Computerfont18pt7b);
@@ -56,9 +52,8 @@ public:
     // Setup
     asmText = new AsmText(engine);
     scene = new Scene(engine);
+    scout = new Scout(engine, scene);
     //faceModel = new FaceModel(engine);
-    scoutHead = new ScoutHeadModel(engine);
-    scoutJaw = new ScoutJawModel(engine);
 
     road = new Road(engine);
     starfield = new Starfield(engine, NUM_STARS);
@@ -80,8 +75,7 @@ public:
 
     // Add models to scene
     //scene->AddModel(faceModel);
-    scene->AddModel(scoutHead);
-    scene->AddModel(scoutJaw);
+    scout->SetJawOpening(0.5f);
 
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::CLOSE, 3.0f);
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::OPEN, 1.0f);
@@ -135,12 +129,13 @@ public:
     textAnimator->Update();
     verticalTextAnimator->Update();
     road->Update(elapsedTime);
+    scout->Update(elapsedTime);
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
       //auto nextLine = "This is a test line";
       auto nextLine = asmText->GetLine();
-     // std::cout << "Next line: " << nextLine << std::endl;
+      //std::cout << "Next line: " << nextLine << std::endl;
       verticalTextAnimator->QueueText(nextLine);
     }
 
@@ -154,7 +149,7 @@ public:
   */
   void Render() {
 
-
+    //Clear screen
     engine->Clear(BLACK);
     
     verticalTextAnimator->DrawText();
@@ -162,15 +157,13 @@ public:
     road->Render(); 
     scene->Render();
     textAnimator->Render();
-         
-    //faceModel->Render();
+    //faceModel->Render(); 
+
     DrawTitle();
     DrawFPS( engine->GetFPS());
   }
 
-  /**
-  * Toggle debug mode
-  */
+
   void ToggleDebug() {
     bShowDebug = !bShowDebug;
     scene->ToggleDebugTriangles();
@@ -180,23 +173,14 @@ public:
     scene->ToggleRenderMode();
   }
 
-  /**
-  * Toggle fps
-  */
   void ToggleFps() {
     bShowFps = !bShowFps;
   }
 
-  /**
-  * Debug next triangle
-  */
   void DbgNextTriangle() {
     scene->DbgNextTriangle();
   }
 
-  /**
-  * Debug previous triangle
-  */
   void DbgPrevTriangle() {
     scene->DbgPrevTriangle();
   }
@@ -211,8 +195,7 @@ private:
   Scene* scene;
   AsmText* asmText;
   //FaceModel* faceModel;
-  ScoutHeadModel* scoutHead;
-  ScoutJawModel* scoutJaw;
+  Scout *scout;
   Road* road;
   Starfield* starfield;
   VerticalTextAnimator* verticalTextAnimator; 
