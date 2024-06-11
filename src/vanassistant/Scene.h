@@ -24,7 +24,6 @@ class Scene {
     float fNear = 0.1f;
     float fFar = 1000.0f;
     float fAspectRatio = 1.0f;
-    //float fTheta =  2* 3.14159f;
 
     RenderMode renderMode = RENDER_SOLID;
 
@@ -82,16 +81,6 @@ class Scene {
           //trianglec triProjected, triTranslated, triRotatedZ, triRotatedZX;
           trianglec triProjected, triTranslated, triRotated;
 
-          // Rotate in Z-Axis
-          //MultiplyMatrixVector(*tri.p[0], triRotatedZ.p[0], model->matRotZ);
-         // MultiplyMatrixVector(*tri.p[1], triRotatedZ.p[1], model->matRotZ);
-          //MultiplyMatrixVector(*tri.p[2], triRotatedZ.p[2], model->matRotZ);
-
-          // Rotate in X-Axis
-          //MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], model->matRotX);
-          //MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], model->matRotX);
-          //MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], model->matRotX);
-
           //refacto: Apply rotationMatrix instead of individual rotations
           auto rotationMatrix = model->rotationMatrix;
           MultiplyMatrixVector(*tri.p[0], triRotated.p[0], rotationMatrix);
@@ -113,18 +102,11 @@ class Scene {
           triTranslated.p[2].x += translationMatrix.m[0][3];
           triTranslated.p[2].y += translationMatrix.m[1][3];
           triTranslated.p[2].z += translationMatrix.m[2][3];
-          
-          // Offset into the screen
-          //triTranslated = triRotatedZX;
-          //triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-          //triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-          //triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
 
           //Offset into the screen
           triTranslated.p[0].z = triRotated.p[0].z + 3.0f;
           triTranslated.p[1].z = triRotated.p[1].z + 3.0f;
           triTranslated.p[2].z = triRotated.p[2].z + 3.0f;
-
 
            // Use Cross-Product to get surface normal
           vec3d normal, line1, line2;

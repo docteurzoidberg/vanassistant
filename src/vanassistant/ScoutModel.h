@@ -27,6 +27,7 @@ class ScoutJawModel : public Model {
       {-0.490175, 0.99133, -0.220153},
       {-0.30982, 0.562328, -1.11536},
     };
+    
     std::vector<face> faces = {
       {1, 5, 2},
       {1, 2, 3},
@@ -46,7 +47,7 @@ class ScoutJawModel : public Model {
       {11, 12, 4},
     };
 
-    ScoutJawModel(IDrzEngine* engine) : engine(engine), Model(&verts, &faces){ 
+    ScoutJawModel() : Model(&verts, &faces){ 
       SetupModel();
     }
 
@@ -56,20 +57,6 @@ class ScoutJawModel : public Model {
       this->opening = opening;
       angle = opening * (maxAngle - minAngle) + minAngle;
       SetAngle(angle);
-    }
-
-    void SetAngle(float angle) {
-      if(angle > maxAngle) {
-        this->angle =  maxAngle;
-      } else if (angle < minAngle) {
-        this->angle = minAngle;
-      } else {
-        this->angle = angle;
-      }
-    }
-
-    float GetAngle() {
-      return angle;
     }
 
     void Update(float elapsedTime) override {
@@ -92,20 +79,21 @@ class ScoutJawModel : public Model {
     }
 
   private:
-    IDrzEngine* engine;
-    Model* model;
-    bool isAnimating;
     int direction = 1;  //1 for increasing angle, -1 for decreasing angle
-
-    float fTheta = 0;
-
     float opening = 0.5f;
     float angle = M_PI;
     float minAngle = -0.2f;
     float maxAngle = 0.0f;
 
-    // In your class, add a vector to store the initial positions of vertices
-    float lastAngle;
+    void SetAngle(float angle) {
+      if(angle > maxAngle) {
+        this->angle =  maxAngle;
+      } else if (angle < minAngle) {
+        this->angle = minAngle;
+      } else {
+        this->angle = angle;
+      }
+    }
 };
  
 //3d face model including animated subparts
@@ -1044,18 +1032,15 @@ class ScoutHeadModel : public Model {
 
     ScoutJawModel* jaw;
 
-    ScoutHeadModel(IDrzEngine* engine) : engine(engine), Model(&verts, &faces)  {
+    ScoutHeadModel() : Model(&verts, &faces)  {
       //Load model tri and faces
       SetupModel();
     }
 
-    void Update(float elapsedTime) override {
-
-    }
+    void Update(float elapsedTime) override {}
 
   private:
     IDrzEngine* engine;
-    float fTheta = 2*3.14159f;
 };
 
 class Scout {
@@ -1067,8 +1052,8 @@ public:
     translationDistribution = std::uniform_real_distribution<float>(-0.1f, 0.1f); // Small random translations
     InitializeRandomGenerator();
 
-    head = new ScoutHeadModel(engine);
-    jaw = new ScoutJawModel(engine);   
+    head = new ScoutHeadModel();
+    jaw = new ScoutJawModel();   
     scene->AddModel(head);
     scene->AddModel(jaw);
   }
