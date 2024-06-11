@@ -20,17 +20,17 @@ class Road {
     }
 
     void Render() {
-      eyePos.x = engine->GetScreenWidth() / 2;
-      eyePos.y = engine->GetScreenHeight() / 2;
-      float end = gridEnd * engine->GetScreenHeight() * 2;
+      eyePos.x = screenWidth / 2.0f;
+      eyePos.y = screenHeight / 2.0f;
+      float end = gridEnd * screenHeight * 2;
       for (int i = -100; i < end; i += squaresize) {
-          float currentz = i - roadOffset;
-          drawLine3D(-0.0f * engine->GetScreenWidth(), 50, currentz, 1.0f * engine->GetScreenWidth(), 50, currentz, WHITE);
+        float currentz = i - roadOffset;
+        drawLine3D(-0.0f * screenWidth, 50, currentz, 1.0f * screenWidth, 50, currentz, WHITE);
       }
-      for (int i = -0.0f * engine->GetScreenWidth(); i < 1.0f * engine->GetScreenWidth(); i += squaresize) {
-          drawLine3D(i, 50, -200, i, 50, end, WHITE);
+      for (int i = -0.0f * screenWidth; i < 1.0f * screenWidth; i += squaresize) {
+        drawLine3D(i, 50, -200, i, 50, end, WHITE);
       }
-      drawLine3D(-0.0f * engine->GetScreenWidth(), 50, end, engine->GetScreenWidth() * 1.0f, 50, end, WHITE);
+      drawLine3D(-0.0f * screenWidth, 50, end, screenWidth * 1.0f, 50, end, WHITE);
     }
 
   private: 
@@ -48,8 +48,8 @@ class Road {
 
     vec2d get3DCoords(float x, float y, float z) {
       float perspective = eyePos.z / (eyePos.z + z);
-      float screenX = (engine->GetScreenWidth() / 2.0f) + (x - eyePos.x) * perspective;
-      float screenY = (engine->GetScreenHeight() / 2.0f) - (y - eyePos.y) * perspective;
+      float screenX = (screenWidth / 2.0f) + (x - eyePos.x) * perspective;
+      float screenY = (screenHeight / 2.0f) - (y - eyePos.y) * perspective;
       return { screenX, screenY };
     }
 

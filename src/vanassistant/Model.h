@@ -27,8 +27,6 @@ class Model {
     std::vector<face>* faces;
     std::vector<triangleref> tris;
 
-    //std::cout << "Model update" << std::endl;
-    //mat4x4 matRotZ, matRotX; 
     Matrix4x4 rotationMatrix;
     Matrix4x4 translationMatrix;
       
