@@ -1,12 +1,13 @@
 #pragma once
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_audio.h>
-
 #include <iostream>
-#include <string.h> 
-#include <stdio.h>
-#include <stdlib.h>
+#include <string>
+#include <thread>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+
+#include "miniaudio.h"
 
 #include "../sam/reciter.h"
 #include "../sam/sam.h"
@@ -15,51 +16,63 @@ extern "C" {
 
   int pos = 0;
   int debug = 0;
-  unsigned char input[256];
+  extern unsigned char input[256];
 
-  void MixAudio(void *unused, Uint8 *stream, int len)
+  void sleep_ms(int milliseconds) {
+    usleep(milliseconds * 1000); // usleep takes sleep time in microseconds
+  }
+  
+  void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
   {
     int bufferpos = GetBufferLength();
     char *buffer = GetBuffer();
-    int i;
     if (pos >= bufferpos) return;
-    if ((bufferpos-pos) < len) len = (bufferpos-pos);
-    for(i=0; i<len; i++)
-    {
-      stream[i] = buffer[pos];
+    if ((bufferpos - pos) < frameCount) frameCount = (bufferpos - pos);
+    for (ma_uint32 i = 0; i < frameCount; i++) {
+      ((unsigned char*)pOutput)[i] = buffer[pos];
       pos++;
     }
+    (void)pInput;
   }
 
   void OutputSound()
   {
+    ma_result result;
+    ma_device_config deviceConfig;
+    ma_device device;
+
+    deviceConfig = ma_device_config_init(ma_device_type_playback);
+    deviceConfig.playback.format = ma_format_u8;
+    deviceConfig.playback.channels = 1;
+    deviceConfig.sampleRate = 22050;
+    deviceConfig.dataCallback = data_callback;
+    deviceConfig.pUserData = NULL;
+
+    result = ma_device_init(NULL, &deviceConfig, &device);
+    if (result != MA_SUCCESS) {
+      std::cerr << "Failed to initialize playback device." << std::endl;
+      return;
+    }
+
+    result = ma_device_start(&device);
+    if (result != MA_SUCCESS) {
+      std::cerr << "Failed to start playback device." << std::endl;
+      ma_device_uninit(&device);
+      return;
+    }
+
     int bufferpos = GetBufferLength();
     bufferpos /= 50;
-    SDL_AudioSpec fmt;
-
-    fmt.freq = 22050;
-    fmt.format = AUDIO_U8;
-    fmt.channels = 1;
-    fmt.samples = 2048;
-    fmt.callback = MixAudio;
-    fmt.userdata = NULL;
-
-    /* Open the audio device and start playing sound! */
-    if ( SDL_OpenAudio(&fmt, NULL) < 0 ) 
-    {
-      std::cout << "Unable to open audio: " << SDL_GetError() << std::endl;
-      exit(1);
-    }
-    SDL_PauseAudio(0);
-    //SDL_Delay((bufferpos)/7);
     
-    while (pos < bufferpos)
-    {
-      SDL_Delay(100);
+    while (pos < bufferpos) {
+      sleep_ms(100);  // Sleep in milliseconds
     }
     
-    SDL_CloseAudio();
-  } 
+    ma_device_uninit(&device);
+  }
+
+
+
 
 }
 
@@ -76,18 +89,13 @@ class MySam {
 
     bool Init() {
       std::cout << "MySam Init" << std::endl;
-      if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) 
-      {
-        std::cout << "Unable to init SDL: " << SDL_GetError() << std::endl;
-        return  false;
-      }
+      // No need to initialize anything for miniaudio
       return true;
     }
 
     bool Say(std::string text) {
       std::cout << "Saying: " << text << std::endl;
 
-      // char * to unsigned char * ?
       strcpy((char*)input, text.c_str());
       strcat((char*)input, "[");
       if (!TextToPhonemes(input)) {
@@ -95,13 +103,19 @@ class MySam {
         return false;
       }
       SetInput(input);
-      if (!SAMMain())
-      {
+      if (!SAMMain()) {
         std::cout << "Failed to generate speech" << std::endl;
         return false;
       }
 
-      OutputSound();
+      std::thread audioThread(&MySam::OutputSound, this);
+      audioThread.detach(); // Detach the thread to allow independent execution
+
       return true;
+    }
+
+  private:
+    void OutputSound() {
+      ::OutputSound();
     }
 };

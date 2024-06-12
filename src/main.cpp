@@ -1,4 +1,4 @@
-#include "../include/DrzOlcPixelGameEngine.h"
+#include <DrzOlcPixelGameEngine.h>
 
 #include "fonts/Computerfont18pt7b.h"
 
@@ -12,6 +12,9 @@
 #include "fonts/Solid_Mono4pt7b.h"
  
 #include "vanassistant/VanAssistant.h"
+
+#define MINIAUDIO_IMPLEMENTATION
+#include <miniaudio.h>
 
 class Test3D : public DrzOlcPixelGameEngine {
    
@@ -82,7 +85,7 @@ private:
 
 int main() {
 	Test3D demo;
-  if (demo.Construct(SCREEN_W, SCREEN_H, 1, 1))
+  if (demo.Construct(SCREEN_W, SCREEN_H, 1, 1, false, true))
     demo.Start();
   return 0;
 }

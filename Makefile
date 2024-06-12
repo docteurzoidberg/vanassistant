@@ -2,11 +2,11 @@ CXX      := -c++
 CC			 := -gcc
 CXXFLAGS := -std=c++17
 CCFLAGS  := -std=c99
-LDFLAGS  := -lX11 -lGL -lpthread -lpng -lstdc++fs -L/usr/lib/x86_64-linux-gnu -lSDL
+LDFLAGS  := -lX11 -lGL -lpthread -lpng -lstdc++fs -L/usr/lib/x86_64-linux-gnu -ldl
 OBJ_DIR  := ./obj
 APP_DIR  := ./bin
 TARGET   := vanassistant
-INCLUDE  := -Iinclude/ -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+INCLUDE  := -Iinclude/
 SRC      :=                      \
    $(wildcard src/*.cpp)         \
 
