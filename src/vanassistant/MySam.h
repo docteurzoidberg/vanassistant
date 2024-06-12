@@ -21,7 +21,7 @@ extern "C" {
   void sleep_ms(int milliseconds) {
     usleep(milliseconds * 1000); // usleep takes sleep time in microseconds
   }
-  
+
   void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
   {
     int bufferpos = GetBufferLength();
@@ -63,17 +63,11 @@ extern "C" {
 
     int bufferpos = GetBufferLength();
     bufferpos /= 50;
-    
     while (pos < bufferpos) {
       sleep_ms(100);  // Sleep in milliseconds
     }
-    
     ma_device_uninit(&device);
   }
-
-
-
-
 }
 
 class MySam {

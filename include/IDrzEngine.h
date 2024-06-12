@@ -105,8 +105,6 @@ public:
     const float* operator[](int index) const { return m[index]; }
 };
 
-
-
 constexpr uint8_t  nDefaultAlpha = 0xFF;
 constexpr uint32_t nDefaultColor = (nDefaultAlpha << 24);
 

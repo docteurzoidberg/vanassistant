@@ -33,6 +33,7 @@ public:
 	}
 
 	bool OnUserCreate() override {
+    ConsoleCaptureStdOut(true);
     vanassistant = std::make_unique<VanAssistant>(this);
     vanassistant->Setup();
 		return true;
@@ -45,14 +46,24 @@ public:
     return true;
   }
 
+  bool OnConsoleCommand(const std::string& text) override {
+    vanassistant->Say(text);
+    return true;
+  }
+
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
   
   void ReadInputs(float fElapsedTime) {
         
-    // ESC: exit the app
-    if(GetKey(olc::Key::ESCAPE).bPressed) {
+    // Q: exit the app
+    if(GetKey(olc::Key::Q).bPressed) {
       exit(0);
+    }
+
+    // F1: show console
+    if(GetKey(olc::Key::F1).bPressed) {
+      ConsoleShow(olc::Key::ESCAPE, false);
     }
 
     // B: toggle debug mode
@@ -85,7 +96,7 @@ private:
 
 int main() {
 	Test3D demo;
-  if (demo.Construct(SCREEN_W, SCREEN_H, 1, 1, false, true))
+  if (demo.Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
     demo.Start();
   return 0;
 }

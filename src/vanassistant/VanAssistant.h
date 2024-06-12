@@ -74,11 +74,14 @@ public:
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
 
-
     auto text = "TEST";
     engine->SetFont("mono8");
     auto textsize = engine->GetTextBounds(text, 0, 20);
     std::cout << "Text size: w=" << textsize.w << " h=" << textsize.h << std::endl;
+
+    //------------------------------------------
+    // TTS test code !
+    //------------------------------------------
 
     MySam *sam = new MySam();
     if(!sam->Init()) {
@@ -88,12 +91,12 @@ public:
     std::string text2 = "I am here to help you.";
     std::string text3 = "Shall we play a game ?";
     sam->Say(text1);
-    
-    //Drzoid: only first text is spoken, the rest are ignored...
-    //+thread is blocked we sam speaks
+
+    //!\\ as sam code runs on another thread. need to find a way to have a queue and a callback when next text is ready to be spoken
 
     //sam->Say(text2);
     //sam->Say(text3);
+    //-- end of TTS test code
   }
   
   /**
@@ -140,6 +143,24 @@ public:
     DrawFPS( engine->GetFPS());
   }
 
+  void Say(const std::string& text) {
+    //TODO
+    //send text to tts queue
+    //set callback to say next text
+    //sam->QueueSay(text);
+    MySam *sam = new MySam();
+    if(!sam->Init()) {
+      std::cout << "Failed to initialize SAM" << std::endl;
+    }
+    sam->Say(text);
+    delete sam;
+  }
+
+  //HELP NEEDED
+  void BeforeSayCallback() {
+    //Callback when TTS is about to say next text
+    //TODO
+  }
 
   void ToggleDebug() {
     bShowDebug = !bShowDebug;
