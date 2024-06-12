@@ -104,9 +104,9 @@ class Scene {
           triTranslated.p[2].z += translationMatrix.m[2][3];
 
           //Offset into the screen
-          triTranslated.p[0].z = triRotated.p[0].z + 3.0f;
-          triTranslated.p[1].z = triRotated.p[1].z + 3.0f;
-          triTranslated.p[2].z = triRotated.p[2].z + 3.0f;
+          triTranslated.p[0].z = triTranslated.p[0].z + 3.0f;
+          triTranslated.p[1].z = triTranslated.p[1].z + 3.0f;
+          triTranslated.p[2].z = triTranslated.p[2].z + 3.0f;
 
            // Use Cross-Product to get surface normal
           vec3d normal, line1, line2;

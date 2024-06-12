@@ -29,7 +29,7 @@ public:
     // Setup
     asmText = new AsmText(engine);
     scene = new Scene(engine);
-    scout = new Scout(engine, scene);
+    scout = new Scout(scene);
     //faceModel = new FaceModel(engine);
 
     road = new Road(engine);
@@ -73,11 +73,6 @@ public:
     textAnimator->QueueText("I am here to help you.");
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
-
-    auto text = "TEST";
-    engine->SetFont("mono8");
-    auto textsize = engine->GetTextBounds(text, 0, 20);
-    std::cout << "Text size: w=" << textsize.w << " h=" << textsize.h << std::endl;
 
     //------------------------------------------
     // TTS test code !
