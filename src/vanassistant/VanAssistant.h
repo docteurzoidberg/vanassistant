@@ -85,12 +85,12 @@ public:
     std::string text1 = "Hello, I am your assistant.";
     std::string text2 = "I am here to help you.";
     std::string text3 = "Shall we play a game ?";
-    sam->Say(text1);
+    Say(text1);
 
     //!\\ as sam code runs on another thread. need to find a way to have a queue and a callback when next text is ready to be spoken
 
-    //sam->Say(text2);
-    //sam->Say(text3);
+    //Say(text2);
+    //Say(text3);
     //-- end of TTS test code
   }
   
