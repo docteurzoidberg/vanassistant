@@ -1,22 +1,18 @@
-#include "AsmText.h"
-#include "TextAnimator.h"
-#include <cstdint>
-#include <iostream>
-
 #define SCREEN_W 256
 #define SCREEN_H 240
 #define NUM_STARS 750
-#define PI 3.14159
 
-#include "Scene.h"
-#include "VerticalTextAnimator.h"
-#include "TextAnimator.h"
-#include "Starfield.h" 
-#include "Road.h"
-#include "ScoutModel.h"
-
+#include "AsmText.h"
 #include "MySam.h"
+#include "Road.h"
+#include "Scene.h"
+#include "ScoutModel.h"
+#include "Starfield.h" 
+#include "TextAnimator.h"
+#include "VerticalTextAnimator.h"
 
+#include <cstdint>
+#include <iostream>
 class VanAssistant {
 
 public:

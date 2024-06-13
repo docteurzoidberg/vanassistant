@@ -2,11 +2,11 @@
 
 //Base class for model animated parts
 
-#include <queue>
-
 #include <IDrzEngine.h>
 
 #include "Model.h"
+
+#include <queue>
 
 struct animkeyduration {
   uint16_t index;

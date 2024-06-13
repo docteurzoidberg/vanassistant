@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IDrzEngine.h>
+
 #include <queue>
 
 class TextAnimator {

@@ -2,8 +2,8 @@
 
 #include <IDrzEngine.h>
 
-#include "Model.h"
 #include "AnimatedObject.h"
+#include "Model.h"
 
 #include <cmath>
 

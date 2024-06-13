@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
 #include "../ressources/asmtext.h"
 #include <cstring>
 #include <vector>

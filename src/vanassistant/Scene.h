@@ -1,10 +1,10 @@
 #pragma once
 
+#include <IDrzEngine.h>
+#include "Model.h"
+
 #include <algorithm>
 #include <vector>
-
-#include "IDrzEngine.h"
-#include "Model.h"
 
 enum RenderMode {
   RENDER_WIREFRAME,
