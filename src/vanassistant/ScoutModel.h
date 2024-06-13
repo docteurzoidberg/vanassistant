@@ -138,8 +138,10 @@ class ScoutEyeModel : public Model {
       Matrix4x4 matRotY = Matrix4x4::CreateRotationMatrixY(yaw);
       rotationMatrix = matRotX * matRotY;
 
-      //translation matrix 
-      translationMatrix = Matrix4x4::CreateTranslationMatrix(offset.x, offset.y, offset.z);
+      //combine translations with actual translation matrix
+      translationMatrix[0][3] += offset.x;
+      translationMatrix[1][3] += offset.y;
+      translationMatrix[2][3] += offset.z;
     }
 
     void SetPitch(float pitch) {
@@ -150,8 +152,8 @@ class ScoutEyeModel : public Model {
     }
 
   private:
-    float pitch = 0.0f;
-    float yaw = 0.0f;   
+    float pitch = 0.1;
+    float yaw = 0.1f;   
     vec3d offset;
 };
 

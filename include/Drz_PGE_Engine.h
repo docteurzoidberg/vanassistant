@@ -1,9 +1,8 @@
 #pragma once
 
-#include "olcPixelGameEngine.h"
-#include "olcPGEX_Font.h"
+#include <IDrzEngine.h>
+#include <olcPixelGameEngine.h>
 
-#include "IDrzEngine.h"
 #include <chrono>
 #include <cstdint>
 

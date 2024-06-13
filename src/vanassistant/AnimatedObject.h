@@ -2,11 +2,9 @@
 
 //Base class for model animated parts
 
-#include <iostream>
 #include <queue>
-#include <chrono>
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
 
 #include "Model.h"
 

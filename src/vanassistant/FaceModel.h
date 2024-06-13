@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
 
 #include "Model.h"
 #include "AnimatedObject.h"
+
 #include <cmath>
-#include <iostream>
 
 //Mouth part animations
 class MouthPart : public AnimatedObject {

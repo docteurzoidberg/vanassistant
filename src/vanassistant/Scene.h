@@ -1,10 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
-#include <list>
 #include <vector>
 
+#include "IDrzEngine.h"
 #include "Model.h"
 
 enum RenderMode {
@@ -17,7 +16,8 @@ class Scene {
   public:
 
     vec3d vCamera;
-    mat4x4 matProj;
+    //mat4x4 matProj;
+    Matrix4x4 matProj;
 
     float fFov = 90.0f;
     float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
@@ -32,6 +32,8 @@ class Scene {
       fAspectRatio = (float)engine->GetScreenWidth() / (float)engine->GetScreenHeight();
 
       //setup projection matrix
+      matProj = Matrix4x4::Identity();
+
       matProj.m[0][0] = fAspectRatio * fFovRad;
       matProj.m[1][1] = fFovRad;
       matProj.m[2][2] = fFar / (fFar - fNear);
@@ -45,17 +47,6 @@ class Scene {
       models.push_back(model);
     }
 
-    void MultiplyMatrixVector(vec3d &i, vec3d &o, mat4x4 &m) {
-      o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-      o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-      o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
-      float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
-      if (w != 0.0f)
-      {
-        o.x /= w; o.y /= w; o.z /= w;
-      }
-    }
-    
     void MultiplyMatrixVector(vec3d &i, vec3d &o, Matrix4x4 &m) {
       o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
       o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
@@ -143,9 +134,9 @@ class Scene {
             triTranslated.col = color(dp * 255, dp * 255, dp * 255);
 
             // Project triangles from 3D --> 2D
-            MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-            MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-            MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+            Matrix4x4::MultiplyVector(matProj, triTranslated.p[0], triProjected.p[0]);
+            Matrix4x4::MultiplyVector(matProj, triTranslated.p[1], triProjected.p[1]);
+            Matrix4x4::MultiplyVector(matProj, triTranslated.p[2], triProjected.p[2]);
             triProjected.col = triTranslated.col;
             
             // Scale into view
@@ -182,9 +173,9 @@ class Scene {
       for (auto &t : vecTrianglesToRaster) {
         // Draw the transformed, viewed, clipped, projected, sorted, clipped triangles
         if (renderMode == RENDER_WIREFRAME) {
-          engine->DrawLine(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.col);
-          engine->DrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.col);
-          engine->DrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, t.col);
+          engine->DrawLine(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, WHITE);
+          engine->DrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, WHITE);
+          engine->DrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, WHITE);
         } else {
           engine->FillTriangle({t.p[0].x, t.p[0].y}, {t.p[1].x, t.p[1].y}, {t.p[2].x, t.p[2].y}, t.col);
         }
