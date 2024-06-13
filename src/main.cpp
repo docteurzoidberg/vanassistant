@@ -19,10 +19,10 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
-class Test3D : public DrzOlcPixelGameEngine {
+class VanAssistantPGE : public Drz_PGE_Engine {
    
 public:
-	Test3D() : DrzOlcPixelGameEngine(this) {
+	VanAssistantPGE() : Drz_PGE_Engine(this) {
 		sAppName = "VanAssistant";
     //Load fonts
     const font* comp18 = LoadFont("comp18", &Computerfont18pt7b);
@@ -33,6 +33,8 @@ public:
     const font* solidmono8 = LoadFont("solidmono8", &Solid_Mono8pt7b);
     const font* solidmono6 = LoadFont("solidmono6", &Solid_Mono6pt7b);
     const font* solidmono4 = LoadFont("solidmono4", &Solid_Mono4pt7b);
+    //Load sprites when any...
+    //Load sounds when any...
 	}
 
 	bool OnUserCreate() override {
@@ -98,8 +100,8 @@ private:
 };
 
 int main() {
-	Test3D demo;
-  if (demo.Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
-    demo.Start();
+	VanAssistantPGE app;
+  if (app.Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
+    app.Start();
   return 0;
 }

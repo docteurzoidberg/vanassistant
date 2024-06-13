@@ -6,10 +6,10 @@
 #include <chrono>
 #include <cstdint>
 
-class DrzOlcPixelGameEngine : public olc::PixelGameEngine, public IDrzEngine {
+class Drz_PGE_Engine : public olc::PixelGameEngine, public IDrzEngine {
 
 public:
-  DrzOlcPixelGameEngine(olc::PixelGameEngine* p) : pge(p) { 
+  Drz_PGE_Engine(olc::PixelGameEngine* p) : pge(p) { 
     startedAt = std::chrono::system_clock::now();
   }
 
