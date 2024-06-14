@@ -1,4 +1,5 @@
-#include <Drz_PGE_Engine.h>
+#include "Drz_PGE_Engine.h"
+#include "Drz_Miniaudio_Sam.h"
 
 #include "fonts/Computerfont18pt7b.h"
 
@@ -18,6 +19,8 @@
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+
+#include <memory>
 
 class VanAssistantPGE : public Drz_PGE_Engine {
    
@@ -39,7 +42,8 @@ public:
 
 	bool OnUserCreate() override {
     ConsoleCaptureStdOut(true);
-    vanassistant = std::make_unique<VanAssistant>(this);
+    sam = std::make_unique<Drz_Miniaudio_Sam>();
+    vanassistant = std::make_unique<VanAssistant>(this, sam.get());
     vanassistant->Setup();
 		return true;
 	}
@@ -58,6 +62,7 @@ public:
 
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
+  std::unique_ptr<IDrzSam> sam;
   
   void ReadInputs(float fElapsedTime) {
         

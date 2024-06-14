@@ -8,9 +8,7 @@
 //Base class to load a 3d model
 class Model {
   public:
-    Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){
-    
-    }
+    Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
 
     virtual void Update(float fElapsedTime) = 0;
 

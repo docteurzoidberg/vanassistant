@@ -1,5 +1,8 @@
 #pragma once
 
+#include <IDrzSam.h>
+#include <miniaudio.h>
+
 #include <iostream>
 #include <string>
 #include <thread>
@@ -7,10 +10,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
-#include "miniaudio.h"
-
-#include "../sam/reciter.h"
-#include "../sam/sam.h"
+#include "sam/reciter.h"
+#include "sam/sam.h"
 
 extern "C" {
 
@@ -70,22 +71,17 @@ extern "C" {
   }
 }
 
-class MySam {
-  public:
-  
-    MySam() {
-      std::cout << "MySam constructor" << std::endl;
-    } 
 
-    ~MySam() {
-      std::cout << "MySam destructor" << std::endl;
-    }
+class Drz_Miniaudio_Sam : public IDrzSam
+{
+public:
+    Drz_Miniaudio_Sam() {
 
-    bool Init() {
-      std::cout << "MySam Init" << std::endl;
-      // No need to initialize anything for miniaudio
-      return true;
-    }
+    };
+    
+    ~Drz_Miniaudio_Sam() {
+
+    };
 
     bool Say(std::string text) {
       std::cout << "Saying: " << text << std::endl;
@@ -102,14 +98,14 @@ class MySam {
         return false;
       }
 
-      std::thread audioThread(&MySam::OutputSound, this);
+      std::thread audioThread(&Drz_Miniaudio_Sam::OutputSound, this);
       audioThread.detach(); // Detach the thread to allow independent execution
 
       return true;
-    }
-
+    };
   private:
     void OutputSound() {
       ::OutputSound();
     }
 };
+

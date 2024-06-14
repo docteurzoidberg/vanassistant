@@ -1,9 +1,10 @@
+#include "IDrzSam.h"
 #define SCREEN_W 256
 #define SCREEN_H 240
 #define NUM_STARS 750
 
 #include "AsmText.h"
-#include "MySam.h"
+//#include "MySam.h"
 #include "Road.h"
 #include "Scene.h"
 #include "ScoutModel.h"
@@ -17,7 +18,7 @@ class VanAssistant {
 
 public:
 
-  VanAssistant(IDrzEngine* engine) : engine(engine) {}
+  VanAssistant(IDrzEngine* engine, IDrzSam* sam) : engine(engine), sam(sam) {}
   
   ///Load assets, initialize variables, etc
   void Setup() { 
@@ -73,15 +74,16 @@ public:
     //------------------------------------------
     // TTS test code !
     //------------------------------------------
+    sam->Say("Hello, I am your assistant.");
 
-    MySam *sam = new MySam();
-    if(!sam->Init()) {
-      std::cout << "Failed to initialize SAM" << std::endl;
-    }
-    std::string text1 = "Hello, I am your assistant.";
-    std::string text2 = "I am here to help you.";
-    std::string text3 = "Shall we play a game ?";
-    Say(text1);
+    //MySam *sam = new MySam();
+    //if(!sam->Init()) {
+    //  std::cout << "Failed to initialize SAM" << std::endl;
+    //}
+    //std::string text1 = "Hello, I am your assistant.";
+    //std::string text2 = "I am here to help you.";
+    //std::string text3 = "Shall we play a game ?";
+    //Say(text1);
 
     //!\\ as sam code runs on another thread. need to find a way to have a queue and a callback when next text is ready to be spoken
 
@@ -139,12 +141,12 @@ public:
     //send text to tts queue
     //set callback to say next text
     //sam->QueueSay(text);
-    MySam *sam = new MySam();
-    if(!sam->Init()) {
-      std::cout << "Failed to initialize SAM" << std::endl;
-    }
-    sam->Say(text);
-    delete sam;
+   // MySam *sam = new MySam();
+    //if(!sam->Init()) {
+    //  std::cout << "Failed to initialize SAM" << std::endl;
+    //}
+    //sam->Say(text);
+    //delete sam;
   }
 
   //HELP NEEDED
@@ -180,6 +182,7 @@ public:
 
 private: 
   IDrzEngine* engine;
+  IDrzSam* sam;
 
   Scene* scene;
   AsmText* asmText;
