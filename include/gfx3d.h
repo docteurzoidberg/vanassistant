@@ -180,7 +180,7 @@ namespace drz
       void SetTransform(drz::GFX3D::mat4x4 &transform);
       //void SetTexture(olc::Sprite *texture);
       //void SetMipMapTexture(olc::GFX3D::MipMap *texture);
-      void SetLightSource(uint32_t nSlot, uint32_t nType, color col, drz::GFX3D::vec3d pos, GFX3D::vec3d dir, float fParam = 0.0f);
+      void SetLightSource(uint32_t nSlot, uint32_t nType, drz::color col, drz::GFX3D::vec3d pos, GFX3D::vec3d dir =  { 0.0f, 0.0f, 1.0f, 1.0f }, float fParam = 0.0f);
       uint32_t Render(std::vector<drz::GFX3D::triangle> &triangles, uint32_t flags = RENDER_CULL_CW | RENDER_TEXTURED | RENDER_DEPTH);
       uint32_t Render(std::vector<drz::GFX3D::triangle> &triangles, uint32_t flags, int nOffset, int nCount);
       uint32_t RenderLine(drz::GFX3D::vec3d &p1, drz::GFX3D::vec3d &p2, color col = WHITE);
@@ -642,6 +642,10 @@ namespace drz
     m_DepthBuffer = new float[engine->GetScreenWidth() * engine->GetScreenHeight()]{ 0 };
   }
 
+  void GFX3D::SetEngine(IDrzEngine* pEngine)
+  {
+    engine = pEngine;
+  }
 
   void GFX3D::ClearDepth()
   {
@@ -673,7 +677,7 @@ namespace drz
     matWorld = transform;
   }
 
-  void GFX3D::PipeLine::SetLightSource(uint32_t nSlot, uint32_t nType, color col, drz::GFX3D::vec3d pos, drz::GFX3D::vec3d dir, float fParam)
+  void GFX3D::PipeLine::SetLightSource(uint32_t nSlot, uint32_t nType, drz::color col, drz::GFX3D::vec3d pos, drz::GFX3D::vec3d dir, float fParam)
   {
     if (nSlot < 4)
     {
@@ -972,10 +976,10 @@ namespace drz
           else
           {
             RasterTriangle(
-              (int)triRaster.p[0].x,(int)triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z, triRaster.col[0],
-              (int)triRaster.p[1].x,(int)triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z, triRaster.col[1],
-              (int)triRaster.p[2].x,(int)triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z, triRaster.col[2],
-              flags);
+							(int)triRaster.p[0].x,(int)triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z, triRaster.col[0],
+							(int)triRaster.p[1].x,(int)triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z, triRaster.col[1],
+							(int)triRaster.p[2].x,(int)triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z, triRaster.col[2],
+							flags);
             
           }
           nTriangleDrawnCount++;
@@ -1131,7 +1135,7 @@ namespace drz
           if (nFlags & GFX3D::RENDER_DEPTH)
           {
             if (tex_w > m_DepthBuffer[i*engine->GetScreenWidth() + j])
-              if (engine->DrawPixel(j, i,color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
+              if (engine->DrawPixel(j, i,drz::color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
                 m_DepthBuffer[i*engine->GetScreenWidth() + j] = tex_w;
           }
           else

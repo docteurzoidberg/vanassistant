@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gfx3d.h"
 #include <IDrzEngine.h>
 
 #include <iostream>
@@ -10,7 +11,7 @@ using namespace drz;
 //Base class to load a 3d model
 class Model {
   public:
-    Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
+    Model(std::vector<GFX3D::vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
 
     virtual void Update(float fElapsedTime) = 0;
 
@@ -22,9 +23,9 @@ class Model {
       std::cout << "Model loaded with " << tris.size() << " triangles" << std::endl;
     }
 
-    std::vector<vec3d>* verts;
+    std::vector<GFX3D::vec3d>* verts;
     std::vector<face>* faces;
-    std::vector<triangleref> tris;
+    std::vector<GFX3D::triangle> tris;
 
     Matrix4x4 rotationMatrix;
     Matrix4x4 translationMatrix;
@@ -33,12 +34,10 @@ class Model {
     void _loadTriRefs() {
       for (int i=0; i<faces->size(); i++) {
         face* f = &faces->at(i);
-        vec3d* p0 = &verts->at(f->f[0] - 1);
-        vec3d* p1 = &verts->at(f->f[1] - 1);
-        vec3d* p2 = &verts->at(f->f[2] - 1);
-        tris.push_back({
-          p0, p1, p2
-        });
+        drz::GFX3D::vec3d p0 = verts->at(f->f[0] - 1);
+        drz::GFX3D::vec3d p1 = verts->at(f->f[1] - 1);
+        drz::GFX3D::vec3d p2 = verts->at(f->f[2] - 1);
+        tris.push_back({p0, p1, p2});
       } 
     }
 };

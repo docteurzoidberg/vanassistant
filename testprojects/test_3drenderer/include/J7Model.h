@@ -4,11 +4,14 @@
 
 #include "Model.h"
 #include "Scene.h"
+#include "gfx3d.h"
+
+using namespace drz;
 
 class J7BodyModel: public Model {
   public:
     //clang-format off
-    std::vector<vec3d> verts = {
+    std::vector<GFX3D::vec3d> verts = {
       {0.59354, 0.583176, -1.44436},
       {0.59354, 0.483788, -1.47498},
       {0.323766, 0.589041, -1.59862},
@@ -2339,7 +2342,7 @@ class J7BodyModel: public Model {
 
 class J7WheelModel: public Model {
   public:
-    std::vector<vec3d> verts ={};
+    std::vector<GFX3D::vec3d> verts ={};
     std::vector<face> faces ={};
     J7WheelModel() : Model(&verts, &faces) {
       // Load model
