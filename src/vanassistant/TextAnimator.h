@@ -4,6 +4,8 @@
 
 #include <queue>
 
+using namespace drz;
+
 class TextAnimator {
 public:
   TextAnimator(IDrzEngine* engine, std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)

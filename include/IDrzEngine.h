@@ -1,9 +1,10 @@
 #pragma once
- 
+
 #include <cmath>
 #include <cstdint>
 #include <string>
 
+namespace drz {
 
 /* COLOR */
 
@@ -156,8 +157,6 @@ inline color ColorLerp(const color& p1, const color& p2, float t) {
 
 /* END COLOR */
 
-
-
 struct rect {
   int x, y, w, h;
 };
@@ -180,12 +179,12 @@ struct triangle {
 
 struct trianglec {
   vec3d p[3];
-  color col;
+  drz::color col;
 };
 
 struct trianglecref {
   vec3d* p[3];
-  color col;
+  drz::color col;
 };
 
 struct triangleref {
@@ -248,7 +247,6 @@ class Vector {
       return Add(lineStart, lineToIntersect);
     }
 };
-
 
 class Triangle {
   public:
@@ -502,6 +500,7 @@ struct font {
     uint8_t yAdvance;      // Newline distance (y axis)
 };
 
+
 class IDrzEngine {
 public:
 
@@ -509,22 +508,27 @@ public:
   virtual hwbutton GetKey(uint8_t key) = 0;
 
   // Drawing methods
-  virtual void Clear(color color) = 0;
-  virtual bool DrawPixel(int x, int y, color color) = 0;
-  virtual void DrawLine(int x1, int y1, int x2, int y2, color color) = 0;
-  virtual void DrawLine(vec2d p1, vec2d p2, color color) = 0;
-  virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) = 0;
-  virtual void FillRect(int x, int y, int w, int h, color color) = 0;
-  virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) = 0;
-  virtual void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) = 0;
-  virtual void FillCircle(int x, int y, int radius, color color) = 0;
+  virtual void Clear(drz::color color) = 0;
+  virtual bool DrawPixel(int x, int y, drz::color color) = 0;
+  virtual void DrawLine(int x1, int y1, int x2, int y2, drz::color color) = 0;
+  
+
+  virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, drz::color color) = 0;
+  virtual void FillRect(int x, int y, int w, int h, drz::color color) = 0;
+  virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, drz::color color) = 0;
+  
+  virtual void FillCircle(int x, int y, int radius, drz::color color) = 0;
+  
+  //gfx3d methods
+  //virtual void FillTriangle(drz::GFX3D::vec2d p1, drz::GFX3D::vec2d p2, drz::GFX3D::vec2d p3, drz::color color) = 0;
+  //virtual void DrawLine(drz::GFX3D::vec2d p1, drz::GFX3D::vec2d p2, drz::color color) = 0;
 
   // Font-related methods
   virtual const font* LoadFont(const std::string& fontName, const font* font) = 0;
   virtual void SetFont(const std::string& fontName) = 0;
   virtual void SetFont(const font* font) = 0;
-  virtual void SetTextColor(color color) = 0;
-  virtual void DrawText(const std::string& text, float x, float y, color color) = 0;
+  virtual void SetTextColor(drz::color color) = 0;
+  virtual void DrawText(const std::string& text, float x, float y, drz::color color) = 0;
 
   virtual void SetCursorPos(uint16_t x, uint16_t y) = 0;
   virtual void SetWrap(bool wrap) = 0;
@@ -544,3 +548,5 @@ public:
 
 };
 
+
+} //namespace drz

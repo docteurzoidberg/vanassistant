@@ -2,7 +2,9 @@
 
 #include <cstdint>
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
+
+using namespace drz;
 
 const uint8_t Solid_Mono3pt7bBitmaps[]  = {
   0x00, 0xF0, 0xB4, 0xFC, 0x59, 0x36, 0x80, 0xCA, 0x70, 0xEA, 0xF0, 0xC0,

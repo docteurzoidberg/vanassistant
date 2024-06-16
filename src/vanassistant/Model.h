@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+using namespace drz;
+
 //Base class to load a 3d model
 class Model {
   public:

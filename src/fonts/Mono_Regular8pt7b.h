@@ -2,7 +2,9 @@
 
 #include <cstdint>
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
+
+using namespace drz;
 
 const uint8_t Mono_Regular8pt7bBitmaps[]  {
   0x00, 0xFF, 0xFF, 0x3C, 0xCF, 0x34, 0x73, 0x0D, 0x83, 0x63, 0xFC, 0xFF,

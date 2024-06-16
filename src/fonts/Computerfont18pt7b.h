@@ -2,7 +2,9 @@
 
 #include <cstdint>
 
-#include "../../include/IDrzEngine.h"
+#include <IDrzEngine.h>
+
+using namespace drz;
 
 const uint8_t Computerfont18pt7bBitmaps[] = {
   0x00, 0x71, 0xF3, 0xE7, 0xCF, 0x9F, 0x3F, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,

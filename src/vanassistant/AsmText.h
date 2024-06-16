@@ -5,6 +5,8 @@
 #include <cstring>
 #include <vector>
 
+using namespace drz;
+
 class AsmText {
 public:
   AsmText(IDrzEngine* engine) : engine(engine) {

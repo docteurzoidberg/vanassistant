@@ -6,6 +6,8 @@
 #include <queue>
 #include <vector>
 
+using namespace drz;
+
 class VerticalTextAnimator {
 public:
   VerticalTextAnimator(IDrzEngine* engine, std::string fontname, uint8_t lineHeight, float typeSpeed, float pauseTime, float cursorBlinkRate, int rectX, int rectY, int rectWidth, int rectHeight, int cursorWidth, int cursorHeight)

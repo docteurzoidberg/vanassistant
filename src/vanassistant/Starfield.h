@@ -5,6 +5,8 @@
 #include <cmath>
 #include <vector>
 
+using namespace drz;
+
 struct star {
   float x, y, z, o;
 };

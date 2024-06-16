@@ -6,6 +6,9 @@
 #include <chrono>
 #include <cstdint>
 
+namespace drz 
+{
+
 class Drz_PGE_Engine : public olc::PixelGameEngine, public IDrzEngine {
 
 public:
@@ -91,11 +94,11 @@ public:
   bool DrawPixel(int x, int y, color color) override {
     return pge->Draw(x, y, ColorToPixel(color));
   }
-
+/*
   void DrawLine(vec2d p1, vec2d p2, color color) override {
     pge->DrawLine(p1.x, p1.y, p2.x, p2.y, ColorToPixel(color));
   }
-
+*/
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
     pge->DrawLine(x1, y1, x2, y2, ColorToPixel(color));
   }
@@ -110,11 +113,11 @@ public:
   void FillRect(int x, int y, int w, int h, color color) override {
     pge->FillRect(x, y, w, h, ColorToPixel(color));
   }
-
+/*
   void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) override {
     pge->FillTriangle((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
   }
-
+*/
   void FillTriangle( int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
     pge->FillTriangle(x1,y1,x2,y2,x3,y3,ColorToPixel(col));
   }
@@ -335,3 +338,5 @@ private:
   }
 
 };
+
+} // namespace drz

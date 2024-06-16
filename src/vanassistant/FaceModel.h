@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+using namespace drz;
+
 //Mouth part animations
 class MouthPart : public AnimatedObject {
   public:

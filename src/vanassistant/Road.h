@@ -2,6 +2,8 @@
 
 #include <IDrzEngine.h>
 
+using namespace drz;
+
 class Road {
   public:
   
@@ -55,6 +57,6 @@ class Road {
     void drawLine3D(float x1, float y1, float z1, float x2, float y2, float z2, color color) {
       vec2d p1 = get3DCoords(x1, y1, z1);
       vec2d p2 = get3DCoords(x2, y2, z2);
-      engine->DrawLine(p1, p2, color);
+      engine->DrawLine(p1.x, p1.y, p2.x, p2.y, color);
     }
 };

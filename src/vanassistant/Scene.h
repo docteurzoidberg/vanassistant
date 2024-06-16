@@ -1,10 +1,14 @@
 #pragma once
 
 #include <IDrzEngine.h>
+#include <gfx3d.h>
+
 #include "Model.h"
 
 #include <algorithm>
 #include <vector>
+
+using namespace drz;
 
 enum RenderMode {
   RENDER_WIREFRAME,
@@ -171,7 +175,7 @@ class Scene {
           engine->DrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, WHITE);
           engine->DrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, WHITE);
         } else {
-          engine->FillTriangle({t.p[0].x, t.p[0].y}, {t.p[1].x, t.p[1].y}, {t.p[2].x, t.p[2].y}, t.col);
+          engine->FillTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.col);
         }
       }
     }

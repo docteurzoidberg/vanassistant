@@ -13,7 +13,9 @@
 #include "VerticalTextAnimator.h"
 
 #include <cstdint>
-#
+
+using namespace drz;
+
 class VanAssistant {
 
 public:
