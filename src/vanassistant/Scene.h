@@ -16,7 +16,6 @@ class Scene {
   public:
 
     vec3d vCamera;
-    //mat4x4 matProj;
     Matrix4x4 matProj;
 
     float fFov = 90.0f;
@@ -47,17 +46,6 @@ class Scene {
       models.push_back(model);
     }
 
-    void MultiplyMatrixVector(vec3d &i, vec3d &o, Matrix4x4 &m) {
-      o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-      o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-      o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
-      float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
-      if (w != 0.0f)
-      {
-        o.x /= w; o.y /= w; o.z /= w;
-      }
-    }
-
     void Update(float fElapsedTime) {
 
       vecTrianglesToRaster.clear();
@@ -67,16 +55,22 @@ class Scene {
         //Apply model rotations
         model->Update(fElapsedTime);
 
+
+
         for (auto tri : model->tris) {
+
+         
+          //std::swap(*tri.p[0], *tri.p[2]);
+          
 
           //trianglec triProjected, triTranslated, triRotatedZ, triRotatedZX;
           trianglec triProjected, triTranslated, triRotated;
 
           //refacto: Apply rotationMatrix instead of individual rotations
           auto rotationMatrix = model->rotationMatrix;
-          MultiplyMatrixVector(*tri.p[0], triRotated.p[0], rotationMatrix);
-          MultiplyMatrixVector(*tri.p[1], triRotated.p[1], rotationMatrix);
-          MultiplyMatrixVector(*tri.p[2], triRotated.p[2], rotationMatrix);
+          Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[0], triRotated.p[0]);
+          Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[1], triRotated.p[1]);
+          Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[2], triRotated.p[2]);
 
           //refacto: Apply translationMatrix instead of individual translations
           auto translationMatrix = model->translationMatrix;
@@ -130,7 +124,7 @@ class Scene {
             // How similar is normal to light direction
             float dp = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z;
 
-            // Choose console colours as required (much easier with RGB)
+            // Choose colours as required
             triTranslated.col = color(dp * 255, dp * 255, dp * 255);
 
             // Project triangles from 3D --> 2D

@@ -1,10 +1,10 @@
 #include "IDrzSam.h"
+#include "J7Model.h"
 #define SCREEN_W 256
 #define SCREEN_H 240
 #define NUM_STARS 750
 
 #include "AsmText.h"
-//#include "MySam.h"
 #include "Road.h"
 #include "Scene.h"
 #include "ScoutModel.h"
@@ -13,7 +13,7 @@
 #include "VerticalTextAnimator.h"
 
 #include <cstdint>
-#include <iostream>
+#
 class VanAssistant {
 
 public:
@@ -26,7 +26,8 @@ public:
     // Setup
     asmText = new AsmText(engine);
     scene = new Scene(engine);
-    scout = new Scout(scene);
+    //scout = new Scout(scene);
+    j7 = new J7(scene);
     //faceModel = new FaceModel(engine);
 
     road = new Road(engine);
@@ -49,7 +50,7 @@ public:
 
     // Add models to scene
     //scene->AddModel(faceModel);
-    scout->SetJawOpening(0.5f);
+    //scout->SetJawOpening(0.5f);
 
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::CLOSE, 3.0f);
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::OPEN, 1.0f);
@@ -74,7 +75,7 @@ public:
     //------------------------------------------
     // TTS test code !
     //------------------------------------------
-    sam->Say("Hello, I am your assistant.");
+    Say("Hello, I am your assistant.");
 
     //MySam *sam = new MySam();
     //if(!sam->Init()) {
@@ -100,9 +101,10 @@ public:
   void Update(float elapsedTime) {
    
     textAnimator->Update();
-    verticalTextAnimator->Update();
+    //verticalTextAnimator->Update();
     road->Update(elapsedTime);
-    scout->Update(elapsedTime);
+    //scout->Update(elapsedTime);
+    j7->Update(elapsedTime);
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
@@ -125,7 +127,7 @@ public:
     //Clear screen
     engine->Clear(BLACK);
     
-    verticalTextAnimator->DrawText();
+    //verticalTextAnimator->DrawText();
     starfield->Render();
     road->Render(); 
     scene->Render();
@@ -138,6 +140,7 @@ public:
 
   void Say(const std::string& text) {
     //TODO
+    sam->Say(text);
     //send text to tts queue
     //set callback to say next text
     //sam->QueueSay(text);
@@ -187,6 +190,7 @@ private:
   Scene* scene;
   AsmText* asmText;
   //FaceModel* faceModel;
+  J7* j7;
   Scout *scout;
   Road* road;
   Starfield* starfield;

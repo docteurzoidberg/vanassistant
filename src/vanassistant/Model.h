@@ -13,9 +13,9 @@ class Model {
     virtual void Update(float fElapsedTime) = 0;
 
     void SetupModel() {
-      std::cout << "Vert count: " << verts->size() << std::endl;
-      std::cout << "Face count: " << faces->size() << std::endl;
-      std::cout << "Loading model" << std::endl;
+      //std::cout << "Vert count: " << verts->size() << std::endl;
+      //std::cout << "Face count: " << faces->size() << std::endl;
+      //std::cout << "Loading model" << std::endl;
       _loadTriRefs();
       std::cout << "Model loaded with " << tris.size() << " triangles" << std::endl;
     }
