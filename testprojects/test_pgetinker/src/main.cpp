@@ -109,6 +109,9 @@ public:
 
         if (GetKey(olc::Key::D).bHeld)
             fYaw += 2.0f * fElapsedTime;
+        
+        auto size = GetWindowSize();
+        std::cout << "Size: " << size.x << " " << size.y << std::endl;
 
         return true;
     }
