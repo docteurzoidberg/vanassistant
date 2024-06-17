@@ -5,7 +5,8 @@
 
 #include "../include/Scene.h"
 #include "../include/J7Model.h"
-#include "IDrzEngine.h"
+
+#include <IDrzEngine.h>
 
 #define OLC_PGE_APPLICATION
 #include <olcPixelGameEngine.h>
@@ -29,7 +30,7 @@ class Test3DRenderer : public Drz_PGE_Engine {
     }
 
     bool OnUserCreate() override {
-      ConsoleCaptureStdOut(true);
+      //ConsoleCaptureStdOut(true);
       scene = new Scene(this, 0, 0, GetScreenWidth(), GetScreenHeight());
       model = new J7(scene);
       return true;
@@ -40,8 +41,12 @@ class Test3DRenderer : public Drz_PGE_Engine {
       if(GetKey(olc::Key::F1).bPressed) {
         ConsoleShow(olc::Key::ESCAPE, false);
       }
-
+          
+      if(GetKey(olc::Key::R).bPressed) {
+        scene->renderMode = (scene->renderMode == RENDER_SOLID) ? RENDER_WIREFRAME : RENDER_SOLID;
+      }
       
+      fTheta += 0.1f * fElapsedTime;	// Spin
 
       Clear(drz::VERY_DARK_CYAN);
       scene->Update(fElapsedTime, vCamera, fYaw, fTheta);

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <IDrzEngine.h>
 /*
   olcPGEX_Graphics3D.h
 
@@ -775,16 +777,23 @@ namespace drz
     return 0;
   }
 
+
   uint32_t GFX3D::PipeLine::Render(std::vector<drz::GFX3D::triangle> &triangles, uint32_t flags, int nOffset, int nCount)
   {
     // Calculate Transformation Matrix
     mat4x4 matWorldView = Math::Mat_MultiplyMatrix(matWorld, matView);
+    //matWorldViewProj = Math::Mat_MultiplyMatrix(matWorldView, matProj);
 
     // Store triangles for rastering later
     std::vector<GFX3D::triangle> vecTrianglesToRaster;
 
     int nTriangleDrawnCount = 0;
 
+    // Process Triangles
+    //for (auto &tri : triangles)
+//		omp_set_dynamic(0);
+//		omp_set_num_threads(4);
+//#pragma omp parallel for schedule(static)
     for(int tx = nOffset; tx < nOffset+nCount; tx++)
     {
       GFX3D::triangle &tri = triangles[tx];
@@ -819,8 +828,8 @@ namespace drz
       // If Lighting, calculate shading
       if (flags & RENDER_LIGHTS)
       {
-        color ambient_clamp = { 0,0,0 };
-        color light_combined = { 0,0,0 };
+        drz::color ambient_clamp = { 0,0,0 };
+        drz::color light_combined = { 0,0,0 };
         uint32_t nLightSources = 0;
         float nLightR = 0, nLightG = 0, nLightB = 0;
 
@@ -854,6 +863,10 @@ namespace drz
           }
         }
 
+        //nLightR /= nLightSources;
+        //nLightG /= nLightSources;
+        //nLightB /= nLightSources;
+
         nLightR = std::max(nLightR, ambient_clamp.r / 255.0f);
         nLightG = std::max(nLightG, ambient_clamp.g / 255.0f);
         nLightB = std::max(nLightB, ambient_clamp.b / 255.0f);
@@ -861,8 +874,19 @@ namespace drz
         triTransformed.col[0] = color(uint8_t(nLightR * triTransformed.col[0].r), uint8_t(nLightG * triTransformed.col[0].g), uint8_t(nLightB * triTransformed.col[0].b));
         triTransformed.col[1] = color(uint8_t(nLightR * triTransformed.col[1].r), uint8_t(nLightG * triTransformed.col[1].g), uint8_t(nLightB * triTransformed.col[1].b));
         triTransformed.col[2] = color(uint8_t(nLightR * triTransformed.col[2].r), uint8_t(nLightG * triTransformed.col[2].g), uint8_t(nLightB * triTransformed.col[2].b));
-      }
 
+
+
+        /*GFX3D::vec3d light_dir = { 1,1,1 };
+        light_dir = GFX3D::Math::Vec_Normalise(light_dir);
+        float light = GFX3D::Math::Vec_DotProduct(light_dir, normal);
+        if (light < 0) light = 0;
+        triTransformed.col[0] = olc::Pixel(light * 255.0f, light * 255.0f, light * 255.0f);
+        triTransformed.col[1] = olc::Pixel(light * 255.0f, light * 255.0f, light * 255.0f);
+        triTransformed.col[2] = olc::Pixel(light * 255.0f, light * 255.0f, light * 255.0f);*/
+      }
+      //else
+      	//triTransformed.col = WHITE;
 
       // Clip triangle against near plane
       int nClippedTriangles = 0;
@@ -953,7 +977,12 @@ namespace drz
         for (auto &triRaster : listTriangles)
         {
           // Scale to viewport
-
+          /*triRaster.p[0].x *= -1.0f;
+          triRaster.p[1].x *= -1.0f;
+          triRaster.p[2].x *= -1.0f;
+          triRaster.p[0].y *= -1.0f;
+          triRaster.p[1].y *= -1.0f;
+          triRaster.p[2].y *= -1.0f;*/
           vec3d vOffsetView = { 1,1,0 };
           triRaster.p[0] = Math::Vec_Add(triRaster.p[0], vOffsetView);
           triRaster.p[1] = Math::Vec_Add(triRaster.p[1], vOffsetView);
@@ -969,32 +998,51 @@ namespace drz
           triRaster.p[1] = Math::Vec_Add(triRaster.p[1], vOffsetView);
           triRaster.p[2] = Math::Vec_Add(triRaster.p[2], vOffsetView);
 
+          // For now, just draw triangle
+
+          //if (flags & RENDER_TEXTURED)
+          //{/*
+          //	TexturedTriangle(
+          //		triRaster.p[0].x, triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z,
+          //		triRaster.p[1].x, triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z,
+          //		triRaster.p[2].x, triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z,
+          //		sprTexture);*/
+
+          //	RasterTriangle(
+          //		triRaster.p[0].x, triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z, triRaster.col,
+          //		triRaster.p[1].x, triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z, triRaster.col,
+          //		triRaster.p[2].x, triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z, triRaster.col,
+          //		sprTexture, nFlags);
+
+          //}
+
           if (flags & RENDER_WIRE)
           {
-            DrawTriangleWire(triRaster, RED);
+            DrawTriangleWire(triRaster, drz::RED);
           }
           else
           {
             RasterTriangle(
-							(int)triRaster.p[0].x,(int)triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z, triRaster.col[0],
-							(int)triRaster.p[1].x,(int)triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z, triRaster.col[1],
-							(int)triRaster.p[2].x,(int)triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z, triRaster.col[2],
-							flags);
+              (int)triRaster.p[0].x,(int)triRaster.p[0].y, triRaster.t[0].x, triRaster.t[0].y, triRaster.t[0].z, triRaster.col[0],
+              (int)triRaster.p[1].x,(int)triRaster.p[1].y, triRaster.t[1].x, triRaster.t[1].y, triRaster.t[1].z, triRaster.col[1],
+              (int)triRaster.p[2].x,(int)triRaster.p[2].y, triRaster.t[2].x, triRaster.t[2].y, triRaster.t[2].z, triRaster.col[2],
+              flags);
             
           }
+
           nTriangleDrawnCount++;
         }
       }
     }
+
     return nTriangleDrawnCount;
   }
 
-  void GFX3D::RasterTriangle(
-      int x1, int y1, float u1, float v1, float w1, color c1, 
-      int x2, int y2, float u2, float v2, float w2, color c2, 
-      int x3, int y3, float u3, float v3, float w3, color c3, 
-      uint32_t nFlags
-    ) 
+  void GFX3D::RasterTriangle(int x1, int y1, float u1, float v1, float w1, drz::color c1,
+                 int x2, int y2, float u2, float v2, float w2, drz::color c2,
+                 int x3, int y3, float u3, float v3, float w3, drz::color c3,
+                 uint32_t nFlags)
+
   {
     if (y2 < y1)
     {
@@ -1132,10 +1180,23 @@ namespace drz
           pixel_b = col_b;
           pixel_a = col_a;
 
+          if (nFlags & GFX3D::RENDER_TEXTURED)
+          {
+            //if (spr != nullptr)
+            {
+             // olc::Pixel sample = spr->Sample(tex_u / tex_w, tex_v / tex_w);
+              drz::color sample = color(0,0,0);
+              pixel_r *= sample.r / 255.0f;
+              pixel_g *= sample.g / 255.0f;
+              pixel_b *= sample.b / 255.0f;
+              pixel_a *= sample.a / 255.0f;
+            }
+          }
+
           if (nFlags & GFX3D::RENDER_DEPTH)
           {
             if (tex_w > m_DepthBuffer[i*engine->GetScreenWidth() + j])
-              if (engine->DrawPixel(j, i,drz::color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
+              if (engine->DrawPixel(j, i, color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
                 m_DepthBuffer[i*engine->GetScreenWidth() + j] = tex_w;
           }
           else
@@ -1222,6 +1283,9 @@ namespace drz
 
         for (int j = ax; j < bx; j++)
         {
+          tex_u = (1.0f - t) * tex_su + t * tex_eu;
+          tex_v = (1.0f - t) * tex_sv + t * tex_ev;
+          tex_w = (1.0f - t) * tex_sw + t * tex_ew;
           col_r = (1.0f - t) * col_sr + t * col_er;
           col_g = (1.0f - t) * col_sg + t * col_eg;
           col_b = (1.0f - t) * col_sb + t * col_eb;
@@ -1231,6 +1295,19 @@ namespace drz
           pixel_g = col_g;
           pixel_b = col_b;
           pixel_a = col_a;
+
+          if (nFlags & GFX3D::RENDER_TEXTURED)
+          {
+            //if (spr != nullptr)
+            //{
+              //olc::Pixel sample = spr->Sample(tex_u / tex_w, tex_v / tex_w);
+              drz::color sample = color(0, 0, 0);
+              pixel_r *= sample.r / 255.0f;
+              pixel_g *= sample.g / 255.0f;
+              pixel_b *= sample.b / 255.0f;
+              pixel_a *= sample.a / 255.0f;
+            //}
+          }
 
           if (nFlags & GFX3D::RENDER_DEPTH)
           {
@@ -1248,6 +1325,7 @@ namespace drz
       }
     }
   }
+
 }
 
 #endif

@@ -33,7 +33,6 @@ class Scene {
     GFX3D::PipeLine renderer;
 
     GFX3D::vec3d vUp = { 0, 1, 0 };
-    //GFX3D::vec3d vCamera = { 0, 0, -3 };
     GFX3D::vec3d vLookDir = { 0, 0,-1 };
     GFX3D::vec3d vSun = {0, 0, -1};
     GFX3D::vec3d vForward;
@@ -63,6 +62,12 @@ class Scene {
 
       for (auto model : models) {
 
+        for (auto &tri : model->tris)
+        {
+            std::swap(tri.p[0], tri.p[2]);
+            //std::swap(tri.t[0], tri.t[2]);
+        }
+
         //Apply model rotations
         model->Update(fElapsedTime);
 
@@ -81,19 +86,24 @@ class Scene {
         vLookDir = GFX3D::Math::Mat_MultiplyVector(matCameraRot, vTarget);
         vTarget = GFX3D::Math::Vec_Add(vCamera, vLookDir);
         
-        GFX3D::mat4x4 matCamera = GFX3D::Math::Mat_PointAt(vCamera, vTarget, vUp);
         renderer.SetCamera(vCamera, vTarget, vUp);
 
         GFX3D::ClearDepth();
         renderer.SetTransform(matWorld);
-        renderer.SetLightSource(1, GFX3D::LIGHTS::LIGHT_DIRECTIONAL, drz::WHITE, vSun,{0.F, 0.F, 0.F});
- 
-        renderer.Render(model->tris, GFX3D::RENDERFLAGS::RENDER_FLAT|GFX3D::RENDERFLAGS::RENDER_DEPTH|GFX3D::RENDERFLAGS::RENDER_LIGHTS);
+        renderer.SetLightSource(1, GFX3D::LIGHTS::LIGHT_DIRECTIONAL, drz::WHITE, vSun);
+        if(renderMode == RENDER_WIREFRAME) {
+          renderer.Render(model->tris, GFX3D::RENDERFLAGS::RENDER_WIRE);
+        }
+        else if(renderMode == RENDER_SOLID) {
+          renderer.Render(model->tris, GFX3D::RENDERFLAGS::RENDER_FLAT|GFX3D::RENDERFLAGS::RENDER_DEPTH|GFX3D::RENDERFLAGS::RENDER_LIGHTS);
+        }
       }
-
+      std::cout << "Light Direction: " << vSun.x << ", " << vSun.y << ", " << vSun.z << std::endl;
+      std::cout << "Camera Position: " << vCamera.x << ", " << vCamera.y << ", " << vCamera.z << std::endl;
     }
 
     void Render() {
+     
 
     }
 
