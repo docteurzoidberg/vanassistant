@@ -879,6 +879,8 @@ namespace olc
 			std::stringstream s;
 			s << line;
 
+			std::cout << line << std::endl;
+
 			char junk;
 
 			if (line[0] == 'v')
@@ -922,7 +924,7 @@ namespace olc
 					s >> junk;
 
 					std::string tokens[9];
-					int nTokenCount = -1;
+					int nTokenCount = 0;
 					while (!s.eof())
 					{
 						char c = s.get();

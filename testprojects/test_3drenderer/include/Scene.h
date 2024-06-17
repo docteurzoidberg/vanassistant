@@ -62,12 +62,6 @@ class Scene {
 
       for (auto model : models) {
 
-        for (auto &tri : model->tris)
-        {
-            std::swap(tri.p[0], tri.p[2]);
-            //std::swap(tri.t[0], tri.t[2]);
-        }
-
         //Apply model rotations
         model->Update(fElapsedTime);
 
@@ -98,8 +92,8 @@ class Scene {
           renderer.Render(model->tris, GFX3D::RENDERFLAGS::RENDER_FLAT|GFX3D::RENDERFLAGS::RENDER_DEPTH|GFX3D::RENDERFLAGS::RENDER_LIGHTS);
         }
       }
-      std::cout << "Light Direction: " << vSun.x << ", " << vSun.y << ", " << vSun.z << std::endl;
-      std::cout << "Camera Position: " << vCamera.x << ", " << vCamera.y << ", " << vCamera.z << std::endl;
+      //std::cout << "Light Direction: " << vSun.x << ", " << vSun.y << ", " << vSun.z << std::endl;
+      //std::cout << "Camera Position: " << vCamera.x << ", " << vCamera.y << ", " << vCamera.z << std::endl;
     }
 
     void Render() {

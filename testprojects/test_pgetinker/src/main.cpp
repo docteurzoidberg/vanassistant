@@ -33,6 +33,11 @@ public:
     bool OnUserCreate() override
     {
         model.LoadOBJFile("models/J7_body.obj");
+
+        for(auto& tri : model.tris)
+        {
+            std::swap(tri.p[0], tri.p[2]);
+        }
         //j7 = new J7();
 
         olc::GFX3D::ConfigureDisplay();
