@@ -2342,6 +2342,7 @@ class J7BodyModel {
         GFX3D::vec3d p0 = verts[f.f[0] - 1];
         GFX3D::vec3d p1 = verts[f.f[1] - 1];
         GFX3D::vec3d p2 = verts[f.f[2] - 1];
+        //swap p0 and p2 to fix model triangles
         auto tri = GFX3D::triangle{p2, p1, p0};
         tris.push_back(tri);
       }

@@ -4,7 +4,7 @@
 #define OLC_PGEX_GRAPHICS3D
 #include "olcPGEX_Graphics3D.h" 
 
-#include "J7Model.h"
+//#include "J7Model.h"
 
 // Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
@@ -27,12 +27,13 @@ public:
 	float fYaw = 0.0f;		// FPS Camera rotation in XZ plane
 	float fTheta = 0.0f;	// Spins World transform
     
-    J7* j7;
+    //J7* j7;
+    olc::GFX3D::mesh model;
 
     bool OnUserCreate() override
     {
-        //model.LoadOBJFile("models/J7_body.obj");
-        j7 = new J7();
+        model.LoadOBJFile("models/J7_body.obj");
+        //j7 = new J7();
 
         olc::GFX3D::ConfigureDisplay();
 
@@ -72,9 +73,9 @@ public:
         renderer.SetTransform(matWorld);
         renderer.SetLightSource(1, olc::GFX3D::LIGHTS::LIGHT_DIRECTIONAL, olc::WHITE, vSun);
         
-        auto tris = j7->GetTris();
+        //auto tris = j7->GetTris();
 
-        renderer.Render(tris, olc::GFX3D::RENDERFLAGS::RENDER_FLAT|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
+        renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_FLAT|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
         //renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_WIRE|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDER_CULL_CW);
 
         if (GetKey(olc::Key::UP).bHeld)

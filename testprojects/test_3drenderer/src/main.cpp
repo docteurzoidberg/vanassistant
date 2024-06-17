@@ -17,8 +17,6 @@
 class Test3DRenderer : public Drz_PGE_Engine {
   public:
 
-
-  	
     float fYaw = 0.0f;		// FPS Camera rotation in XZ plane
 	  float fTheta = 0.0f;	// Spins World transform
 
