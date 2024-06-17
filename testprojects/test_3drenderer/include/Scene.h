@@ -59,48 +59,33 @@ class Scene {
     void Update(float fElapsedTime, GFX3D::vec3d vCamera, float fYaw, float fTheta) { 
 
       vForward = GFX3D::Math::Vec_Mul(vLookDir, 8.0f * fElapsedTime);
+
       GFX3D::ClearDepth();
+      
+      GFX3D::vec3d vTarget = { 0,0,1 };
+      GFX3D::mat4x4 matCameraRot = GFX3D::Math::Mat_MakeRotationY(fYaw); //TODO if i want camera rotation
+      vLookDir = GFX3D::Math::Mat_MultiplyVector(matCameraRot, vTarget);
+      vTarget = GFX3D::Math::Vec_Add(vCamera, vLookDir);
+        
+      renderer.SetCamera(vCamera, vTarget, vUp);
+      renderer.SetLightSource(1, GFX3D::LIGHTS::LIGHT_DIRECTIONAL, drz::WHITE, vSun);
+
       for (auto model : models) {
 
         //Apply model rotations
         model->Update(fElapsedTime);
 
-        //GFX3D::mat4x4 matRotate =GFX3D::Math::Mat_MakeRotationY(fTheta); //TODO if i want model rotation
-
-        //GFX3D::mat4x4 matTrans;
-        //matTrans = GFX3D::Math::Mat_MakeTranslation(0.0f, 0.0f, 0.0f); //no need translating for now
-
-        GFX3D::mat4x4 matRotate = GFX3D::Math::Mat_MakeIdentity(); 
-        //copy the rotation matrix from the model
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 4; j++) {
-            matRotate.m[i][j] = model->rotationMatrix.m[i][j];
-          }
-        }
-
-        GFX3D::mat4x4 matTrans = GFX3D::Math::Mat_MakeIdentity();
-        //copy the translation matrix from the model
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 4; j++) {
-            matTrans.m[i][j] = model->translationMatrix.m[i][j];
-          }
-        }
+        //Model s rotation and translation matrices
+        GFX3D::mat4x4 matRotate = model->rotationMatrix;
+        GFX3D::mat4x4 matTrans =  model->translationMatrix;
 
         GFX3D::mat4x4 matWorld;
         matWorld = GFX3D::Math::Mat_MakeIdentity();;	// Form World Matrix
         //matWorld = GFX3D::Math::Mat_MultiplyMatrix(matWorld, matRotate); // Transform by rotation
         //matWorld = GFX3D::Math::Mat_MultiplyMatrix(matWorld, matTrans); // Transform by translation
-
-        GFX3D::vec3d vTarget = { 0,0,1 };
-        GFX3D::mat4x4 matCameraRot = GFX3D::Math::Mat_MakeRotationY(fYaw); //TODO if i want camera rotation
-        vLookDir = GFX3D::Math::Mat_MultiplyVector(matCameraRot, vTarget);
-        vTarget = GFX3D::Math::Vec_Add(vCamera, vLookDir);
-        
-        renderer.SetCamera(vCamera, vTarget, vUp);
-
         
         renderer.SetTransform(matWorld);
-        renderer.SetLightSource(1, GFX3D::LIGHTS::LIGHT_DIRECTIONAL, drz::WHITE, vSun);
+        
         if(renderMode == RENDER_WIREFRAME) {
           renderer.Render(model->tris, GFX3D::RENDERFLAGS::RENDER_WIRE);
         }

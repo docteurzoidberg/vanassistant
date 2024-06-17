@@ -27,8 +27,8 @@ class Model {
     std::vector<face>* faces;
     std::vector<GFX3D::triangle> tris;
 
-    Matrix4x4 rotationMatrix;
-    Matrix4x4 translationMatrix;
+    GFX3D::mat4x4 rotationMatrix;
+    GFX3D::mat4x4 translationMatrix;
       
   private:
     void _loadTriRefs() {

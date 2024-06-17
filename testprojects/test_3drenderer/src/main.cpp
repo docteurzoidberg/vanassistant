@@ -4,7 +4,6 @@
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
 
 #include "../include/Scene.h"
-#include "../include/J7Model.h"
 #include "../include/ScoutModel.h"
 
 #include <IDrzEngine.h>

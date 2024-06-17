@@ -107,7 +107,7 @@ namespace drz
     {
       vec3d p[3];
       vec2d t[3];
-      drz::color col[3];
+      color col[3];
     };
 
     struct mat4x4
@@ -189,9 +189,9 @@ namespace drz
       uint32_t RenderCircleXZ(drz::GFX3D::vec3d &p1, float r, color col = WHITE);
 
     private:
-      drz::GFX3D::mat4x4 matProj;
-      drz::GFX3D::mat4x4 matView;
-      drz::GFX3D::mat4x4 matWorld;
+      GFX3D::mat4x4 matProj;
+      GFX3D::mat4x4 matView;
+      GFX3D::mat4x4 matWorld;
       //drz::Sprite *sprTexture;
       //olc::GFX3D::MipMap *sprMipMap;
       //bool bUseMipMap;
@@ -203,8 +203,8 @@ namespace drz
       struct sLight
       {
         uint32_t type;
-        drz::GFX3D::vec3d pos;
-        drz::GFX3D::vec3d dir;
+        GFX3D::vec3d pos;
+        GFX3D::vec3d dir;
         color col;
         float param;
       } lights[4];
@@ -214,12 +214,11 @@ namespace drz
   public:
     static void ConfigureDisplay();
     static void ClearDepth();
-    static void AddTriangleToScene(drz::GFX3D::triangle &tri);
+    static void AddTriangleToScene(GFX3D::triangle &tri);
     static void RenderScene();
 
-    static void DrawTriangleFlat(drz::GFX3D::triangle &tri);
-    static void DrawTriangleWire(drz::GFX3D::triangle &tri, color col = WHITE);
-
+    static void DrawTriangleFlat(GFX3D::triangle &tri);
+    static void DrawTriangleWire(GFX3D::triangle &tri, color col = WHITE);
 
     static void RasterTriangle(
       int x1, int y1, float u1, float v1, float w1, color c1,
