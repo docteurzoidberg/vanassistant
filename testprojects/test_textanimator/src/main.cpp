@@ -11,6 +11,7 @@ class TestTextAnimator : public Drz_PGE_Engine {
       sAppName = "TestTextAnimator";
       //Load font
       LoadFont("solidmono8", &Solid_Mono8pt7b);
+      SetFont("solidmono8");
     }
 
     bool OnUserCreate() override {
@@ -29,9 +30,16 @@ class TestTextAnimator : public Drz_PGE_Engine {
     }
 
     bool OnUserUpdate(float fElapsedTime) override {
+      
+      // F1: show console
+      if(GetKey(olc::Key::F1).bPressed) {
+        ConsoleShow(olc::Key::ESCAPE, false);
+      }
+
       Clear(BLACK);
       textAnimator->Update();
       textAnimator->Render();
+      DrawText(std::to_string(GetFPS()), 4, 14, YELLOW);
       return true;
     }
 
