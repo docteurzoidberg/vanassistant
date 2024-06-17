@@ -5,6 +5,7 @@
 
 #include "../include/Scene.h"
 #include "../include/J7Model.h"
+#include "../include/ScoutModel.h"
 
 #include <IDrzEngine.h>
 
@@ -30,7 +31,8 @@ class Test3DRenderer : public Drz_PGE_Engine {
     bool OnUserCreate() override {
       //ConsoleCaptureStdOut(true);
       scene = new Scene(this, 0, 0, GetScreenWidth(), GetScreenHeight());
-      model = new J7(scene);
+      //model = new J7(scene);
+      model = new Scout(scene);
       return true;
     }
 
@@ -88,7 +90,8 @@ class Test3DRenderer : public Drz_PGE_Engine {
   private:
   	GFX3D::vec3d vCamera = { 0, 0, -3 };
     Scene* scene;
-    J7* model;
+    //J7* model;
+    Scout* model;
 };
 
 int main() {
