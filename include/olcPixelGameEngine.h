@@ -4019,7 +4019,7 @@ namespace olc
     {
       nLastFPS = nFrameCount;
       fFrameTimer -= 1.0f;
-      std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+      std::string sTitle = "olc::pge - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
       platform->SetWindowTitle(sTitle);
       nFrameCount = 0;
     }
@@ -6377,8 +6377,8 @@ namespace olc
         let isFullscreen = (document.fullscreenElement != null);
 
         // get the width of the containing element
-        let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-        let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+        let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.clientWidth;
+        let height = (isFullscreen) ? window.innerHeight : Module.canvas.clientHeight;
 
         // calculate the expected viewport size
         let viewWidth  = width;
@@ -6398,19 +6398,19 @@ namespace olc
         setTimeout(function()
         {
           // if default shells, apply default styles
-          if(Module.olc_AssumeDefaultShells)
-            Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
+          //if(Module.olc_AssumeDefaultShells)
+          //  Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
         
           // apply viewport dimensions to teh canvas
-          Module.canvas.setAttribute('width', viewWidth);
-          Module.canvas.setAttribute('height', viewHeight);
+         // Module.canvas.setAttribute('width', viewWidth);
+          //Module.canvas.setAttribute('height', viewHeight);
           Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
           
           // update the PGE window size
           Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
           
           // force focus on our PGE canvas
-          Module.canvas.focus();
+          //Module.canvas.focus();
         }, 200);
       };
 

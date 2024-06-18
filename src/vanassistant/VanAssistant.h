@@ -77,7 +77,7 @@ public:
     //------------------------------------------
     // TTS test code !
     //------------------------------------------
-    Say("Hello, I am your assistant.");
+    //Say("Hello, I am your assistant.");
 
     //MySam *sam = new MySam();
     //if(!sam->Init()) {

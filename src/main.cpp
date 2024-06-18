@@ -17,6 +17,10 @@
 #define OLC_PGE_APPLICATION
 #include <olcPixelGameEngine.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+#endif
+
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
@@ -58,6 +62,10 @@ public:
   bool OnConsoleCommand(const std::string& text) override {
     vanassistant->Say(text);
     return true;
+  }
+
+  void Say(std::string text) {
+    vanassistant->Say(text);
   }
 
 private:
@@ -104,9 +112,24 @@ private:
   }
 };
 
+VanAssistantPGE app;
+
 int main() {
-	VanAssistantPGE app;
   if (app.Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
     app.Start();
   return 0;
 }
+
+
+
+//emscripten exposes the Say function to the javascript
+void Say(std::string text) {
+  app.Say(text);
+}
+
+//if emscripten is defined, we need to bind the functions to the javascript
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_BINDINGS(my_module) {
+    emscripten::function("Say", &Say);
+}
+#endif

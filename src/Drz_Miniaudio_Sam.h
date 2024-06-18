@@ -98,8 +98,8 @@ public:
         return false;
       }
 
-      //std::thread audioThread(&Drz_Miniaudio_Sam::OutputSound, this);
-      //audioThread.detach(); // Detach the thread to allow independent execution
+      std::thread audioThread(&Drz_Miniaudio_Sam::OutputSound, this);
+      audioThread.detach(); // Detach the thread to allow independent execution
 
       return true;
     };
