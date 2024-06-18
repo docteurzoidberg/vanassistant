@@ -15,7 +15,7 @@
 #include "vanassistant/VanAssistant.h"
 
 #define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
+#include <olcPixelGameEngine.h>
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
