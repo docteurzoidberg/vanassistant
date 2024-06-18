@@ -143,8 +143,7 @@ class ScoutEyeModel : public Model {
       GFX3D::mat4x4 matRotY = GFX3D::Math::Mat_MakeRotationY(yaw);
       
       //rotationMatrix = matRotX * matRotY;
-      rotationMatrix = GFX3D::Math::Mat_MultiplyMatrix(rotationMatrix, matRotX);
-      rotationMatrix = GFX3D::Math::Mat_MultiplyMatrix(rotationMatrix, matRotY);
+      rotationMatrix = GFX3D::Math::Mat_MultiplyMatrix(matRotX, matRotY);
 
       //combine translations with actual translation matrix
       translationMatrix.m[0][3] += offset.x;
@@ -458,9 +457,9 @@ class ScoutJawModel : public Model {
   private:
     int direction = 1;  //1 for increasing angle, -1 for decreasing angle
     float opening = 0.5f;
-    float angle = M_PI;
-    float minAngle = -0.2f;
-    float maxAngle = 0.0f;
+    float angle = 0;
+    float minAngle = 0.0f;
+    float maxAngle = 0.2f;
 
     void SetAngle(float angle) {
       if(angle > maxAngle) {
@@ -698,7 +697,7 @@ class Scout {
   public: 
     Scout(Scene* scene) {
 
-      rotationDistribution = std::uniform_real_distribution<float>(-1.0f, 1.0f); // Small random rotations in degrees
+      rotationDistribution = std::uniform_real_distribution<float>(-2.0f, 2.0f); // Small random rotations in degrees
       translationDistribution = std::uniform_real_distribution<float>(-0.1f, 0.1f); // Small random translations
       InitializeRandomGenerator();
       _startAnimation();
@@ -772,7 +771,7 @@ class Scout {
     animframe animTarget = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animCurrent = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     animframe animInitial = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    animframe animTargetDeltaMax = {0.01f, 0.01f, 0.01f, 0.0005f, 0.0005f, 0.0005f};
+    animframe animTargetDeltaMax = {0.01f, 0.01f, 0.01f, 1.5f, 1.5f, 1.5f};
 
     void InitializeRandomGenerator() {
       std::random_device rd;
@@ -853,11 +852,10 @@ class Scout {
       GFX3D::mat4x4 matrixRotY = GFX3D::Math::Mat_MakeRotationY(animCurrent.rY);
       GFX3D::mat4x4 matrixRotZ = GFX3D::Math::Mat_MakeRotationZ(animCurrent.rZ);
 
-      GFX3D::mat4x4 matRot = GFX3D::Math::Mat_MultiplyMatrix(matrixRotX, matrixRotY);
-      matRot = GFX3D::Math::Mat_MultiplyMatrix(matRot, matrixRotZ);
+      GFX3D::mat4x4 matRotXY = GFX3D::Math::Mat_MultiplyMatrix(matrixRotX, matrixRotY);
+      GFX3D::mat4x4 matRot = GFX3D::Math::Mat_MultiplyMatrix(matRotXY, matrixRotZ);
       
-
-      rotationMatrix = matRot;
+      rotationMatrix =  GFX3D::Math::Mat_MultiplyMatrix(rotationMatrix, matRot);
       translationMatrix = GFX3D::Math::Mat_MakeTranslation(animCurrent.tX, animCurrent.tY, animCurrent.tZ);
 
       //check if anim is done

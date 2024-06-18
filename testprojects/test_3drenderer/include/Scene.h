@@ -72,6 +72,10 @@ class Scene {
 
       for (auto model : models) {
 
+
+        model->rotationMatrix = GFX3D::Math::Mat_MakeIdentity();
+        model->translationMatrix = GFX3D::Math::Mat_MakeIdentity();
+
         //Apply model rotations
         model->Update(fElapsedTime);
 
@@ -79,11 +83,17 @@ class Scene {
         GFX3D::mat4x4 matRotate = model->rotationMatrix;
         GFX3D::mat4x4 matTrans =  model->translationMatrix;
 
-        GFX3D::mat4x4 matWorld;
-        matWorld = GFX3D::Math::Mat_MakeIdentity();;	// Form World Matrix
-        //matWorld = GFX3D::Math::Mat_MultiplyMatrix(matWorld, matRotate); // Transform by rotation
-        //matWorld = GFX3D::Math::Mat_MultiplyMatrix(matWorld, matTrans); // Transform by translation
+        GFX3D::mat4x4 matWorld = GFX3D::Math::Mat_MultiplyMatrix(matRotate, matTrans);
         
+        //debug model rotation matrix
+        std::cout << "Model Rotation Matrix: " << std::endl;
+        for (int i = 0; i < 4; i++) {
+          for (int j = 0; j < 4; j++) {
+            std::cout << matWorld.m[i][j] << " ";
+          }
+          std::cout << std::endl;
+        }
+
         renderer.SetTransform(matWorld);
         
         if(renderMode == RENDER_WIREFRAME) {
