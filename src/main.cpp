@@ -64,8 +64,8 @@ public:
     return true;
   }
 
-  void Say(std::string text) {
-    vanassistant->Say(text);
+  bool Say(std::string text) {
+    return vanassistant->Say(text);
   }
 
 private:
@@ -123,13 +123,13 @@ int main() {
 
 
 //emscripten exposes the Say function to the javascript
-void Say(std::string text) {
-  app.Say(text);
+bool Say(std::string text) {
+  return app.Say(text);
 }
 
 //if emscripten is defined, we need to bind the functions to the javascript
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_BINDINGS(my_module) {
-    emscripten::function("Say", &Say);
+  emscripten::function("Say", &Say);
 }
 #endif

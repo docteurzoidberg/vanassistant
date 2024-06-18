@@ -140,9 +140,9 @@ public:
     DrawFPS( engine->GetFPS());
   }
 
-  void Say(const std::string& text) {
+  bool Say(const std::string& text) {
     //TODO
-    sam->Say(text);
+    return sam->Say(text);
     //send text to tts queue
     //set callback to say next text
     //sam->QueueSay(text);
