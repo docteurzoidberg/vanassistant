@@ -18,11 +18,6 @@ public:
   }
 
   void QueueText(const std::string& text) {
-    //is first message in queue?
-    //if(textQueue.empty()) {
-    //  firstMessage = true;
-      //Update();
-    //}
     textQueue.push(text);
   }
 
@@ -52,7 +47,7 @@ public:
         engine->FillRect(0, yOffset-18, engine->GetScreenWidth() , 24, BLACK);
       }
       std::string toDraw = currentText.substr(0, currentIndex);
-		  //TODO 
+
       engine->SetFont(fontname); //TODO: set font
       engine->DrawText(toDraw, xOffset, yOffset-2, WHITE);
     
@@ -89,7 +84,6 @@ private:
     textQueue.pop();
     currentIndex = 0;
     isTyping = true;
-    //firstMessage = true;
     displayText = true;
     lastUpdate = engine->Now();
   }
@@ -107,7 +101,6 @@ private:
   }
 
   void HandlePause(const uint32_t now) {
-
 
     //check time if pause is over
     auto pauseIsDone = (!isTyping) && (now - lastPauseStart >= pauseTime*1000);

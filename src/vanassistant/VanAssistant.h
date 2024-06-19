@@ -1,5 +1,5 @@
 #include "IDrzSam.h"
-#include "J7Model.h"
+
 #define SCREEN_W 256
 #define SCREEN_H 240
 #define NUM_STARS 750
@@ -29,8 +29,6 @@ public:
     asmText = new AsmText(engine);
     scene = new Scene(engine);
     scout = new Scout(scene);
-    //j7 = new J7(scene);
-    //faceModel = new FaceModel(engine);
 
     road = new Road(engine);
     starfield = new Starfield(engine, NUM_STARS);
@@ -51,18 +49,12 @@ public:
     );
 
     // Add models to scene
-    //scene->AddModel(faceModel);
     scout->SetJawOpening(0.5f);
 
-    //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::CLOSE, 3.0f);
-    //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::OPEN, 1.0f);
-    //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::CLOSE, 0.5f);
-    //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::OPEN, 0.5f);
-
+    // Setup say text animator
     textAnimator = new TextAnimator(engine, "solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6);
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
-    textAnimator->QueueText("Hello, I am your assistant.");
     
 
     //------------------------------------------
@@ -97,18 +89,14 @@ public:
     verticalTextAnimator->Update();
     road->Update(elapsedTime);
     scout->Update(elapsedTime);
-    //j7->Update(elapsedTime);
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
-      //auto nextLine = "This is a test line";
       auto nextLine = asmText->GetLine();
-      //std::cout << "Next line: " << nextLine << std::endl;
       verticalTextAnimator->QueueText(nextLine);
     }
 
     starfield->Update(elapsedTime);
-    //faceModel->Update(elapsedTime); 
     scene->Update(elapsedTime);
   }
 
@@ -132,18 +120,8 @@ public:
   }
 
   bool Say(const std::string& text) {
-    //TODO
     textAnimator->QueueText(text);
     return sam->Say(text);
-    //send text to tts queue
-    //set callback to say next text
-    //sam->QueueSay(text);
-   // MySam *sam = new MySam();
-    //if(!sam->Init()) {
-    //  std::cout << "Failed to initialize SAM" << std::endl;
-    //}
-    //sam->Say(text);
-    //delete sam;
   }
 
   //HELP NEEDED
@@ -183,8 +161,6 @@ private:
 
   Scene* scene;
   AsmText* asmText;
-  //FaceModel* faceModel;
-  //J7* j7;
   Scout *scout;
   Road* road;
   Starfield* starfield;
