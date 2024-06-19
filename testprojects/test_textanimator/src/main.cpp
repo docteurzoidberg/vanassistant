@@ -19,13 +19,6 @@ class TestTextAnimator : public Drz_PGE_Engine {
       textAnimator = new TextAnimator(this, "solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, ScreenHeight() - 6);
       textAnimator->QueueText("Hello, I am your assistant.");
       textAnimator->QueueText("I am here to help you.");
-      textAnimator->QueueText("Hello, I am your assistant.");
-      textAnimator->QueueText("I am here to help you.");
-      textAnimator->QueueText("Hello, I am your assistant.");
-      textAnimator->QueueText("I am here to help you.");
-      textAnimator->QueueText("Hello, I am your assistant.");
-      textAnimator->QueueText("I am here to help you.");
-
       return true;
     }
 
@@ -44,6 +37,7 @@ class TestTextAnimator : public Drz_PGE_Engine {
     }
 
     bool OnConsoleCommand(const std::string& text) override {
+      textAnimator->QueueText(text);
       return true;
     }
 

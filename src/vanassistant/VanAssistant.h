@@ -59,20 +59,11 @@ public:
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::CLOSE, 0.5f);
     //faceModel->mouth->QueueAnimation(MouthPart::KEY_FRAME::OPEN, 0.5f);
 
-    verticalTextAnimator->QueueText("Hello, I am your assistant.\nI am here to help you.");
-    verticalTextAnimator->QueueText("How are you today ?\nShall we play a game ?");
-    verticalTextAnimator->QueueText("Line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8");
-    verticalTextAnimator->QueueText("Line9\nline10\nline11\nline12\nline13\nline14\nline15\nline16");
-
     textAnimator = new TextAnimator(engine, "solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6);
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
     textAnimator->QueueText("Hello, I am your assistant.");
-    textAnimator->QueueText("I am here to help you.");
-    textAnimator->QueueText("Hello, I am your assistant.");
-    textAnimator->QueueText("I am here to help you.");
-    textAnimator->QueueText("Hello, I am your assistant.");
-    textAnimator->QueueText("I am here to help you.");
+    
 
     //------------------------------------------
     // TTS test code !
@@ -142,6 +133,7 @@ public:
 
   bool Say(const std::string& text) {
     //TODO
+    textAnimator->QueueText(text);
     return sam->Say(text);
     //send text to tts queue
     //set callback to say next text

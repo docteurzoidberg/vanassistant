@@ -18,11 +18,23 @@ public:
   }
 
   void QueueText(const std::string& text) {
+    //is first message in queue?
+    //if(textQueue.empty()) {
+    //  firstMessage = true;
+      //Update();
+    //}
     textQueue.push(text);
   }
 
   void Update() {
+    
     auto now = engine->Now();
+
+    if (firstMessage) {
+      StartTyping();
+      firstMessage = false;
+      return;
+    }
 
     if (isTyping) {
       UpdateTyping(now);
@@ -63,6 +75,7 @@ private:
   uint32_t lastCursorBlink;
   uint32_t lastPauseStart;
   bool isTyping;
+  bool isPaused;
   bool cursorVisible;
   bool firstMessage;
   bool displayText;
@@ -76,6 +89,8 @@ private:
     textQueue.pop();
     currentIndex = 0;
     isTyping = true;
+    //firstMessage = true;
+    displayText = true;
     lastUpdate = engine->Now();
   }
 
@@ -83,26 +98,32 @@ private:
     if (now - lastUpdate >= typeSpeed*1000) {
       currentIndex++;
       lastUpdate = now;
-      if (currentIndex > currentText.size()) {
+      if (currentIndex > currentText.size()) { 
+        //current queud text is done typing
         isTyping = false;
         lastPauseStart = now;
-        if (textQueue.empty()) {
-          displayText = false;
-        }
       }
     }
   }
 
   void HandlePause(const uint32_t now) {
-    if (firstMessage || now - lastUpdate >= pauseTime*1000) {
-      if (!textQueue.empty()) {
-        StartTyping();
-        firstMessage = false;
-      }
+
+
+    //check time if pause is over
+    auto pauseIsDone = (!isTyping) && (now - lastPauseStart >= pauseTime*1000);
+
+    //if not over. return
+    //if over, check if there is more text to display
+
+    if(!pauseIsDone) {
+      isPaused = true;
+      return;
     }
 
-    if (textQueue.empty() && now - lastPauseStart >= pauseTime*1000) {
+    if (textQueue.empty()) {
       displayText = false;
+    } else {
+      StartTyping();
     }
   }
 
@@ -114,7 +135,7 @@ private:
   }
 
   void DrawCursor(int x, int y, const std::string& toDraw, color color) {
-    if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
+    if (cursorVisible && displayText) {
 
       engine->SetFont(fontname);
       auto textSize = engine->GetTextBounds(toDraw,x,y);

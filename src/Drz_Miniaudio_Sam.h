@@ -40,7 +40,9 @@ extern "C" {
   {
     ma_result result;
     ma_device_config deviceConfig;
+    ma_resource_manager_config resourceManagerConfig = ma_resource_manager_config_init();
     ma_device device;
+    ma_resource_manager resourceManager;
 
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = ma_format_u8;
@@ -48,6 +50,22 @@ extern "C" {
     deviceConfig.sampleRate = 22050;
     deviceConfig.dataCallback = data_callback;
     deviceConfig.pUserData = NULL;
+
+    resourceManagerConfig.decodedFormat     = ma_format_u8;
+    resourceManagerConfig.decodedChannels   = 1;
+    resourceManagerConfig.decodedSampleRate = 22050;
+    
+    //#ifdef __EMSCRIPTEN__
+    //  resourceManagerConfig.jobThreadCount = 0;                           
+    //  resourceManagerConfig.flags |= MA_RESOURCE_MANAGER_FLAG_NON_BLOCKING;
+    //  resourceManagerConfig.flags |= MA_RESOURCE_MANAGER_FLAG_NO_THREADING;
+    //#endif
+
+    result = ma_resource_manager_init(&resourceManagerConfig, &resourceManager);
+    if(result != MA_SUCCESS){
+      std::cerr << "Failed to initialize resource manager." << std::endl;
+      return;
+    }
 
     result = ma_device_init(NULL, &deviceConfig, &device);
     if (result != MA_SUCCESS) {
@@ -98,8 +116,9 @@ public:
         return false;
       }
 
-      //std::thread audioThread(&Drz_Miniaudio_Sam::OutputSound, this);
-      //audioThread.detach(); // Detach the thread to allow independent execution
+      std::thread audioThread(&Drz_Miniaudio_Sam::OutputSound, this);
+      audioThread.detach(); // Detach the thread to allow independent execution
+      //OutputSound();
 
       return true;
     };

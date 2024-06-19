@@ -56,7 +56,6 @@
       #controls {
         display: none;
       }
-
       .va-controls {
         border-top: 1px solid white;
         margin-top: 5px;
@@ -65,7 +64,6 @@
         margin-right: auto;
         width: 512px;
       }
-
       .va-controls input {
         width: 300px;
         height: 30px;
@@ -76,7 +74,6 @@
         color:white;
         margin: 0;
       }
-
       .va-controls button {
         border: 2px solid white;
         background-color: black;
@@ -87,11 +84,9 @@
         font-size: 12pt;
         margin-left: 5px;
       }
-
     </style>
   </head>
   <body>
-    
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -106,17 +101,12 @@
       <input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
       &nbsp;&nbsp;&nbsp;
-      <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
-                                                                                document.getElementById('resize').checked)">
+      <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, document.getElementById('resize').checked)">
     </div>
     
-
     <div class="va-controls">
-   
-        <input type="text" id="input" placeholder="Type here...">
-        <button id="start" onclick="Module.Say(document.getElementById('input').value);">SAY</button>
-  
-     
+        <input type="text" id="input" placeholder="Type here..." onkeypress="validate();">
+        <button id="start" onclick="say();">SAY</button>
     </div>
 
     <textarea class="emscripten" id="output" rows="8"></textarea>
@@ -128,20 +118,9 @@
 
       var Module = {
         print: (function() {
-          var element = document.getElementById('output');
-          if (element) element.value = ''; // clear browser cache
           return (...args) => {
             var text = args.join(' ');
-            // These replacements are necessary if you render to raw HTML
-            //text = text.replace(/&/g, "&amp;");
-            //text = text.replace(/</g, "&lt;");
-            //text = text.replace(/>/g, "&gt;");
-            //text = text.replace('\n', '<br>', 'g');
             console.log(text);
-            if (element) {
-              element.value += text + "\n";
-              element.scrollTop = element.scrollHeight; // focus on bottom
-            }
           };
         })(),
         canvas: (() => {
@@ -183,6 +162,10 @@
         }
       };
       Module.setStatus('Downloading...');
+      window.onload = () => {
+        document.getElementById('input').value = "";
+        document.getElementById('input').focus();
+      };
       window.onerror = () => {
         Module.setStatus('Exception thrown, see JavaScript console');
         spinnerElement.style.display = 'none';
@@ -190,6 +173,18 @@
           if (text) console.error('[post-exception status] ' + text);
         };
       };
+      function validate() {
+        if (event.keyCode == 13) {
+          say();
+        }
+      }
+      function say() {
+        var sayInput = document.getElementById('input');
+        if(sayInput) {
+          Module.Say(sayInput.value);
+          sayInput.value = "";
+        }
+      }
     </script>
     {{{ SCRIPT }}}
   </body>
