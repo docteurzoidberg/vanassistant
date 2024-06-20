@@ -1,4 +1,5 @@
 #include "../../../src/Drz_PGE_Engine.h"
+#include "../../../src/vanassistant/AsmText.h"
 #include "../../../src/vanassistant/VerticalTextAnimator.h"
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
 
@@ -18,19 +19,21 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
 
       ConsoleCaptureStdOut(true);
 
+      asmText = new AsmText(this);
+
       verticalTextAnimator = new VerticalTextAnimator(
         this, 
         "solidmono8", 
-        8, 
-        0.01f, 
+        20, 
         0.05f, 
-        0.5f,
+        1.5f, 
+        0.2f,
         2,
         4,
         ScreenWidth(), 
         ScreenHeight()-30,
-        5,
-        8
+        8,
+        14
       ); 
 
       verticalTextAnimator->QueueText("Hello World!");
@@ -51,6 +54,10 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
         ConsoleShow(olc::Key::ESCAPE, false);
       }
 
+      if(verticalTextAnimator->GetQueueSize() < 4) {
+        verticalTextAnimator->QueueText(asmText->GetLine());
+      }
+
       Clear(BLACK);
       verticalTextAnimator->Update();
       verticalTextAnimator->DrawText();
@@ -64,6 +71,8 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
 
   private:
     VerticalTextAnimator* verticalTextAnimator;
+    AsmText* asmText;
+
 };
 
 int main() {

@@ -2,7 +2,7 @@ CXX      := -em++
 CC			 := -emcc
 CXXFLAGS := -std=c++17 -O2 -pthread
 CCFLAGS  := -std=c99
-LDFLAGS  := -lembind -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG -s ASSERTIONS=1 -s -pthread -s PTHREAD_POOL_SIZE=10 --shell-file ./wasm/shell.html
+LDFLAGS  := -lembind -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG -s ASSERTIONS=1 -s -pthread -s PTHREAD_POOL_SIZE=5 --shell-file ./wasm/shell.html
 OBJ_DIR  := ./wasm/build/obj
 APP_DIR  := ./wasm/build
 TARGET   := vanassistant.html
@@ -10,8 +10,8 @@ INCLUDE  := -Iinclude/
 SRC      :=                      \
    $(wildcard src/*.cpp)         \
 
-CSRC      :=                      \
-   $(wildcard src/sam/*.c)         \
+CSRC      :=                     \
+   $(wildcard src/sam/*.c)       \
 
 COBJECTS  := $(CSRC:%.c=$(OBJ_DIR)/sam/%.o)
 OBJECTS  := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
