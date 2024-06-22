@@ -5724,6 +5724,7 @@ namespace olc
       olc_VisualInfo = glXChooseVisual(olc_Display, 0, olc_GLAttribs);
       olc_ColourMap = XCreateColormap(olc_Display, olc_WindowRoot, olc_VisualInfo->visual, AllocNone);
       olc_SetWindowAttribs.colormap = olc_ColourMap;
+      olc_SetWindowAttribs.title = "olc::pge";
 
       // Register which events we are interested in receiving
       olc_SetWindowAttribs.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
@@ -5739,7 +5740,7 @@ namespace olc
       XSetWMProtocols(olc_Display, olc_Window, &wmDelete, 1);
 
       XMapWindow(olc_Display, olc_Window);
-      XStoreName(olc_Display, olc_Window, "OneLoneCoder.com - Pixel Game Engine");
+      XStoreName(olc_Display, olc_Window, "olc::pge");
 
       if (bFullScreen) // Thanks DragonEye, again :D
       {
