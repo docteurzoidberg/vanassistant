@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 
+#include <Adafruit_GFX.h>
+
 struct rect {
   int x, y, w, h;
 };
@@ -330,9 +332,9 @@ public:
   virtual void FillCircle(int x, int y, int radius, color color) = 0;
 
   // Font-related methods
-  virtual const font* LoadFont(const std::string& fontName, const font* font) = 0;
+  virtual const GFXfont* LoadFont(const std::string& fontName, const GFXfont* font) = 0;
   virtual void SetFont(const std::string& fontName) = 0;
-  virtual void SetFont(const font* font) = 0;
+  virtual void SetFont(const GFXfont* font) = 0;
   virtual void SetTextColor(color color) = 0;
   virtual void DrawText(const std::string& text, float x, float y, color color) = 0;
 

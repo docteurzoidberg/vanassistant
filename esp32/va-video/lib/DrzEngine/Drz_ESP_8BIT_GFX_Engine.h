@@ -56,7 +56,7 @@ public:
     currentFont = newfont;
   }
 
-  void SetFont(const font* f) override {
+  void SetFont(const GFXfont* f) override {
     currentFont = f;
   }
 
@@ -108,7 +108,7 @@ public:
 
   /* Text */
 
-  const GFXFont* LoadFont(const std::string& fontName, const GFXFont* font) override {
+  const GFXfont* LoadFont(const std::string& fontName, const GFXfont* font) override {
     fonts[fontName] = font;
     return font;
   }
@@ -133,8 +133,8 @@ public:
 
 private:
   ESP_8_BIT_GFX* gfx;
-  std::map<std::string, const GFXFont*> fonts;
-  const GFXFont* currentFont = nullptr;
+  std::map<std::string, const GFXfont*> fonts;
+  const GFXfont* currentFont = nullptr;
   uint16_t cursorX=0;
   uint16_t cursorY=0;
   bool wrap = false;

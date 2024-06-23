@@ -36,14 +36,14 @@ void setup() {
   engine = new Engine(&videoOut);
 
   // Load fonts
-  engine->LoadFont("comp18",      (font*)&Computerfont18pt7b);
-  engine->LoadFont("mono18",      (font*)&Mono_Regular18pt7b);
-  engine->LoadFont("mono14",      (font*)&Mono_Regular14pt7b);
-  engine->LoadFont("mono12",      (font*)&Mono_Regular12pt7b);
-  engine->LoadFont("mono8",       (font*)&Mono_Regular8pt7b);
-  engine->LoadFont("solidmono8",  (font*)&Solid_Mono8pt7b);
-  engine->LoadFont("solidmono6",  (font*)&Solid_Mono6pt7b);
-  engine->LoadFont("solidmono4",  (font*)&Solid_Mono4pt7b);
+  engine->LoadFont("comp18",      &Computerfont18pt7b);
+  engine->LoadFont("mono18",      &Mono_Regular18pt7b);
+  engine->LoadFont("mono14",      &Mono_Regular14pt7b);
+  engine->LoadFont("mono12",      &Mono_Regular12pt7b);
+  engine->LoadFont("mono8",       &Mono_Regular8pt7b);
+  engine->LoadFont("solidmono8",  &Solid_Mono8pt7b);
+  engine->LoadFont("solidmono6",  &Solid_Mono6pt7b);
+  engine->LoadFont("solidmono4",  &Solid_Mono4pt7b);
   
   //Start the video output
   videoOut.begin();
