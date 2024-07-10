@@ -1,6 +1,6 @@
 
 # Specify the compiler for X11
-set(CMAKE_C_COMPILER g++)
+set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 
 # Additional compiler flags
