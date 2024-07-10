@@ -5,11 +5,13 @@ sudo apt update
 sudo apt install build-essential libglu1-mesa-dev libpng-dev libx11-dev libpng-dev
 ```
 
-/!\ Warning: emscripten sdk must be installed and in path for WASM build
-/!\ Cross compilation toolchain + rootfs must be setup to build for the raspberrypi
+/!\ Warning: emscripten sdk must be installed and in path for WASM build 
 
-see []() about how to setup emsdk
-see []() about how to setup cross compilation for pizero
+/!\ Warning: Cross compilation toolchain + rootfs must be setup to build for the raspberrypi
+
+see [https://emscripten.org/docs/getting_started/index.html](https://emscripten.org/docs/getting_started/index.html) about how to setup emsdk
+
+see [https://github.com/abhiTronix/raspberry-pi-cross-compilers/wiki/Cross-Compiler-CMake-Usage-Guide-with-rsynced-Raspberry-Pi-32-bit-OS](https://github.com/abhiTronix/raspberry-pi-cross-compilers/wiki/Cross-Compiler-CMake-Usage-Guide-with-rsynced-Raspberry-Pi-32-bit-OS) about how to setup cross compilation for the pi zero
 
 # Build & run
 
