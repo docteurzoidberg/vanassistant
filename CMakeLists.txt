@@ -49,8 +49,10 @@ if(PLATFORM STREQUAL "PI")
 elseif(PLATFORM STREQUAL "X11")
     target_link_libraries(${PROJECT_NAME}_${PLATFORM} X11 GL pthread png stdc++fs /usr/lib/x86_64-linux-gnu dl)
 elseif(PLATFORM STREQUAL "WASM")
+    target_compile_options(${PROJECT_NAME}_${PLATFORM} PRIVATE -pthread)
+    target_link_libraries(${PROJECT_NAME}_${PLATFORM} pthread dl)
     set_target_properties(${PROJECT_NAME}_${PLATFORM} PROPERTIES
-        LINK_FLAGS "-s WASM=1 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 --preload-file assets"
-        OUTPUT_NAME "cmake_test.html"
+        LINK_FLAGS "-s WASM=1 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG -s ASSERTIONS=1 -s -pthread -s PTHREAD_POOL_SIZE=5 --shell-file ../wasm/shell.html"
+        OUTPUT_NAME "vanassistant.html"
     )
 endif()
