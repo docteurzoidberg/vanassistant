@@ -4,6 +4,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <map>
+#include <iostream>
 
 namespace drz 
 {
@@ -11,7 +13,7 @@ namespace drz
 class Drz_FB_Engine : public IDrzEngine {
 
 public:
-  Drz_FB_Engine() : { 
+  Drz_FB_Engine() { 
     startedAt = std::chrono::system_clock::now();
   }
 
@@ -29,28 +31,30 @@ public:
   }
 
   int GetScreenWidth() override {
-    return ScreenWidth();
+    //TODO
+    return 640;
   }
 
   int GetScreenHeight() override {
-    return ScreenHeight();
+    //TODO
+    return 480;
   }
 
   uint32_t GetFPS() override {
-    return pge->GetFPS();
+    //TODO
+    return 0;
   }
 
   hwbutton GetKey(uint8_t key) override {
-    olc::HWButton olcbutton = pge->GetKey(static_cast<olc::Key>(key));
+    //TODO
     return { 
-      olcbutton.bPressed, 
-      olcbutton.bReleased, 
-      olcbutton.bHeld 
+      .bPressed = false,
+      .bReleased = false,
+      .bHeld = false
     };
   }
 
   /* Set */
-
   void SetFont(const std::string& fontName) override {
     auto newfont = fonts[fontName];
     if (newfont) {          // Font struct pointer passed in?
@@ -87,11 +91,12 @@ public:
   /* Drawing methods */
 
   void Clear(color color) override {
-    pge->Clear(ColorToPixel(color));
+    //TODO
   }
 
   bool DrawPixel(int x, int y, color color) override {
-    return pge->Draw(x, y, ColorToPixel(color));
+    //TODO
+    return false;
   }
 /*
   void DrawLine(vec2d p1, vec2d p2, color color) override {
@@ -99,30 +104,23 @@ public:
   }
 */
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
-    pge->DrawLine(x1, y1, x2, y2, ColorToPixel(color));
+    //TODO
   }
 
   void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) override {
-    pge->DrawTriangle(x1, y1, x2, y2, x3, y3, ColorToPixel(color));
-    //pge->DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, ColorToPixel(color));
-    //.pge->DrawLine((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
-    //pge->DrawLine((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, ColorToPixel(color));
+    //TODO
   }
 
   void FillRect(int x, int y, int w, int h, color color) override {
-    pge->FillRect(x, y, w, h, ColorToPixel(color));
+    //TODO
   }
-/*
-  void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) override {
-    pge->FillTriangle((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
-  }
-*/
+
   void FillTriangle( int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
-    pge->FillTriangle(x1,y1,x2,y2,x3,y3,ColorToPixel(col));
+    //TODO
   }
 
   void FillCircle(int x, int y, int radius, color color) override {
-    pge->FillCircle(x, y, radius, ColorToPixel(color));
+    //TODO
   }
 
   /* Text */
@@ -183,7 +181,7 @@ private:
           bits = bitmap[bo++];
         }
         if (bits & 0x80) {
-          pge->Draw(x + xo + xx, y + yo + yy, ColorToPixel(fg));
+          DrawPixel(x + xo + xx, y + yo + yy, fg);
         }
         bits <<= 1;
       }
