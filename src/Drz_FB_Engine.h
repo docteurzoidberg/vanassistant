@@ -7,14 +7,23 @@
 #include <map>
 #include <iostream>
 
+#include "fb/fbgraphics.h"
+#include "fb/fbg_fbdev.h"
+
 namespace drz 
 {
 
 class Drz_FB_Engine : public IDrzEngine {
 
 public:
+
   Drz_FB_Engine() { 
     startedAt = std::chrono::system_clock::now();
+  }
+
+  void SetFBG(struct _fbg *fbg) {
+    this->fbg = fbg;
+    std::cout << "SetFBG " << fbg << std::endl;
   }
 
   long Now() override {
@@ -31,18 +40,16 @@ public:
   }
 
   int GetScreenWidth() override {
-    //TODO
-    return 640;
+    //std::cout << "gsw: fbg " << fbg << std::endl;
+    return fbg->width;
   }
 
   int GetScreenHeight() override {
-    //TODO
-    return 480;
+    return fbg->height;
   }
 
   uint32_t GetFPS() override {
-    //TODO
-    return 0;
+    return fbg_getFramerate(fbg, 0);
   }
 
   hwbutton GetKey(uint8_t key) override {
@@ -91,12 +98,12 @@ public:
   /* Drawing methods */
 
   void Clear(color color) override {
-    //TODO
+    fbg_background(fbg, color.r, color.g, color.b);
   }
 
   bool DrawPixel(int x, int y, color color) override {
-    //TODO
-    return false;
+    fbg_pixel(fbg, x, y, color.r, color.g, color.b);
+    return true;
   }
 /*
   void DrawLine(vec2d p1, vec2d p2, color color) override {
@@ -104,23 +111,81 @@ public:
   }
 */
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
-    //TODO
+    fbg_line(fbg, x1, y1, x2, y2, color.r, color.g, color.b);
   }
 
   void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) override {
     //TODO
+    DrawLine(x1, y1, x2, y2, color);
+    DrawLine(x2, y2, x3, y3, color);
+    DrawLine(x3, y3, x1, y1, color);
   }
 
   void FillRect(int x, int y, int w, int h, color color) override {
-    //TODO
+    
+    std::cout << "fillrect " << x << " " << y << " " << w << " " << h << std::endl;
+
+
+    if(x<0) {
+      w += x;
+      x = 0;
+    }
+
+    if(y<0) {
+      h += y;
+      y = 0;
+    }
+
+    if(x+w > GetScreenWidth()) {
+      w = GetScreenWidth() - x;
+    }
+
+    if(y+h > GetScreenHeight()) {
+      h = GetScreenHeight() - y;
+    }
+
+    fbg_rect(fbg, x, y, w, h, color.r, color.g, color.b);
   }
 
-  void FillTriangle( int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
-    //TODO
+  void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
+    
+    auto drawLine = [this, &col](int sx, int ex, int ny) {
+      if (sx > ex) std::swap(sx, ex);
+      for (int i = sx; i <= ex; i++) {
+        DrawPixel(i, ny, col);
+      }
+    };
+
+    auto sortVertices = [](int& x1, int& y1, int& x2, int& y2) {
+      if (y1 > y2) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+      }
+    };
+
+    // Sort vertices by y-coordinate
+    sortVertices(x1, y1, x2, y2);
+    sortVertices(x1, y1, x3, y3);
+    sortVertices(x2, y2, x3, y3);
+
+    int total_height = y3 - y1;
+    for (int i = 0; i < total_height; i++) {
+      bool second_half = i > y2 - y1 || y2 == y1;
+      int segment_height = second_half ? y3 - y2 : y2 - y1;
+      float alpha = (float)i / total_height;
+      float beta = (float)(i - (second_half ? y2 - y1 : 0)) / segment_height; // be careful: with above conditions no division by zero here
+      int ax = x1 + (x3 - x1) * alpha;
+      int bx = second_half ? x2 + (x3 - x2) * beta : x1 + (x2 - x1) * beta;
+
+      if (ax > bx) std::swap(ax, bx);
+      drawLine(ax, bx, y1 + i);
+    }
   }
+
 
   void FillCircle(int x, int y, int radius, color color) override {
     //TODO
+    
   }
 
   /* Text */
@@ -153,7 +218,7 @@ public:
   }
 
 private:
-  
+  struct _fbg *fbg;
   std::map<std::string, const font*> fonts;
   const font* currentFont = nullptr;
   uint16_t cursorX=0;

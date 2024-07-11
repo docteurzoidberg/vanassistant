@@ -22,6 +22,9 @@ public:
         .o = ((float)floor(engine->GetRandomFloat() * 99) + 1) / 10
       });
     }
+    centerX = (float)engine->GetScreenWidth() / 2;
+    centerY = (float)engine->GetScreenHeight() / 2;
+    focalLength = engine->GetScreenWidth()*2;
   }
 
   void Update(float elapsedTime) {
@@ -29,11 +32,10 @@ public:
   }
 
   void Render() {
-    //TODO
     int pixelX;
     int pixelY;
-    int pixelRadius;
-      for(auto &star : stars){
+    unsigned int pixelRadius;
+    for(auto &star : stars){
       star.z-= 0.1f;
       if(star.z <= 0){
         star.z = engine->GetScreenWidth();
@@ -55,7 +57,7 @@ private:
   IDrzEngine* engine;
   bool warp = false;
   uint16_t starcount=0;
-  int focalLength = engine->GetScreenWidth()*2;
-  float centerX = (float)engine->GetScreenWidth() / 2;
-  float centerY = (float)engine->GetScreenHeight() / 2;
+  int focalLength = 0;
+  float centerX =0.0f;// (float)engine->GetScreenWidth() / 2;
+  float centerY =0.0f;// (float)engine->GetScreenHeight() / 2;
 };

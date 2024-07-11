@@ -3,6 +3,7 @@
 #include <IDrzEngine.h>
 
 #include <cstdint>
+#include <iostream>
 #include <queue>
 #include <vector>
 
@@ -52,13 +53,22 @@ public:
     engine->SetFont(fontname);
 
     for (size_t i = 0; i < drawnLines.size(); ++i) {
+
+      auto y = drawY + lineHeight * (i+1);
+
+      std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight << " i: " << i << " y: " << y << std::endl;
+
       //engine->SetCursorPos(rectX,  drawY + lineHeight * (i+1));
-      engine->DrawText(drawnLines[i], 0, drawY + lineHeight * (i+1), color);
+      engine->DrawText(drawnLines[i], 0, y, color);
+
+      //TODO: remove lines as it scrolls off the screen
     }
 
     std::string toDraw = currentText.substr(0, currentIndex);
     //engine->SetCursorPos(rectX,  drawY+ lineHeight * drawnLines.size());
-    engine->DrawText(toDraw, rectX, drawY + lineHeight * (drawnLines.size()+1), color);
+    auto y = drawY + lineHeight * (drawnLines.size()+1);
+    std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight  << " y: " << y << std::endl;
+    engine->DrawText(toDraw, rectX, y, color);
     DrawCursor(rectX, drawY - cursorHeight + lineHeight * (drawnLines.size()+1), toDraw, color);
   }
 
@@ -73,7 +83,7 @@ private:
   float pauseTime;
   float cursorBlinkRate;
   int rectX, rectY, rectWidth, rectHeight;
-  uint8_t lineHeight;
+  uint32_t lineHeight;
   uint32_t lastUpdate;
   uint32_t lastCursorBlink;
   uint32_t lastPauseStart;
@@ -107,9 +117,20 @@ private:
           //displayText = false;
           //drz: should wait last pause time before clearing the text
         }
+        
+        
+        // Scroll logic to remove off-screen lines
         if (currentLine * lineHeight > rectHeight) {
-          verticalOffset = (currentLine * lineHeight) - rectHeight + lineHeight;
+          verticalOffset = (currentLine * lineHeight) - rectHeight;
+          if (drawnLines.size() * lineHeight > rectHeight) {
+            drawnLines.erase(drawnLines.begin()); // Remove the first line that has scrolled off
+            verticalOffset -= lineHeight; // Adjust the vertical offset accordingly
+          }
         }
+        
+        //if (currentLine * lineHeight > rectHeight) {
+        //  verticalOffset = (currentLine * lineHeight) - rectHeight + lineHeight;
+        // }
       }
     }
   }

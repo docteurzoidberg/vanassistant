@@ -13,6 +13,11 @@ list(APPEND SOURCES ${SAM_SOURCES})
 # Include the include directory
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+# Set build type to Debug if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 # Include platform-specific configurations
 if(DEFINED PLATFORM)
     include(${CMAKE_SOURCE_DIR}/${PLATFORM}.cmake)

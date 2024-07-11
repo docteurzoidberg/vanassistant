@@ -17,15 +17,22 @@ class VanAssistantFB : public Drz_FB_Engine {
    
 public:
 	VanAssistantFB() : Drz_FB_Engine() {
+    std::cout << "VanAssistantFB constructor" << std::endl;
+  }
+
+  bool Setup() {
+    
+    std::cout << "VanAssistantFB Setup" << std::endl;
+
     //Load fonts
     const font* solidmono8 = LoadFont("solidmono8", &Solid_Mono8pt7b);
     const font* solidmono4 = LoadFont("solidmono4", &Solid_Mono4pt7b);
     //Load sprites when any...
     //Load sounds when any...
-
     sam = std::make_unique<Drz_Miniaudio_Sam>();
     vanassistant = std::make_unique<VanAssistant>(this, sam.get());
     vanassistant->Setup();
+    return true;
   }
     
   bool Loop(float fElapsedTime) {
@@ -44,8 +51,12 @@ private:
   }
 };
 
-VanAssistantFB app;
 bool exec = true;
+VanAssistantFB* app;
+
+// Alias for convenience
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
 int main() {
  
@@ -60,19 +71,45 @@ int main() {
   if (fbg == NULL) {
       return 0;
   }
+
+  app = new VanAssistantFB();
+  app->SetFBG(fbg);
+  app->Setup();
   
-  //get app start time
-  auto start = std::chrono::high_resolution_clock::now();
-  auto lastupdate = start;
-  float fElapsedTime = 0.0f;
+
+  double fTotalTime = 0.0f; // since start, in seconds !
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+
+  TimePoint previousFrameTime = Clock::now();
+  TimePoint currentFrameTime;
+
   do {
-    //time in seconds from last update
-    fElapsedTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - lastupdate).count();
-    fbg_clear(fbg, 0); // can also be replaced by fbg_background(fbg, 0, 0, 0);
+    currentFrameTime = Clock::now();
+   
+    // Calculate elapsed time in microseconds
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(currentFrameTime - previousFrameTime);
+    float fElapsedTime = elapsedTime.count() / 1000000.0f;
+
+    //std::cout << "fElapsedTime: " << fElapsedTime << std::endl;
+    fTotalTime+=fElapsedTime;
+    
+    //rainbow effect, just for fun
+    r = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime));
+    g = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 2.0f));
+    b = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 4.0f));
+
+    fbg_background(fbg,r,g,b); //replace with app loop
+
+    app->Loop(fElapsedTime);
+
     fbg_draw(fbg);
-    exec = app.Loop(fElapsedTime);
     fbg_flip(fbg);
-    lastupdate = std::chrono::high_resolution_clock::now();
+
+    // Update previous frame time
+    previousFrameTime = currentFrameTime;
+
   } while(exec);
   fbg_close(fbg);
   return 0;

@@ -86,7 +86,7 @@ public:
   void Update(float elapsedTime) {
    
     textAnimator->Update();
-    verticalTextAnimator->Update();
+    //verticalTextAnimator->Update();
     road->Update(elapsedTime);
     scout->Update(elapsedTime);
 
@@ -108,9 +108,9 @@ public:
     //Clear screen
     engine->Clear(BLACK);
     
-    verticalTextAnimator->DrawText();
+    //verticalTextAnimator->DrawText();
     starfield->Render();
-    road->Render(); 
+    //road->Render(); 
     scene->Render();
     textAnimator->Render();
     //faceModel->Render(); 
@@ -171,7 +171,7 @@ private:
   bool bShowDebug = false;
 
   void DrawTitle() {
-    engine->FillRect(0,0, engine->GetScreenWidth() , 4, BLACK);
+    //engine->FillRect(0,0, engine->GetScreenWidth() , 4, BLACK);
     //engine->SetFont("comp18");
     //engine->DrawText("Van Assistant",4, 20, WHITE);
   }
