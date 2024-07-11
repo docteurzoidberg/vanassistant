@@ -1,13 +1,17 @@
 #include "Drz_FB_Engine.h"
 #include "Drz_Miniaudio_Sam.h"
-
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
-
 #include "vanassistant/VanAssistant.h"
+
+#include "fb/fbgraphics.h"
+#include "fb/fbg_fbdev.h"
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+
+#include <csignal>
+
  
 class VanAssistantFB : public Drz_FB_Engine {
    
@@ -41,16 +45,35 @@ private:
 };
 
 VanAssistantFB app;
+bool exec = true;
 
 int main() {
+ 
+  //sigint handler
+  signal(SIGINT, [](int signum) {
+    exec = false;
+  });
+
+  // open "/dev/fb0" by default, use fbg_fbdevSetup("/dev/fb1", 0) if you want to use another framebuffer
+  // note : fbg_fbdevInit is the linux framebuffer backend, you can use a different backend easily by including the proper header and compiling with the appropriate backend file found in ../custom_backend/backend_name
+  struct _fbg *fbg = fbg_fbdevInit();
+  if (fbg == NULL) {
+      return 0;
+  }
+  
   //get app start time
   auto start = std::chrono::high_resolution_clock::now();
   auto lastupdate = start;
   float fElapsedTime = 0.0f;
-  while (true) {
+  do {
     //time in seconds from last update
     fElapsedTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - lastupdate).count();
-    if(app.Loop(fElapsedTime))
-      lastupdate = std::chrono::high_resolution_clock::now();
-  }
+    fbg_clear(fbg, 0); // can also be replaced by fbg_background(fbg, 0, 0, 0);
+    fbg_draw(fbg);
+    exec = app.Loop(fElapsedTime);
+    fbg_flip(fbg);
+    lastupdate = std::chrono::high_resolution_clock::now();
+  } while(exec);
+  fbg_close(fbg);
+  return 0;
 }
