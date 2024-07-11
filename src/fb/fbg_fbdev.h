@@ -28,6 +28,10 @@
 #ifndef FB_GRAPHICS_FBDEV_H
 #define FB_GRAPHICS_FBDEV_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
     #include <linux/fb.h>
     #include "fbgraphics.h"
 
@@ -58,4 +62,9 @@
 
     //! initialize a FB Graphics context with '/dev/fb0' as framebuffer device and no page flipping
     #define fbg_fbdevInit() fbg_fbdevSetup(NULL, 0)
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

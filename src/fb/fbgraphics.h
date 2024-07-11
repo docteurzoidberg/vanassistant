@@ -28,6 +28,10 @@
 #ifndef FB_GRAPHICS_H
 #define FB_GRAPHICS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
     #include <time.h>
     #include <sys/time.h>
     #include <stdint.h>
@@ -882,4 +886,9 @@
     #define _FBG_DEGTORAD(angle_degree) ((angle_degree) * M_PI / 180.0)
     //! convert a radian angle to degree
     #define _FBG_RADTODEG(angle_radians) ((angle_radians) * 180.0 / M_PI)
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
