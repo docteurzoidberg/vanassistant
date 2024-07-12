@@ -1,7 +1,10 @@
 #include "Drz_FB_Engine.h"
 #include "Drz_Miniaudio_Sam.h"
+#include "Drz_SerialInput.h"
+
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
+
 #include "vanassistant/VanAssistant.h"
 
 #include "fb/fbgraphics.h"
@@ -11,7 +14,6 @@
 #include <miniaudio.h>
 
 #include <csignal>
-
  
 class VanAssistantFB : public Drz_FB_Engine {
    
@@ -42,6 +44,10 @@ public:
     return true;
   }
 
+  void Say(std::string text) {
+    vanassistant->Say(text);
+  }
+
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
   std::unique_ptr<IDrzSam> sam;
@@ -53,6 +59,7 @@ private:
 
 bool exec = true;
 VanAssistantFB* app;
+Drz_SerialInput* serialInput;
 
 // Alias for convenience
 using Clock = std::chrono::high_resolution_clock;
@@ -72,10 +79,16 @@ int main() {
       return 0;
   }
 
+  serialInput = new Drz_SerialInput();
+  bool serialOpened = serialInput->Setup();
+  if(!serialOpened) {
+    std::cerr << "Error opening serial port" << std::endl;
+    return 1;
+  }
+
   app = new VanAssistantFB();
   app->SetFBG(fbg);
   app->Setup();
-  
 
   double fTotalTime = 0.0f; // since start, in seconds !
   uint8_t r = 0;
@@ -96,11 +109,19 @@ int main() {
     fTotalTime+=fElapsedTime;
     
     //rainbow effect, just for fun
-    r = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime));
-    g = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 2.0f));
-    b = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 4.0f));
-
-    fbg_background(fbg,r,g,b); //replace with app loop
+    //r = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime));
+    //g = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 2.0f));
+    //b = (uint8_t)(128.0f + 128.0f * sinf(fTotalTime + 4.0f));
+    //fbg_background(fbg,r,g,b); //replace with app loop
+    
+    int bytesRead = serialInput->Read();
+    if(bytesRead > 0) {
+      //std::cout << "Bytes read: " << bytesRead << std::endl;
+      //std::cout << "Data: " << serialInput->read_buf << std::endl;
+      //copy to string
+      std::string data(serialInput->read_buf);
+      app->Say(data);
+    } 
 
     app->Loop(fElapsedTime);
 
@@ -112,5 +133,6 @@ int main() {
 
   } while(exec);
   fbg_close(fbg);
+  serialInput->Close();
   return 0;
 }

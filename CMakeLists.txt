@@ -26,7 +26,7 @@ else()
 endif()
 
 if(PLATFORM STREQUAL "PI")
-    set(SOURCES ${SOURCES} src/main_fb.cpp)  
+    set(SOURCES ${SOURCES} src/main_fb.cpp)
 
     file(GLOB FBG_SOURCES ${CMAKE_SOURCE_DIR}/src/fb/*.c)
     list(APPEND SOURCES ${FBG_SOURCES})
@@ -36,7 +36,6 @@ if(PLATFORM STREQUAL "PI")
 
     file(GLOB FBG_SOURCES ${CMAKE_SOURCE_DIR}/src/fb/nanojpeg/*.c)
     list(APPEND SOURCES ${FBG_SOURCES})
-    
 else()
     set(SOURCES ${SOURCES} src/main_pge.cpp)
 endif()

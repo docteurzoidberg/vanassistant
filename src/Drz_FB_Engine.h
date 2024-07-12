@@ -123,7 +123,7 @@ public:
 
   void FillRect(int x, int y, int w, int h, color color) override {
     
-    std::cout << "fillrect " << x << " " << y << " " << w << " " << h << std::endl;
+    //std::cout << "fillrect " << x << " " << y << " " << w << " " << h << std::endl;
 
 
     if(x<0) {
