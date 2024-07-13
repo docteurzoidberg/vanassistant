@@ -117,4 +117,12 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
             /home/drzoid/rpi-zero-minimal-buildroot/vanassistant_overlay/opt/vanassistant/vanassistant.${OUTPUTFILE}
         COMMENT "Copying vanassistant.${OUTPUTFILE} to build directory"
     )
+     #copy make_img script to build directory
+     add_custom_command(
+        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/scripts/make_img.sh
+            ${CMAKE_BINARY_DIR}/make_img.sh
+        COMMENT "Copying make_img.sh to build directory"
+    )
 endif()

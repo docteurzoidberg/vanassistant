@@ -42,7 +42,7 @@ cd build.x11
 cd ~/vanasssistant
 mkdir build.wasm
 cd build.wasm
-cmake .. -DPLATFORM=WASM -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/emscripten.cmake
+cmake .. -DPLATFORM=WASM -BACKEND=PGE -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/emscripten.cmake
 make 
 ```
 
