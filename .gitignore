@@ -1,6 +1,4 @@
 bin/
 obj/
+build.*
 build/
-build.pi/
-build.wasm/
-build.x11/
