@@ -10,6 +10,22 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+# Include platform-specific configurations
+if(DEFINED PLATFORM)
+    #include(${CMAKE_SOURCE_DIR}/cmake/platforms/${PLATFORM}.cmake)
+    if(${PLATFORM} STREQUAL "X11")
+        set(BACKEND "PGE")
+    elseif(${PLATFORM} STREQUAL "WASM")
+        set(BACKEND "PGE")
+    elseif(${PLATFORM} STREQUAL "BUILDROOT")
+        set(BACKEND "FB")
+    elseif(${PLATFORM} STREQUAL "PIOS")
+        set(BACKEND "FB")
+    endif()
+else()
+    message(FATAL_ERROR "Please define the PLATFORM variable (e.g., -DPLATFORM=PIOS / -DPLATFORM=WSL / -DPLATFORM=WASM / -DPLATFORM=BUILDROOT)")
+endif()
+
 # Include backend-specific configurations
 if(DEFINED BACKEND)
     #include(${CMAKE_SOURCE_DIR}/cmake/backends/${BACKEND}.cmake)
@@ -17,20 +33,15 @@ else()
     message(FATAL_ERROR "Please define the BACKEND variable (e.g., -DBACKEND=PGE or -DBACKEND=FB)")
 endif()
 
-# Include platform-specific configurations
-if(DEFINED PLATFORM)
-    #include(${CMAKE_SOURCE_DIR}/cmake/platforms/${PLATFORM}.cmake)
-else()
-    message(FATAL_ERROR "Please define the PLATFORM variable (e.g., -DPLATFORM=PIOS / -DPLATFORM=WSL / -DPLATFORM=WASM / -DPLATFORM=BUILDROOT)")
-endif()
-
 # Include the include directory
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 #Source files, depending on the backend
 if(${BACKEND} STREQUAL "PGE")
+    #Include the olc::pge entry point
     set(SOURCES ${SOURCES} src/main_pge.cpp)
 elseif(${BACKEND} STREQUAL "FB")
+    #Include the framebuffer's entry point
     set(SOURCES ${SOURCES} src/main_fb.cpp)
     #Include the FBG"s source directories
     file(GLOB FBG_SOURCES ${CMAKE_SOURCE_DIR}/src/fb/*.c)
@@ -71,7 +82,6 @@ else()
     message(FATAL_ERROR "Invalid platform: ${PLATFORM}")
 endif()
 
-
 #Output file
 string(TOLOWER ${PLATFORM} OUTPUTFILE)
 
@@ -80,6 +90,7 @@ target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
 target_compile_options(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PRIVATE ${PLATFORM_CXX_FLAGS})
 set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES OUTPUT_NAME "vanassistant.${OUTPUTFILE}")
 
+#Overwrite the output name for the WASM platform and add the necessary flags
 if(${PLATFORM} STREQUAL "WASM")
     set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES
         LINK_FLAGS "-s WASM=1 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG -s ASSERTIONS=1 -s -pthread -s PTHREAD_POOL_SIZE=5 --shell-file ../wasm/shell.html"
@@ -89,7 +100,7 @@ endif()
 
 #Post build commands
 if(${PLATFORM} STREQUAL "PIOS")
-    # Add custom command to copy deploy script to build directory
+    #copy ssh deploy script to build directory
     add_custom_command(
         TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -97,5 +108,13 @@ if(${PLATFORM} STREQUAL "PIOS")
             ${CMAKE_BINARY_DIR}/deploy_pi.sh
         COMMENT "Copying deploy_pi.sh to build directory"
     )
+elseif(${PLATFORM} STREQUAL "BUILDROOT")
+    #copy binary to buildroot's vanassistant_overlay directory
+    add_custom_command(
+        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_BINARY_DIR}/vanassistant.${OUTPUTFILE}
+            /home/drzoid/rpi-zero-minimal-buildroot/vanassistant_overlay/opt/vanassistant/vanassistant.${OUTPUTFILE}
+        COMMENT "Copying vanassistant.${OUTPUTFILE} to build directory"
+    )
 endif()
-
