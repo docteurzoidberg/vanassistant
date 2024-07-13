@@ -21,7 +21,7 @@ see [https://github.com/abhiTronix/raspberry-pi-cross-compilers/wiki/Cross-Compi
 cd ~/vanasssistant
 mkdir build.x11
 cd build.x11
-cmake -DPLATFORM=X11 ..
+cmake .. -DPLATFORM=X11 -BACKEND=PGE
 make
 ```
 
@@ -38,7 +38,7 @@ cd build.x11
 cd ~/vanasssistant
 mkdir build.wasm
 cd build.wasm
-cmake -DPLATFORM=WASM ..
+cmake .. -DPLATFORM=WASM -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/emscripten.cmake
 make 
 ```
 
@@ -51,13 +51,23 @@ python3 wasm/serve.py
 
 Then open [http://localhost:8000/build.wasm/vanassistant.html](http://localhost:8000/build.wasm/vanassistant.html)
 
-## for the PI Zero with direct framebuffer output
+## for the PI Zero on RASPIOS with direct framebuffer output
 
 ```bash
 cd ~/vansssistant
 mkdir build.pi
 cd build.pi
-cmake -DPLATFORM=PI ..
+cmake .. -DPLATFORM=PIOS -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/crosspigcc.cmake
+make
+```
+
+## for the PI Zero on BUILDROOT with direct framebuffer output
+
+```bash
+cd ~/vansssistant
+mkdir build.buildroot
+cd build.buildroot
+cmake .. -DPLATFORM=BUILDROOT -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/share/buildroot/toolchainfile.cmake
 make
 ```
 
