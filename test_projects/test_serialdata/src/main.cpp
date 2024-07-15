@@ -496,62 +496,73 @@ class TestSerialData : public Drz_PGE_Engine {
     bool bTurnSignalBlink = false;
     bool bLampWarningsBlink = false;
 
+    color lampColorOrangeOn = color(230, 148, 25);
+    color lampColorOrangeOff = color(80, 50, 0);
+
+    color lampColorRedOn = color(230, 0, 0);
+    color lampColorRedOff = color(80, 0, 0);
+
+    color lampColorGreenOn = color(0, 230, 0);
+    color lampColorGreenOff = color(0, 80, 0);
+
+    color lampColorBlueOn = color(0, 0, 230);
+    color lampColorBlueOff = color(0, 0, 80);
 
     void DrawLamps() {
       //pre heating
       if(data.lamp_preheat) {
-        FillRect(250, 130, 24, 24, color(230, 148, 25));
+        FillRect(250, 130, 24, 24, lampColorOrangeOn);
       } else {
-        FillRect(250, 130, 24, 24, color(80, 50, 0));
+        FillRect(250, 130, 24, 24, lampColorOrangeOff);
       }
 
       //alarm
       if(data.lamp_problem) {
-        FillRect(150, 130, 24, 24, color(230, 148, 25));
+        FillRect(150, 130, 24, 24, lampColorRedOn);
       } else {
-        FillRect(150, 130, 24, 24, color(80, 0, 0));
+        FillRect(150, 130, 24, 24, lampColorRedOff);
       }
 
       //warnings
       if(data.lamp_warnings && bLampWarningsBlink) {
-        FillRect(250, 200, 40, 40, color(230, 148, 25));
+        FillRect(250, 200, 40, 40, lampColorRedOn);
       } else {
-        FillRect(250, 200, 40, 40, color(50, 0, 0));
+        FillRect(250, 200, 40, 40, lampColorRedOff);
       }
  
       //turn signals
       if(data.lamp_turnsignals && bTurnSignalBlink) {
-        FillRect(98, 200, 28, 12, color(230, 148, 25));
+        FillRect(98, 200, 28, 12, lampColorGreenOn);
       } else {
-        FillRect(98, 200, 28, 12, color(0, 50, 0));
+        FillRect(98, 200, 28, 12, lampColorGreenOff);
       } 
 
       //not charging
       if(data.lamp_notcharging) {
-        FillRect(65, 186, 20, 20, color(230, 148, 25));
+        FillRect(65, 186, 20, 20, lampColorRedOn);
       } else {
-        FillRect(65, 186, 20, 20, color(50, 0, 0));
+        FillRect(65, 186, 20, 20, lampColorRedOff);
       }
 
       //oil
       if(data.lamp_oil) {
-        FillRect(135, 186, 20, 20, color(230, 148, 25));
+        FillRect(135, 186, 20, 20, lampColorRedOn);
       } else {
-        FillRect(135, 186, 20, 20, color(50, 0, 0));
+        FillRect(135, 186, 20, 20, lampColorRedOff);
       }
 
       //high beam
       if(data.lamp_highbeam) {
-        FillRect(80, 204, 18, 20, color(230, 148, 25));
+        FillRect(80, 204, 18, 20, lampColorBlueOn);
       } else {
-        FillRect(80, 204, 18, 20, color(0, 0, 50));
+        FillRect(80, 204, 18, 20, lampColorBlueOff);
       }
 
       //low beam
       if(data.lamp_lowbeam) {
-        FillRect(122, 204, 18, 20, color(230, 148, 25));
+        FillRect(122, 204, 18, 20, lampColorGreenOn);
       } else {
-        FillRect(122, 204, 18, 20, color(0, 50, 0));
+        FillRect(122, 204, 18, 20, lampColorGreenOff);
       }
     }
 
