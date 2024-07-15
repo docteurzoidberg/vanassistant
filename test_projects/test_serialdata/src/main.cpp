@@ -127,111 +127,156 @@ class TestSerialData : public Drz_PGE_Engine {
         drawMask = !drawMask;
       }
 
+      bool bGUIDataUpdated = false;
+
+      bool dbgGuiUpdates = false;
+
       if(guiSliderFuel->bHeld) {
         data.fuelgauge = guiSliderFuel->fValue;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "sliderFuel changed" << std::endl;
+        guiLabelFuelValue->sText = std::to_string((int)((data.fuelgauge/255.0f)*100.0f)) + "%";
+        bGUIDataUpdated = true;
       }
 
       if(guiSliderSpeed->bHeld) {
         data.speed = guiSliderSpeed->fValue;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "sliderSpeed changed" << std::endl;
+        guiLabelSpeedValue->sText = std::to_string(data.speed) + "km/h";
+        bGUIDataUpdated = true;
       }
 
       if(guiSliderBat->bHeld) {
         data.battery = guiSliderBat->fValue;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "sliderBat changed" << std::endl;
+        guiLabelBatValue->sText = strRoundUpToNDecimals(data.battery/10.0f,1) + "V";
+        bGUIDataUpdated = true;
       }
 
       if(guiSliderRPM->bHeld) {
         data.rpm = guiSliderRPM->fValue;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "sliderRPM changed" << std::endl;
+        guiLabelRPMValue->sText = std::to_string(data.rpm*100) + "RPM";
+        bGUIDataUpdated = true;
       }
 
-      if(guiSliderCoolantTemp->bPressed) {
+      if(guiSliderCoolantTemp->bHeld) {
         data.coolant_temp = guiSliderCoolantTemp->fValue;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "sliderCoolantTemp changed" << std::endl;
+        guiLabelCoolantTempValue->sText = strRoundUpToNDecimals(data.coolant_temp/10.0f,1) + "C";
+        bGUIDataUpdated = true;
       }
 
-      if(guiTextBoxOdometer->bPressed) {
-        data.odometer = std::stoi(guiTextBoxOdometer->sText);
-        counterTotalDistance->SetCounter(data.odometer);
-        needToSendData = true;
+      if(guiTextBoxOdometer->sText != sGuiTextBoxOdometerOldValue) { 
+        std::cerr << "txtOdometer changed. oldValue = " << sGuiTextBoxOdometerOldValue << " newValue = " << guiTextBoxOdometer->sText << std::endl;
+        try {
+          data.odometer = std::stoi(guiTextBoxOdometer->sText);  
+          if(std::to_string(data.odometer) != guiTextBoxOdometer->sText)
+            guiTextBoxOdometer->sText = std::to_string(data.odometer);
+          sGuiTextBoxOdometerOldValue = guiTextBoxOdometer->sText;
+          guiLabelOdemeterValue->sText = guiTextBoxOdometer->sText;
+          counterTotalDistance->SetCounter(data.odometer);
+          bGUIDataUpdated = true;
+        } catch (std::invalid_argument& e) {
+          std::cerr << "Invalid odometer value" << std::endl;
+          guiTextBoxOdometer->sText = sGuiTextBoxOdometerOldValue;
+          guiManager.Update(this);
+        }
       }
 
-      if(guiTextBoxTrip->bPressed) {
-        data.trip = (uint32_t) (std::stof(guiTextBoxTrip->sText)*10);
-        counterDistance->SetCounter(data.trip);
-        needToSendData = true;
+      if(guiTextBoxTrip->sText != sGuiTextBoxTripOldValue) {
+        std::cerr << "txtTrip changed. oldValue = " << sGuiTextBoxTripOldValue << " newValue = " << guiTextBoxTrip->sText << std::endl;
+        try {
+          data.trip = (uint32_t) (std::stof(guiTextBoxTrip->sText)*10);
+          //if data trip to string is different from gui trip, update gui trip
+          if(std::to_string(data.trip) != guiTextBoxTrip->sText)
+            guiTextBoxTrip->sText = strRoundUpToNDecimals(data.trip/10.0f, 1);
+          sGuiTextBoxTripOldValue = guiTextBoxTrip->sText;
+          guiLabelTripValue->sText = guiTextBoxTrip->sText;
+          counterDistance->SetCounter(data.trip);
+          bGUIDataUpdated = true;
+        } catch(std::invalid_argument& e) {
+          std::cerr << "Invalid trip value" << std::endl;
+          guiTextBoxTrip->sText = sGuiTextBoxTripOldValue;
+          guiManager.Update(this);
+        }
       }
 
       if(guiCheckBoxPreheat->bPressed) {
         data.lamp_preheat = guiCheckBoxPreheat->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkPreheat pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxNotCharging->bPressed) {
         data.lamp_notcharging = guiCheckBoxNotCharging->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkNotCharging pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxOil->bPressed) {
         data.lamp_oil = guiCheckBoxOil->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkOil pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxTurnSignals->bPressed) {
         data.lamp_turnsignals = guiCheckBoxTurnSignals->bChecked;
-        needToSendData = true;
+        fLampTurnSignalBlinkEvery = 0.0f; //reset blink timer
+        if(dbgGuiUpdates) std::cout << "chkTurnSignals pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxHighBeam->bPressed) {
         data.lamp_highbeam = guiCheckBoxHighBeam->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkHighBeam pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxLowBeam->bPressed) {
         data.lamp_lowbeam = guiCheckBoxLowBeam->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkLowBeam pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxWarnings->bPressed) {
         data.lamp_warnings = guiCheckBoxWarnings->bChecked;
-        needToSendData = true;
+        fLampWarningsBlinkEvery = 0.0f; //reset blink timer
+        if(dbgGuiUpdates) std::cout << "chkWarnings pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
       if(guiCheckBoxProblem->bPressed) {
         data.lamp_problem = guiCheckBoxProblem->bChecked;
-        needToSendData = true;
+        if(dbgGuiUpdates) std::cout << "chkProblem pressed" << std::endl;
+        bGUIDataUpdated = true;
       }
 
-      bool bDataUpdated = false;
-      if(needToSendData) {
-        SendData();
-        bDataUpdated = true;
-        needToSendData = false;
-      }
-
-      if(ReadData() || bDataUpdated) {
+      if(ReadData() && !bGUIDataUpdated) {
         //update gui with new data
         DataToGUI();
+        bGUIDataUpdated = false;
       }
-
       // We must update the manager at some point each frame. Values of controls
 		  // are only valid AFTER this call to update()
 		  guiManager.Update(this);
 
+      if(bGUIDataUpdated) {
+        bGUIDataUpdated = false;
+        SendData();
+      }
+
       //update blinkers
       if(data.lamp_warnings) {
         fLampWarningsBlinkEvery -= fElapsedTime;
-        if(fLampWarningsBlinkEvery < 0) {
-          fLampWarningsBlinkEvery = 0.3f;
+        if(fLampWarningsBlinkEvery <= 0) {
+          fLampWarningsBlinkEvery = 0.3f+fLampWarningsBlinkEvery;
           bLampWarningsBlink = !bLampWarningsBlink;
         }
       }
       if(data.lamp_turnsignals) {
         fLampTurnSignalBlinkEvery -= fElapsedTime;
-        if(fLampTurnSignalBlinkEvery < 0) {
-          fLampTurnSignalBlinkEvery = 0.3f;
+        if(fLampTurnSignalBlinkEvery <= 0) {
+          fLampTurnSignalBlinkEvery = 0.3f+fLampTurnSignalBlinkEvery;
           bTurnSignalBlink = !bTurnSignalBlink;
         }
       }
@@ -355,7 +400,13 @@ class TestSerialData : public Drz_PGE_Engine {
     bool needToSendData = false;
     bool drawFPS = false;
     bool drawMask = true;
+    bool logData = true;
     int bauds=-1;
+
+    std::chrono::time_point<std::chrono::system_clock> lastSendTime = std::chrono::system_clock::now(); 
+
+    bool throttleData = true;
+    float fSendDataEvery = 0.1f;
 
     float fLampWarningsBlinkEvery = 0.3f;
     float fLampTurnSignalBlinkEvery = 0.3f;
@@ -363,17 +414,20 @@ class TestSerialData : public Drz_PGE_Engine {
     bool bTurnSignalBlink = false;
     bool bLampWarningsBlink = false;
 
-    color lampColorOrangeOn = color(230, 148, 25);
-    color lampColorOrangeOff = color(80, 50, 0);
+    std::string sGuiTextBoxOdometerOldValue = "";
+    std::string sGuiTextBoxTripOldValue = "";
 
-    color lampColorRedOn = color(230, 0, 0);
-    color lampColorRedOff = color(80, 0, 0);
+    const color lampColorOrangeOn = color(230, 148, 25);
+    const color lampColorOrangeOff = color(80, 50, 0);
 
-    color lampColorGreenOn = color(0, 230, 0);
-    color lampColorGreenOff = color(0, 80, 0);
+    const color lampColorRedOn = color(230, 0, 0);
+    const color lampColorRedOff = color(80, 0, 0);
 
-    color lampColorBlueOn = color(0, 0, 230);
-    color lampColorBlueOff = color(0, 0, 80);
+    const color lampColorGreenOn = color(0, 230, 0);
+    const color lampColorGreenOff = color(0, 80, 0);
+
+    const color lampColorBlueOn = color(0, 0, 230);
+    const color lampColorBlueOff = color(0, 0, 80);
 
     void LoadSprites() {
       sprCounterSpritesheet = new olc::Sprite("sprites/counterdigits.png");
@@ -390,6 +444,7 @@ class TestSerialData : public Drz_PGE_Engine {
 
     void SetupGUI() {
 
+
       counterTotalDistance = new Counter(this, 6, sprCounterSpritesheet, {8,10});
       counterTotalDistance->SetCounter(data.odometer);
       
@@ -400,7 +455,7 @@ class TestSerialData : public Drz_PGE_Engine {
       float ly = 2.0f;
 
       auto odometerText = std::to_string(data.odometer);
-      auto tripText = std::to_string(data.trip/10.0f);
+      auto tripText = strRoundUpToNDecimals(data.trip/10.0f, 1);
 
       // Labels 
 
@@ -430,10 +485,10 @@ class TestSerialData : public Drz_PGE_Engine {
       guiLabelCoolantTempValue = new olc::QuickGUI::Label(guiManager, "90C", { lx+74, ly+72 }, { 70.0f, 16.0f });
 
       guiLabelOdometer = new olc::QuickGUI::Label(guiManager, "Odometer:", { lx, ly+90  }, { 70.0f, 16.0f });
-      guiLabelOdemeterValue = new olc::QuickGUI::Label(guiManager, "12345", { lx+74, ly+90 }, { 70.0f, 16.0f });
+      guiLabelOdemeterValue = new olc::QuickGUI::Label(guiManager, odometerText, { lx+74, ly+90 }, { 70.0f, 16.0f });
 
       guiLabelTrip = new olc::QuickGUI::Label(guiManager, "Trip:", { lx, ly+108 }, { 70.0f, 16.0f });
-      guiLabelTripValue = new olc::QuickGUI::Label(guiManager, "0423.8", { lx+74, ly+108 }, { 70.0f, 16.0f });
+      guiLabelTripValue = new olc::QuickGUI::Label(guiManager, tripText, { lx+74, ly+108 }, { 70.0f, 16.0f });
 
       //Sliders
 
@@ -445,8 +500,8 @@ class TestSerialData : public Drz_PGE_Engine {
 
       //TextBoxes
 
-      guiTextBoxOdometer = new olc::QuickGUI::TextBox(guiManager, "123456", { lx+171, ly+90 }, { 80.0f, 16.0f } );
-      guiTextBoxTrip = new olc::QuickGUI::TextBox(guiManager, "0423.8", { lx+171, ly+108 }, { 80.0f, 16.0f } );
+      guiTextBoxOdometer = new olc::QuickGUI::TextBox(guiManager, odometerText, { lx+171, ly+90 }, { 80.0f, 16.0f } );
+      guiTextBoxTrip = new olc::QuickGUI::TextBox(guiManager, tripText, { lx+171, ly+108 }, { 80.0f, 16.0f } );
 
       //CheckBoxes
 
@@ -504,8 +559,15 @@ class TestSerialData : public Drz_PGE_Engine {
       guiCheckBoxTurnSignals->bChecked = data.lamp_turnsignals;
       guiCheckBoxWarnings->bChecked = data.lamp_warnings;
 
-      guiTextBoxOdometer->sText = std::to_string(data.odometer);
-      guiTextBoxTrip->sText = strRoundUpToNDecimals(data.trip/10.0f, 1);
+      auto odometerText = std::to_string(data.odometer);
+      auto tripText = strRoundUpToNDecimals(data.trip/10.0f, 1);
+
+      //to avoid trigger a text change when initializing data first time
+      sGuiTextBoxOdometerOldValue = odometerText;
+      sGuiTextBoxTripOldValue = tripText;
+
+      guiTextBoxOdometer->sText = odometerText;
+      guiTextBoxTrip->sText = tripText;
 
       guiSliderBat->fValue = data.battery;
       guiSliderCoolantTemp->fValue = data.coolant_temp;
@@ -534,44 +596,84 @@ class TestSerialData : public Drz_PGE_Engine {
       //TODO: parse data using SerialProtocol
       J7DashboardPacketData* data = serialProtocol->ReceiveData(serial->read_buf, bc);
       if(data != nullptr) {
-        std::cout << "Received data" << std::endl;
-        std::cout << "--------------------" << std::endl;
-        std::cout << "Fuel gauge: " << data->fuelgauge << std::endl;
-        std::cout << "Battery: " << data->battery << std::endl;
-        std::cout << "Speed: " << data->speed << std::endl;
-        std::cout << "RPM: " << data->rpm << std::endl;
-        std::cout << "Coolant temp: " << data->coolant_temp << std::endl;
-        std::cout << "Odometer: " << data->odometer << std::endl;
-        std::cout << "Lamp preheat: " << data->lamp_preheat << std::endl;
-        std::cout << "Lamp not charging: " << data->lamp_notcharging << std::endl;
-        std::cout << "Lamp oil: " << data->lamp_oil << std::endl;
-        std::cout << "Lamp turn signals: " << data->lamp_turnsignals << std::endl;
-        std::cout << "Lamp high beam: " << data->lamp_highbeam << std::endl;
-        std::cout << "Lamp low beam: " << data->lamp_lowbeam << std::endl;
-        std::cout << "Lamp warnings: " << data->lamp_warnings << std::endl;
+        LogData(*data);
       }
       return true;
     }
 
-    void SendData() { 
+    std::string to_hex(char c) {
+      std::stringstream ss;
+      ss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+      return ss.str();
+    }
+
+    void LogData(J7DashboardPacketData data, int way=0) {
+
+      std::string wayPrefix = way ? "->" : "<-";
+      if(way) {
+        std::cout << "Sent data:" << std::endl;
+      } else {
+        std::cout << "Reveived data:" << std::endl;
+      }
+
+      //display each data byte as hex
+      std::string hexData = "";
+      auto rawData = (char*)&data;
+      for(int i=0; i<sizeof(J7DashboardPacketData); i++) {
+        hexData += to_hex(rawData[i]) + " ";
+      }
+     
+
+      std::cout << wayPrefix << hexData << std::endl;
+
+
+      std::string strFuel = "Fuel: " + std::to_string((int)((data.fuelgauge/255.0f)*100.0f)) + "%";
+      std::string strBat = "Bat: " + strRoundUpToNDecimals(data.battery/10.0f,1) + "V";
+      std::string strSpeed = "Speed: " + std::to_string(data.speed) + "km/h";
+      std::string strRPM = "RPM: " + std::to_string(data.rpm*100) + "RPM";
+      std::string strCoolantTemp = "Coolant temp: " + strRoundUpToNDecimals(data.coolant_temp/10.0f,1) + "C";
+      std::string strOdometer = "Odometer: " + std::to_string(data.odometer);
+      std::string strTrip = "Trip: " + strRoundUpToNDecimals(data.trip/10.0f,1);
+      std::string strLampPreheat = "Lamp preheat: " + std::to_string(data.lamp_preheat);
+      std::string strLampNotCharging = "Lamp not charging: " + std::to_string(data.lamp_notcharging);
+      std::string strLampOil = "Lamp oil: " + std::to_string(data.lamp_oil);
+      std::string strLampTurnSignals = "Lamp turn signals: " + std::to_string(data.lamp_turnsignals);
+      std::string strLampHighBeam = "Lamp high beam: " + std::to_string(data.lamp_highbeam);
+      std::string strLampLowBeam = "Lamp low beam: " + std::to_string(data.lamp_lowbeam);
+      std::string strLampWarnings = "Lamp warnings: " + std::to_string(data.lamp_warnings);
+      std::string strLampProblem = "Lamp problem: " + std::to_string(data.lamp_problem);
+
+      std::cout << wayPrefix << strFuel << std::endl;
+      std::cout << wayPrefix << strBat << std::endl;
+      std::cout << wayPrefix << strSpeed << std::endl;
+      std::cout << wayPrefix << strRPM << std::endl;
+      std::cout << wayPrefix << strCoolantTemp << std::endl;
+      std::cout << wayPrefix << strOdometer << std::endl;
+      std::cout << wayPrefix << strTrip << std::endl;
+      std::cout << wayPrefix << strLampPreheat << std::endl;
+      std::cout << wayPrefix << strLampNotCharging << std::endl;
+      std::cout << wayPrefix << strLampOil << std::endl;
+      std::cout << wayPrefix << strLampTurnSignals << std::endl;
+      std::cout << wayPrefix << strLampHighBeam << std::endl;
+      std::cout << wayPrefix << strLampLowBeam << std::endl;
+      std::cout << wayPrefix << strLampWarnings << std::endl;
+      std::cout << wayPrefix << strLampProblem << std::endl;
+    }
+
+    void SendData() {
+      auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastSendTime).count();
+
+      if(throttleData && elapsedMs < (int)(fSendDataEvery*1000)) {
+        //std::cout << "data already sent " << elapsedMs << "ms ago, not sending" << std::endl;
+        return;
+      }
+
       serialProtocol->SendData(&data);
       needToSendData = false;
-
-      std::cout << "Sent data" << std::endl;
-      std::cout << "--------------------" << std::endl;
-      std::cout << "Fuel gauge: " << std::to_string(data.fuelgauge) << std::endl;
-      std::cout << "Battery: " << std::to_string(data.battery) << std::endl;
-      std::cout << "Speed: " << std::to_string(data.speed) << std::endl;
-      std::cout << "RPM: " << std::to_string(data.rpm) << std::endl;
-      std::cout << "Coolant temp: " << std::to_string(data.coolant_temp) << std::endl;
-      std::cout << "Odometer: " << std::to_string(data.odometer) << std::endl;
-      std::cout << "Lamp preheat: " << data.lamp_preheat << std::endl;
-      std::cout << "Lamp not charging: " << data.lamp_notcharging << std::endl;
-      std::cout << "Lamp oil: " << data.lamp_oil << std::endl;
-      std::cout << "Lamp turn signals: " << data.lamp_turnsignals << std::endl;
-      std::cout << "Lamp high beam: " << data.lamp_highbeam << std::endl;
-      std::cout << "Lamp low beam: " << data.lamp_lowbeam << std::endl;
-      std::cout << "Lamp warnings: " << data.lamp_warnings << std::endl;
+      lastSendTime = std::chrono::system_clock::now();
+      
+      if(logData)
+        LogData(data, 1);
     } 
     
     void DrawLamps() {

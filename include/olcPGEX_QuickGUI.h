@@ -213,6 +213,7 @@ namespace olc::QuickGUI
     void Update(olc::PixelGameEngine* pge) override;
     void Draw(olc::PixelGameEngine* pge) override;
     void DrawDecal(olc::PixelGameEngine* pge) override;
+    static bool bBoxClicked;
 
   protected:
     bool m_bTextEdit = false;
@@ -435,6 +436,7 @@ namespace olc::QuickGUI
 
   void Manager::Update(olc::PixelGameEngine* pge)
   {
+    TextBox::bBoxClicked=false;
     for (auto& p : m_vControls) p->Update(pge);
   }
 
@@ -537,6 +539,7 @@ namespace olc::QuickGUI
 
 
 #pragma region TextBox
+  bool TextBox::bBoxClicked=false;
   TextBox::TextBox(olc::QuickGUI::Manager& manager, const std::string& text, const olc::vf2d& pos, const olc::vf2d& size)
     : Label(manager, text, pos, size)
   {
@@ -571,6 +574,7 @@ namespace olc::QuickGUI
       
       if (bPressed && !pge->IsTextEntryEnabled() && !m_bTextEdit)
       {				
+        TextBox::bBoxClicked=true;
         pge->TextEntryEnable(true, sText);
         m_bTextEdit = true;
       }
@@ -588,10 +592,11 @@ namespace olc::QuickGUI
       
       if (bPressed && m_bTextEdit)
       {
-        //sText = pge->TextEntryGetString();
-        pge->TextEntryEnable(false);
+        if(!TextBox::bBoxClicked) {
+          sText = pge->TextEntryGetString();
+          pge->TextEntryEnable(false);
+        }
         m_bTextEdit = false;
-        sText = pge->TextEntryGetString();
       }
     }	
 
