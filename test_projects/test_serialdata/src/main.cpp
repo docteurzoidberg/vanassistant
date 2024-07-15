@@ -213,7 +213,7 @@ class TestSerialData : public Drz_PGE_Engine {
 
       if(ReadData() || bDataUpdated) {
         //update gui with new data
-        DataToGui();
+        DataToGUI();
       }
 
       // We must update the manager at some point each frame. Values of controls
