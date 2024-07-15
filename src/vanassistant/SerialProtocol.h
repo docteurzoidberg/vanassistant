@@ -12,12 +12,15 @@ enum PacketType {
 };
 
 struct J7DashboardPacketData { 
-  uint8_t fuelgauge;
-  uint8_t battery;
-  uint8_t speed;
-  uint8_t rpm;
-  uint8_t coolant_temp;
-  uint16_t odometer;
+
+  uint8_t fuelgauge;      //0-255 (0-100%)
+  uint8_t speed;          //in km/h
+  uint8_t battery;        //in volts x10 (134 = 13.4V)
+  uint8_t rpm;            //rpm x100 (30 = 3000rpm)
+  uint16_t coolant_temp;  //temperature x10 in celsius (276 = 27.6 degrees)
+  uint32_t odometer;      //total distance in km
+  uint32_t trip;          //trip distance in 1/10 km
+
   bool lamp_preheat;
   bool lamp_notcharging;
   bool lamp_oil;
@@ -25,6 +28,7 @@ struct J7DashboardPacketData {
   bool lamp_highbeam;
   bool lamp_lowbeam;
   bool lamp_warnings;
+  bool lamp_problem;
 };
 
 class SerialProtocol {
