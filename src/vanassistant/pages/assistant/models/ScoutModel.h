@@ -680,4 +680,3 @@ struct animframe {
   float tX, tY, tZ;
   float rX, rY, rZ;
 };
-
