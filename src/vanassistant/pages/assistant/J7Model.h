@@ -2,13 +2,13 @@
 
 #include <IDrzEngine.h>
 
-#include "Model.h"
+#include "IModel.h"
 #include "Scene.h"
 
 using namespace drz;
 
 
-class J7BodyModel: public Model {
+class J7BodyModel: public IModel {
   public:
     //clang-format off
     std::vector<vec3d> verts = {
@@ -2330,7 +2330,7 @@ class J7BodyModel: public Model {
     };
     //clang-format on
 
-    J7BodyModel() : Model(&verts, &faces) {
+    J7BodyModel() : IModel(&verts, &faces) {
       // Load model
       SetupModel();
     }
@@ -2340,11 +2340,11 @@ class J7BodyModel: public Model {
   private:
 };
 
-class J7WheelModel: public Model {
+class J7WheelModel: public IModel {
   public:
     std::vector<vec3d> verts ={};
     std::vector<face> faces ={};
-    J7WheelModel() : Model(&verts, &faces) {
+    J7WheelModel() : IModel(&verts, &faces) {
       // Load model
       SetupModel();
     }

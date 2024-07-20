@@ -27,7 +27,7 @@ class Drz_Serial {
     struct termios tty;
 
      // Allocate memory for read buffer, set size according to your needs
-    char read_buf [256];
+    char read_buf[1024];
 
     Drz_Serial(std::string serial_port="/dev/ttyUSB0", int bauds=115200) : serial_port_name(serial_port) {
       switch (bauds) {

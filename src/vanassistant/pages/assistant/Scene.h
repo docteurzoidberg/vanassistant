@@ -3,7 +3,8 @@
 #include <IDrzEngine.h>
 #include <gfx3d.h>
 
-#include "Model.h"
+#include "IModel.h"
+#include "../../DisplayPageManager.h"
 
 #include <algorithm>
 #include <vector>
@@ -30,7 +31,7 @@ class Scene {
 
     RenderMode renderMode = RENDER_SOLID;
 
-    Scene(IDrzEngine* engine) : engine(engine) {
+    Scene() : engine(DisplayPageManager::GetEngine()) {
       
       fAspectRatio = (float)engine->GetScreenWidth() / (float)engine->GetScreenHeight();
 
@@ -45,7 +46,7 @@ class Scene {
       matProj.m[3][3] = 0.0f;
     }
 
-    void AddModel(Model* model) {
+    void AddModel(IModel* model) {
       iSceneTriangleCount += model->tris.size();
       models.push_back(model);
     }
@@ -214,7 +215,7 @@ class Scene {
 
   private:
     IDrzEngine* engine;
-    std::vector<Model*> models;
+    std::vector<IModel*> models;
     std::vector<trianglec> vecTrianglesToRaster;
     bool iSceneTriangleCount = 0;
     bool bDebugTriangles = false;

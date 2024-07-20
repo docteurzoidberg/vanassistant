@@ -6,6 +6,7 @@
 #include "../../../src/vanassistant/SerialProtocol.h"
 #include "IDrzEngine.h"
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <string>
 
@@ -262,7 +263,7 @@ class TestSerialData : public Drz_PGE_Engine {
 
       if(bGUIDataUpdated) {
         bGUIDataUpdated = false;
-        SendData();
+        SendJ7DashboardData();
       }
 
       //update blinkers
@@ -309,8 +310,7 @@ class TestSerialData : public Drz_PGE_Engine {
     }
 
     bool OnConsoleCommand(const std::string& text) override {
-      //send text over serial (raw)
-      serial->Write(text.c_str(), text.length());
+      SendJ7TextData(text);
       return true;
     }
 
@@ -586,19 +586,75 @@ class TestSerialData : public Drz_PGE_Engine {
    
     bool ReadData() {
 
-      //read serial
-      auto bc = serial->Read();
-      if(bc <= 0) return false; 
+      //parse data
+      J7PacketHeader header;
+      int bytesRead = serial->Read();
+      if(bytesRead<=0) {
+        //no data
+        return false;
+      }
 
-      std::string str(serial->read_buf, bc);
-      std::cout << "<" << str << std::endl;
+      if (bytesRead < sizeof(J7PacketHeader)) {
+        std::cerr << "Incorrect packet len" << std::endl;
+        return false;
+      }
 
-      //TODO: parse data using SerialProtocol
-      J7DashboardPacketData* data = serialProtocol->ReceiveData(serial->read_buf, bc);
-      if(data != nullptr) {
-        LogData(*data);
+      if(!serialProtocol->ReadHeader(serial->read_buf, &header)) {
+        std::cerr << "Failed to read header" << std::endl;
+        return false;
+      }
+
+      switch (header.type) {
+        case J7_SAY_TEXT: {
+          J7SayTextPacketData data;
+          if(serialProtocol->ReadJ7SayTextPacketData(serial->read_buf, &data)) {
+            ProcessSayTextPacket(&data);
+          } else {
+            std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
+          }
+          break;
+        }
+        case J7_DASHBOARD: { 
+          J7DashboardPacketData data;
+          if(serialProtocol->ReadJ7DashboardPacketData(serial->read_buf, &data)) {
+            ProcessDashboardPacket(&data);
+          } else {
+            std::cerr << "Failed to read J7DashboardPacketData. header.len=" << header.len << " bytesRead=" << bytesRead << std::endl;
+          }
+          break;
+        }
+        case J7_IMU: {
+          J7IMUPacketData data;
+          if(serialProtocol->ReadJ7IMUPacketData(serial->read_buf, &data)) {
+            ProcessIMUPacket(&data);
+          } else {
+            std::cerr << "Failed to read J7IMUPacketData" << std::endl;
+          }
+          break;
+        }
+        default:
+          std::cerr << "Unknown packet type: " << header.type << std::endl;
+          return false;
+          break;
       }
       return true;
+    }
+
+    void ProcessDashboardPacket(J7DashboardPacketData* data) {
+      this->data = *data;
+      needToSendData = true;
+      if(logData)
+        LogJ7DashboardPacketData(*data, 0);
+    }
+
+    void ProcessSayTextPacket(J7SayTextPacketData* data) {
+      if(logData)
+        LogJ7SayTextPacketData(*data, 0);
+    }
+
+    void ProcessIMUPacket(J7IMUPacketData* data) {
+      if(logData)
+        LogJ7IMUPacketData(*data, 0);
     }
 
     std::string to_hex(char c) {
@@ -607,14 +663,10 @@ class TestSerialData : public Drz_PGE_Engine {
       return ss.str();
     }
 
-    void LogData(J7DashboardPacketData data, int way=0) {
+    void LogJ7DashboardPacketData(J7DashboardPacketData data, int way=0) {
 
       std::string wayPrefix = way ? "->" : "<-";
-      if(way) {
-        std::cout << "Sent data:" << std::endl;
-      } else {
-        std::cout << "Reveived data:" << std::endl;
-      }
+      std::cout << wayPrefix << (way ? "Sent: " : "Reveived: ") << "J7DashboardPacketData" << std::endl;
 
       //display each data byte as hex
       std::string hexData = "";
@@ -660,21 +712,44 @@ class TestSerialData : public Drz_PGE_Engine {
       std::cout << wayPrefix << strLampProblem << std::endl;
     }
 
-    void SendData() {
-      auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastSendTime).count();
+    void LogJ7SayTextPacketData(J7SayTextPacketData data, int way=0) {
+      std::string wayPrefix = way ? "->" : "<-";
+      std::cout << wayPrefix << (way ? "Sent: " : "Reveived: ") << "J7SayTextPacketData" << std::endl;
+      std::cout << wayPrefix << "Text: " << data.text << std::endl;
+    }
 
+    void LogJ7IMUPacketData(J7IMUPacketData data, int way=0) {
+      std::string wayPrefix = way ? "->" : "<-";
+      std::cout << wayPrefix << (way ? "Sent: " : "Reveived: ") << "J7IMUPacketData" << std::endl;
+      std::cout << wayPrefix << "Accel X: " << data.acc_x << std::endl;
+      std::cout << wayPrefix << "Accel Y: " << data.acc_y << std::endl;
+      std::cout << wayPrefix << "Accel Z: " << data.acc_z << std::endl;
+      std::cout << wayPrefix << "Gyro X: " << data.gyro_x << std::endl;
+      std::cout << wayPrefix << "Gyro Y: " << data.gyro_y << std::endl;
+      std::cout << wayPrefix << "Gyro Z: " << data.gyro_z << std::endl;
+    }
+
+    void SendJ7DashboardData() {
+      auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastSendTime).count();
       if(throttleData && elapsedMs < (int)(fSendDataEvery*1000)) {
         //std::cout << "data already sent " << elapsedMs << "ms ago, not sending" << std::endl;
         return;
       }
 
-      serialProtocol->SendData(&data);
+      serialProtocol->SendJ7DashboardPacketData(&data);
       needToSendData = false;
       lastSendTime = std::chrono::system_clock::now();
-      
       if(logData)
-        LogData(data, 1);
+        LogJ7DashboardPacketData(data, 1);
     } 
+
+    void SendJ7TextData(std::string text) {
+      J7SayTextPacketData data;
+      strncpy(data.text, text.c_str(), sizeof(data.text));
+      serialProtocol->SendJ7SayTextPacketData(&data);
+      if(logData)
+        LogJ7SayTextPacketData(data, 1);
+    }
     
     void DrawLamps() {
       //pre heating

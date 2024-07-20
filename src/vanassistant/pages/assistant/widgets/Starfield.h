@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IDrzEngine.h>
+#include "../../../DisplayPageManager.h"
 
 #include <cmath>
 #include <vector>
@@ -13,7 +14,7 @@ struct star {
 
 class Starfield {
 public:
-  Starfield(IDrzEngine* engine, uint16_t starcount) : engine(engine), starcount(starcount) {
+  Starfield(uint16_t starcount) : engine(DisplayPageManager::GetEngine()), starcount(starcount) {
     for(int i = 0; i < starcount; i++){
       stars.push_back({
         .x = (float)engine->GetRandomFloat() * engine->GetScreenWidth(),

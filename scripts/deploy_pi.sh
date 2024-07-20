@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ssh gringos@gringos.local "killall vanassistant.pi"
+ssh gringos@gringos.local "killall vanassistant.pios"
 
 #copy the binary to the pi /opt folder
-scp ./vanassistant.pi gringos@gringos.local:/opt/vanassistant
+scp ./vanassistant.pios gringos@gringos.local:/opt/vanassistant
 
 #kill any existing process and launch the new one
-ssh -f gringos@gringos.local "sh -c 'cd /opt/vanassistant; nohup ./vanassistant.pi > /dev/null 2>&1 &'"
+ssh -f gringos@gringos.local "sh -c 'cd /opt/vanassistant; nohup ./vanassistant.pios /dev/ttyAMA0 115200 > /dev/null 2>&1 &'"

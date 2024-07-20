@@ -2,14 +2,16 @@
 
 #include <IDrzEngine.h>
 
+#include "../../../DisplayPageManager.h"
+
 #include <queue>
 
 using namespace drz;
 
 class TextAnimator {
 public:
-  TextAnimator(IDrzEngine* engine, std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)
-    : engine(engine), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), xOffset(xOffset), yOffset(yOffset),
+  TextAnimator(std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int xOffset=0, int yOffset=0, color col= WHITE, bool fillBg = true)
+    : engine(DisplayPageManager::GetEngine()), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), xOffset(xOffset), yOffset(yOffset),
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
     lastUpdate = engine->Now();

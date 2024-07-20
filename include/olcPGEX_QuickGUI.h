@@ -553,6 +553,8 @@ namespace olc::QuickGUI
     if (m_state == State::Disabled || !bVisible)
       return;
 
+    //TODO: DRZOID: return if console is enabled
+
     bPressed = false;
     bReleased = false;
   
@@ -599,7 +601,7 @@ namespace olc::QuickGUI
         m_bTextEdit = false;
       }
     }	
-
+    
     if (m_bTextEdit && pge->IsTextEntryEnabled())
       sText = pge->TextEntryGetString();
   }

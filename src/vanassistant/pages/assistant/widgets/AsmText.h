@@ -1,15 +1,18 @@
 #pragma once
 
 #include <IDrzEngine.h>
-#include "../ressources/asmtext.h"
+#include "../../../DisplayPageManager.h"
+#include "../../../../ressources/asmtext.h"
 #include <cstring>
 #include <vector>
 
 using namespace drz;
 
+extern const char asm_text_buffer[];
+
 class AsmText {
 public:
-  AsmText(IDrzEngine* engine) : engine(engine) {
+  AsmText() : engine(DisplayPageManager::GetEngine()) {
     //count lines from asm buffer
     lineIndex = 0;
     lineCount = 0;
