@@ -13,7 +13,9 @@
 
 #include <sys/file.h>
 
-class Drz_Serial {
+#include <IDrzSerial.h>
+
+class Drz_Serial : public IDrzSerial {
 
   public:
 
@@ -44,7 +46,7 @@ class Drz_Serial {
       }
     }
 
-    bool Setup() {
+    bool Setup() override {
 
       serial_port = open(serial_port_name.c_str(), O_RDWR);
 
@@ -103,7 +105,7 @@ class Drz_Serial {
       return true;
     }
 
-    int Read() {
+    int Read() override {
 
       // Read bytes. The behaviour of read() (e.g. does it block?,
       // how long does it block for?) depends on the configuration
@@ -121,7 +123,7 @@ class Drz_Serial {
       return n;
     }
 
-    bool Write(const char* data, int len) {
+    bool Write(const char* data, int len) override {
       int n = write(serial_port, data, len);
       if (n < 0) {
         std::cerr << "Error writing to serial port: " << strerror(errno) << std::endl;
@@ -134,11 +136,11 @@ class Drz_Serial {
       return true;
     }
 
-    char* GetReadBuffer() {
+    char* GetReadBuffer() override {
       return read_buf;
     }
 
-    void Close() {
-      close(serial_port);
+    bool Close() override {
+      return close(serial_port);
     }
 };

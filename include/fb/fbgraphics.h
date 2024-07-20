@@ -32,7 +32,6 @@
 extern "C" {
 #endif
 
-    #include <time.h>
     #include <sys/time.h>
     #include <stdint.h>
     #include <math.h>

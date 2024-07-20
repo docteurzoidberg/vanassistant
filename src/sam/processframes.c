@@ -1,4 +1,4 @@
-#include "render.h"
+#include <sam/render.h>
 
 extern unsigned char speed;
 

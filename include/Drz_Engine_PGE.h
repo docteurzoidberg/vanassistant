@@ -2,28 +2,21 @@
 
 #include <IDrzEngine.h>
 
+#define OLC_PGE_APPLICATION
+#include <olcPixelGameEngine.h>
+
 #include <chrono>
 #include <cstdint>
-#include <map>
-#include <iostream>
-
-#include "fb/fbgraphics.h"
-#include "fb/fbg_fbdev.h"
 
 namespace drz 
 {
 
-class Drz_FB_Engine : public IDrzEngine {
+class Drz_PGE_Engine : public olc::PixelGameEngine, public IDrzEngine {
 
 public:
-
-  Drz_FB_Engine() { 
+  Drz_PGE_Engine(olc::PixelGameEngine* p) : pge(p) { 
     startedAt = std::chrono::system_clock::now();
-  }
-
-  void SetFBG(struct _fbg *fbg) {
-    this->fbg = fbg;
-    std::cout << "SetFBG " << fbg << std::endl;
+    DisplayPageManager::SetEngine(this);
   }
 
   long Now() override {
@@ -40,28 +33,28 @@ public:
   }
 
   int GetScreenWidth() override {
-    //std::cout << "gsw: fbg " << fbg << std::endl;
-    return fbg->width;
+    return ScreenWidth();
   }
 
   int GetScreenHeight() override {
-    return fbg->height;
+    return ScreenHeight();
   }
 
   uint32_t GetFPS() override {
-    return fbg_getFramerate(fbg, 0);
+    return pge->GetFPS();
   }
 
   hwbutton GetKey(uint8_t key) override {
-    //TODO
+    olc::HWButton olcbutton = pge->GetKey(static_cast<olc::Key>(key));
     return { 
-      .bPressed = false,
-      .bReleased = false,
-      .bHeld = false
+      olcbutton.bPressed, 
+      olcbutton.bReleased, 
+      olcbutton.bHeld 
     };
   }
 
   /* Set */
+
   void SetFont(const std::string& fontName) override {
     auto newfont = fonts[fontName];
     if (newfont) {          // Font struct pointer passed in?
@@ -98,12 +91,11 @@ public:
   /* Drawing methods */
 
   void Clear(color color) override {
-    fbg_background(fbg, color.r, color.g, color.b);
+    pge->Clear(ColorToPixel(color));
   }
 
   bool DrawPixel(int x, int y, color color) override {
-    fbg_pixel(fbg, x, y, color.r, color.g, color.b);
-    return true;
+    return pge->Draw(x, y, ColorToPixel(color));
   }
 /*
   void DrawLine(vec2d p1, vec2d p2, color color) override {
@@ -111,81 +103,30 @@ public:
   }
 */
   void DrawLine(int x1, int y1, int x2, int y2, color color) override {
-    fbg_line(fbg, x1, y1, x2, y2, color.r, color.g, color.b);
+    pge->DrawLine(x1, y1, x2, y2, ColorToPixel(color));
   }
 
   void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) override {
-    //TODO
-    DrawLine(x1, y1, x2, y2, color);
-    DrawLine(x2, y2, x3, y3, color);
-    DrawLine(x3, y3, x1, y1, color);
+    pge->DrawTriangle(x1, y1, x2, y2, x3, y3, ColorToPixel(color));
+    //pge->DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, ColorToPixel(color));
+    //.pge->DrawLine((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
+    //pge->DrawLine((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, ColorToPixel(color));
   }
 
   void FillRect(int x, int y, int w, int h, color color) override {
-    
-    //std::cout << "fillrect " << x << " " << y << " " << w << " " << h << std::endl;
-
-
-    if(x<0) {
-      w += x;
-      x = 0;
-    }
-
-    if(y<0) {
-      h += y;
-      y = 0;
-    }
-
-    if(x+w > GetScreenWidth()) {
-      w = GetScreenWidth() - x;
-    }
-
-    if(y+h > GetScreenHeight()) {
-      h = GetScreenHeight() - y;
-    }
-
-    fbg_rect(fbg, x, y, w, h, color.r, color.g, color.b);
+    pge->FillRect(x, y, w, h, ColorToPixel(color));
   }
-
-  void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
-    
-    auto drawLine = [this, &col](int sx, int ex, int ny) {
-      if (sx > ex) std::swap(sx, ex);
-      for (int i = sx; i <= ex; i++) {
-        DrawPixel(i, ny, col);
-      }
-    };
-
-    auto sortVertices = [](int& x1, int& y1, int& x2, int& y2) {
-      if (y1 > y2) {
-        std::swap(x1, x2);
-        std::swap(y1, y2);
-      }
-    };
-
-    // Sort vertices by y-coordinate
-    sortVertices(x1, y1, x2, y2);
-    sortVertices(x1, y1, x3, y3);
-    sortVertices(x2, y2, x3, y3);
-
-    int total_height = y3 - y1;
-    for (int i = 0; i < total_height; i++) {
-      bool second_half = i > y2 - y1 || y2 == y1;
-      int segment_height = second_half ? y3 - y2 : y2 - y1;
-      float alpha = (float)i / total_height;
-      float beta = (float)(i - (second_half ? y2 - y1 : 0)) / segment_height; // be careful: with above conditions no division by zero here
-      int ax = x1 + (x3 - x1) * alpha;
-      int bx = second_half ? x2 + (x3 - x2) * beta : x1 + (x2 - x1) * beta;
-
-      if (ax > bx) std::swap(ax, bx);
-      drawLine(ax, bx, y1 + i);
-    }
+/*
+  void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) override {
+    pge->FillTriangle((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
   }
-
+*/
+  void FillTriangle( int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
+    pge->FillTriangle(x1,y1,x2,y2,x3,y3,ColorToPixel(col));
+  }
 
   void FillCircle(int x, int y, int radius, color color) override {
-    //TODO
-    
+    pge->FillCircle(x, y, radius, ColorToPixel(color));
   }
 
   /* Text */
@@ -218,7 +159,7 @@ public:
   }
 
 private:
-  struct _fbg *fbg;
+  olc::PixelGameEngine* pge;
   std::map<std::string, const font*> fonts;
   const font* currentFont = nullptr;
   uint16_t cursorX=0;
@@ -228,6 +169,11 @@ private:
   color textbgcolor = BLACK;
 
   std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> startedAt;
+  
+
+  olc::Pixel ColorToPixel(color color) {
+    return olc::Pixel(color.r, color.g, color.b, color.a);
+  }
 
   void DrawChar(uint16_t x, uint16_t y, unsigned char c, color fg, color bg) {
     c -= (unsigned char) currentFont->first;
@@ -246,7 +192,7 @@ private:
           bits = bitmap[bo++];
         }
         if (bits & 0x80) {
-          DrawPixel(x + xo + xx, y + yo + yy, fg);
+          pge->Draw(x + xo + xx, y + yo + yy, ColorToPixel(fg));
         }
         bits <<= 1;
       }

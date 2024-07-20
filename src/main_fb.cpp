@@ -1,25 +1,16 @@
-#include "Drz_FB_Engine.h"
-#include "Drz_Miniaudio_Sam.h"
-#include "Drz_Serial.h"
+#include "Drz_Engine_FB.h"
+#include "Drz_Sam_Miniaudio.h"
+#include "Drz_Serial_Termios.h"
 
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
 
 #include "vanassistant/VanAssistant.h"
-#include "vanassistant/SerialProtocol.h"
 
-#include "fb/fbgraphics.h"
-#include "fb/fbg_fbdev.h"
-
-#define MINIAUDIO_IMPLEMENTATION
-#include <miniaudio.h>
-
-#include <csignal>
- 
 class VanAssistantFB : public Drz_FB_Engine {
    
 public:
-	VanAssistantFB() : Drz_FB_Engine() {
+	VanAssistantFB(Drz_Serial* serial) : serial(serial), Drz_FB_Engine() {
     std::cout << "VanAssistantFB constructor" << std::endl;
   }
 
@@ -33,13 +24,14 @@ public:
     //Load sprites when any...
     //Load sounds when any...
     sam = std::make_unique<Drz_Miniaudio_Sam>();
-    vanassistant = std::make_unique<VanAssistant>(this, sam.get());
+    vanassistant = std::make_unique<VanAssistant>(this, sam.get(), serial.get());
     vanassistant->Setup();
     return true;
   }
     
   bool Loop(float fElapsedTime) {
     ReadInputs(fElapsedTime);
+    ReadSerial();
     vanassistant->Update(fElapsedTime);
     vanassistant->Render();
     return true;
@@ -49,13 +41,92 @@ public:
     vanassistant->Say(text);
   }
 
+  VanAssistant* GetVanAssistant() {
+    return vanassistant.get();
+  }
+
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
   std::unique_ptr<IDrzSam> sam;
+  std::unique_ptr<IDrzSerial> serial;
   
+  
+  bool ReadSerial() {
+    //parse data
+    J7PacketHeader header;
+    int bytesRead = serial->Read();
+    if(bytesRead<=0) {
+      //no data
+      return false;
+    }
+
+    if (bytesRead < sizeof(J7PacketHeader)) {
+      std::cerr << "Incorrect packet len" << std::endl;
+      return false;
+    }
+
+    if(!vanassistant->ReadHeader(serial->GetReadBuffer(), &header)) {
+      std::cerr << "Failed to read header" << std::endl;
+      return false;
+    }
+
+    switch (header.type) {
+      case J7_SAY_TEXT: {
+        J7SayTextPacketData data;
+        if(vanassistant->ReadJ7SayTextPacketData(serial->GetReadBuffer(), &data)) {
+          ProcessSayTextPacket(&data);
+        } else {
+          std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
+        }
+        break;
+      }
+      case J7_DASHBOARD: { 
+        J7DashboardPacketData data;
+        if(vanassistant->ReadJ7DashboardPacketData(serial->GetReadBuffer(), &data)) {
+          ProcessDashboardPacket(&data);
+        } else {
+          std::cerr << "Failed to read J7DashboardPacketData" << std::endl;
+        }
+        break;
+      }
+      default:
+        std::cerr << "Unknown packet type: " << header.type << std::endl;
+        return false;
+        break;
+    }
+    return true;
+  }
+
   void ReadInputs(float fElapsedTime) {
     //TODO
   }
+    
+  void ProcessSayTextPacket(J7SayTextPacketData* data) {
+    std::cout << "Received J7SayTextPacketData: " << data->text << std::endl;
+    //Make the assistant say the text
+    Say(data->text);
+  }
+
+  void ProcessDashboardPacket(J7DashboardPacketData* data) {
+    std::cout << "Received J7DashboardPacketData:" << std::endl;
+    std::cout << "Fuel gauge: " << static_cast<int>(data->fuelgauge) << "%" << std::endl;
+    std::cout << "Speed: " << static_cast<int>(data->speed) << " km/h" << std::endl;
+    std::cout << "Battery: " << static_cast<int>(data->battery) / 10.0 << " V" << std::endl;
+    std::cout << "RPM: " << static_cast<int>(data->rpm) * 100 << std::endl;
+    std::cout << "Coolant Temp: " << data->coolant_temp / 10.0 << " °C" << std::endl;
+    std::cout << "Odometer: " << data->odometer << " km" << std::endl;
+    std::cout << "Trip: " << data->trip / 10.0 << " km" << std::endl;
+    std::cout << "Lamps:" << std::endl;
+    std::cout << "  Preheat: " << data->lamp_preheat << std::endl;
+    std::cout << "  Not charging: " << data->lamp_notcharging << std::endl;
+    std::cout << "  Oil: " << data->lamp_oil << std::endl;
+    std::cout << "  Turn signals: " << data->lamp_turnsignals << std::endl;
+    std::cout << "  High beam: " << data->lamp_highbeam << std::endl;
+    std::cout << "  Low beam: " << data->lamp_lowbeam << std::endl;
+    std::cout << "  Warnings: " << data->lamp_warnings << std::endl;
+    std::cout << "  Problem: " << data->lamp_problem << std::endl;
+  }
+
 };
 
 bool exec = true;
@@ -70,78 +141,6 @@ std::string fbdev = "/dev/fb0";
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 
-void ProcessSayTextPacket(J7SayTextPacketData* data) {
-  std::cout << "Received J7SayTextPacketData: " << data->text << std::endl;
-  //Make the assistant say the text
-  app->Say(data->text);
-}
-
-void ProcessDashboardPacket(J7DashboardPacketData* data) {
-  std::cout << "Received J7DashboardPacketData:" << std::endl;
-  std::cout << "Fuel gauge: " << static_cast<int>(data->fuelgauge) << "%" << std::endl;
-  std::cout << "Speed: " << static_cast<int>(data->speed) << " km/h" << std::endl;
-  std::cout << "Battery: " << static_cast<int>(data->battery) / 10.0 << " V" << std::endl;
-  std::cout << "RPM: " << static_cast<int>(data->rpm) * 100 << std::endl;
-  std::cout << "Coolant Temp: " << data->coolant_temp / 10.0 << " °C" << std::endl;
-  std::cout << "Odometer: " << data->odometer << " km" << std::endl;
-  std::cout << "Trip: " << data->trip / 10.0 << " km" << std::endl;
-  std::cout << "Lamps:" << std::endl;
-  std::cout << "  Preheat: " << data->lamp_preheat << std::endl;
-  std::cout << "  Not charging: " << data->lamp_notcharging << std::endl;
-  std::cout << "  Oil: " << data->lamp_oil << std::endl;
-  std::cout << "  Turn signals: " << data->lamp_turnsignals << std::endl;
-  std::cout << "  High beam: " << data->lamp_highbeam << std::endl;
-  std::cout << "  Low beam: " << data->lamp_lowbeam << std::endl;
-  std::cout << "  Warnings: " << data->lamp_warnings << std::endl;
-  std::cout << "  Problem: " << data->lamp_problem << std::endl;
-}
-
-bool ReadSerial(SerialProtocol& protocol) {
-
-  //parse data
-  J7PacketHeader header;
-  int bytesRead = serialInput->Read();
-  if(bytesRead<=0) {
-    //no data
-    return false;
-  }
-
-  if (bytesRead < sizeof(J7PacketHeader)) {
-    std::cerr << "Incorrect packet len" << std::endl;
-    return false;
-  }
-
-  if(!protocol.ReadHeader(serialInput->read_buf, &header)) {
-    std::cerr << "Failed to read header" << std::endl;
-    return false;
-  }
-
-  switch (header.type) {
-    case J7_SAY_TEXT: {
-      J7SayTextPacketData data;
-      if(protocol.ReadJ7SayTextPacketData(serialInput->read_buf, &data)) {
-        ProcessSayTextPacket(&data);
-      } else {
-        std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
-      }
-      break;
-    }
-    case J7_DASHBOARD: { 
-      J7DashboardPacketData data;
-      if(protocol.ReadJ7DashboardPacketData(serialInput->read_buf, &data)) {
-        ProcessDashboardPacket(&data);
-      } else {
-        std::cerr << "Failed to read J7DashboardPacketData" << std::endl;
-      }
-      break;
-    }
-    default:
-      std::cerr << "Unknown packet type: " << header.type << std::endl;
-      return false;
-      break;
-  }
-  return true;
-}
 
 int main(int argc, char* argv[]) {
  
@@ -183,9 +182,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  SerialProtocol protocol(serialInput);
-
-  app = new VanAssistantFB();
+  app = new VanAssistantFB(serialInput);
   app->SetFBG(fbg);
   app->Setup();
 
@@ -202,8 +199,6 @@ int main(int argc, char* argv[]) {
     //std::cout << "fElapsedTime: " << fElapsedTime << std::endl;
     fTotalTime+=fElapsedTime;
   
-    ReadSerial(protocol);
-
     //app loop
     app->Loop(fElapsedTime);
 

@@ -4,7 +4,6 @@
 #include <gfx3d.h>
 
 #include "IModel.h"
-#include "../../DisplayPageManager.h"
 
 #include <algorithm>
 #include <vector>
@@ -27,13 +26,18 @@ class Scene {
     float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
     float fNear = 0.1f;
     float fFar = 1000.0f;
-    float fAspectRatio = 1.0f;
+    float fAspectRatio = 1.0f; 
+
+    int width = 0;
+    int height = 0;
+    int x = 0;
+    int y = 0;
 
     RenderMode renderMode = RENDER_SOLID;
 
-    Scene() : engine(DisplayPageManager::GetEngine()) {
+    Scene(int width, int height, int x, int y) : width(width), height(height), x(x), y(y), engine(DisplayPageManager::GetEngine()) {
       
-      fAspectRatio = (float)engine->GetScreenWidth() / (float)engine->GetScreenHeight();
+      fAspectRatio = (float)width / (float)height;
 
       //setup projection matrix
       matProj = Matrix4x4::Identity();
@@ -172,11 +176,11 @@ class Scene {
       for (auto &t : vecTrianglesToRaster) {
         // Draw the transformed, viewed, clipped, projected, sorted, clipped triangles
         if (renderMode == RENDER_WIREFRAME) {
-          engine->DrawLine(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, WHITE);
-          engine->DrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, WHITE);
-          engine->DrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, WHITE);
+          engine->DrawLine(t.p[0].x + x, t.p[0].y + y, t.p[1].x + x, t.p[1].y + y, WHITE);
+          engine->DrawLine(t.p[1].x + x, t.p[1].y + y, t.p[2].x + x, t.p[2].y + y, WHITE);
+          engine->DrawLine(t.p[2].x + x, t.p[2].y + y, t.p[0].x + x, t.p[0].y + y, WHITE);
         } else {
-          engine->FillTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.col);
+          engine->FillTriangle(t.p[0].x + x, t.p[0].y + y, t.p[1].x + x, t.p[1].y + y, t.p[2].x + x, t.p[2].y + y, t.col);
         }
       }
     }

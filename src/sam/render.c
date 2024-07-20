@@ -1,7 +1,7 @@
-#include "render.h"
-#include "RenderTabs.h"
+#include <sam/render.h>
+#include <sam/RenderTabs.h>
+#include <sam/debug.h>
 
-#include "debug.h"
 extern int debug;
 
 //extern unsigned char A, X, Y;

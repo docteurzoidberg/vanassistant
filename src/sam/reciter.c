@@ -1,6 +1,6 @@
-#include "reciter.h"
-#include "ReciterTabs.h"
-#include "debug.h"
+#include <sam/reciter.h>
+#include <sam/ReciterTabs.h>
+#include <sam/debug.h>
 
 unsigned char A, X;
 extern int debug;

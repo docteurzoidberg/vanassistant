@@ -1,5 +1,7 @@
 #pragma once
 
+#define MINIAUDIO_IMPLEMENTATION
+
 #include <IDrzSam.h>
 #include <miniaudio.h>
 
@@ -10,8 +12,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
-#include "sam/reciter.h"
-#include "sam/sam.h"
+#include <sam/reciter.h>
+#include <sam/sam.h>
 
 extern "C" {
 

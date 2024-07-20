@@ -31,20 +31,20 @@
 #include <stdio.h>
 
 #ifndef WITHOUT_PNG
-#include "lodepng/lodepng.h"
+#include <fb/lodepng/lodepng.h>
 #endif
 
 #ifndef WITHOUT_JPEG
 #define _NJ_INCLUDE_HEADER_ONLY
-#include "nanojpeg/nanojpeg.c"
+#include <fb/nanojpeg/nanojpeg.c>
 #endif
 
 #ifndef WITHOUT_STB_IMAGE
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
+#include <fb/stb/stb_image.h>
 #endif
 
-#include "fbgraphics.h"
+#include <fb/fbgraphics.h>
 
 #ifdef FBG_PARALLEL
     void fbg_terminateFragments(struct _fbg *fbg);

@@ -1,5 +1,4 @@
-#include "DisplayPageManager.h"
-#include <IDisplayPage.h>
+#include <IDrzEngine.h>
 #include <IDrzSam.h>
 #include <iostream>
 
@@ -12,15 +11,13 @@
 #include "pages/assistant/widgets/VerticalTextAnimator.h"
 #include "pages/assistant/widgets/Road.h"
 #include "pages/assistant/widgets/AsmText.h"
-
-#include "pages/assistant/Scene.h"
-#include "pages/assistant/ScoutModel.h"
+#include "pages/assistant/widgets/ScoutScene3d.h"
 
 #include <cstdint>
 
 using namespace drz;
 
-class PageAssistant : public IPage {
+class PageAssistant : public IDisplayPage {
 
 public:
 
@@ -61,8 +58,7 @@ public:
   
     // Setup
     asmText = new AsmText();
-    scene = new Scene();
-    scout = new Scout(scene);
+    sceneScout3d = new WidgetScoutScene3d(0, 0, engine->GetScreenWidth(), engine->GetScreenHeight());
 
     road = new Road();
     starfield = new Starfield(NUM_STARS);
@@ -83,7 +79,7 @@ public:
     );
 
     // Add models to scene
-    scout->SetJawOpening(0.5f);
+    sceneScout3d->SetJawOpening(0.5f);
 
     // Setup say text animator
     textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6);
@@ -122,7 +118,7 @@ public:
     textAnimator->Update();
     //verticalTextAnimator->Update();
     road->Update(elapsedTime);
-    scout->Update(elapsedTime);
+    
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
@@ -131,7 +127,7 @@ public:
     }
 
     starfield->Update(elapsedTime);
-    scene->Update(elapsedTime);
+    sceneScout3d->Update(elapsedTime);
   }
 
   /**
@@ -145,7 +141,7 @@ public:
     //verticalTextAnimator->DrawText();
     starfield->Render();
     //road->Render(); 
-    scene->Render();
+    sceneScout3d->Render();
     textAnimator->Render();
     //faceModel->Render(); 
 
@@ -166,11 +162,11 @@ public:
 
   void ToggleDebug() {
     bShowDebug = !bShowDebug;
-    scene->ToggleDebugTriangles();
+    sceneScout3d->ToggleDebugTriangles();
   }
 
   void ToggleRenderMode() {
-    scene->ToggleRenderMode();
+    sceneScout3d->ToggleRenderMode();
   }
 
   void ToggleFps() {
@@ -178,28 +174,25 @@ public:
   }
 
   void DbgNextTriangle() {
-    scene->DbgNextTriangle();
+    sceneScout3d->DbgNextTriangle();
   }
 
   void DbgPrevTriangle() {
-    scene->DbgPrevTriangle();
-  }
-
-  Scene* getScene() {
-    return scene;
+    sceneScout3d->DbgPrevTriangle();
   }
 
 private: 
   IDrzEngine* engine;
   IDrzSam* sam;
 
-  Scene* scene;
+
   AsmText* asmText;
-  Scout *scout;
   Road* road;
   Starfield* starfield;
   VerticalTextAnimator* verticalTextAnimator; 
   TextAnimator* textAnimator; 
+
+  WidgetScoutScene3d* sceneScout3d;
 
   bool bShowFps = true;
   bool bShowDebug = false;

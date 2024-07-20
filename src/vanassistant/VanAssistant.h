@@ -1,22 +1,26 @@
 #pragma once 
 
+//Generic interfaces
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
+#include <memory>
+#include "IDrzSerial.h"
 
-
-#include "DisplayPageManager.h"
-
-#include "IDisplayPage.h"
+//Display pages
 #include "PageAssistant.h"
-#include "SerialProtocol.h"
 
+//Serial protocol
+#include "SerialProtocol.h"
 
 class VanAssistant {
   public:
-    VanAssistant(IDrzEngine* engine, IDrzSam* sam, Drz_Serial* serial) {
+    VanAssistant(IDrzEngine* engine, IDrzSam* sam, IDrzSerial* serial) {
       this->engine = engine;
       this->sam = sam;
       this->serial = serial;
+
+      displayPageAssistant = new PageAssistant(sam);
+      //TODO: add other display pages
     }
 
     bool Say(std::string text) {
@@ -24,15 +28,16 @@ class VanAssistant {
     } 
 
     void Setup() {
-      protocol = new SerialProtocol(serial);
-      DisplayPageManager::SetEngine(engine);
-      DisplayPageManager::AddPage(new PageAssistant(sam));
+      protocol = std::make_unique<SerialProtocol>(serial);
+    
+      DisplayPageManager::AddPage(displayPageAssistant);
+      //TODO: add other display pages
     }
 
     void Update(float fElapsedTime) {
       DisplayPageManager::ReadInputs();
       DisplayPageManager::Update(fElapsedTime);
-      DisplayPageManager::Render();
+      //DisplayPageManager::Render();
     }
 
     void Render() {
@@ -56,19 +61,17 @@ class VanAssistant {
       return protocol->ReadJ7SayTextPacketData(buffer, data);
     }
 
-
-
-
-
   private:
     IDrzEngine* engine;
     IDrzSam* sam;
-    Drz_Serial* serial;
+    IDrzSerial* serial;
 
-    SerialProtocol* protocol;
+    std::unique_ptr<SerialProtocol> protocol;
 
-    IPage* AssistantPage;
-    IPage* DebugPage;
-
+    IDisplayPage* displayPageMenu;
+    IDisplayPage* displayPageRoad; 
+    IDisplayPage* displayPageAssistant;
+    IDisplayPage* displayPageSys;
+    IDisplayPage* displayPageDebug;
     
 };

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace drz {
 
@@ -501,6 +502,15 @@ struct font {
 };
 
 
+class IDisplayPage {
+  public:
+    bool isVisible = true;
+    virtual void ReadInputs() = 0;
+    virtual void Load() = 0;
+    virtual void Update(float fElapsedTime) = 0;
+    virtual void Render() = 0;
+};
+
 class IDrzEngine {
 public:
 
@@ -546,6 +556,66 @@ public:
   //get the current time in milliseconds
   virtual long Now() = 0;
 
+};
+
+
+class DisplayPageManager {
+  public:
+
+    static void SetEngine(drz::IDrzEngine* engine) {
+      DisplayPageManager::engine = engine;
+    }
+
+    static drz::IDrzEngine* GetEngine() {
+      return engine;
+    }
+
+    static void AddPage(drz::IDisplayPage* page) {
+      pages.push_back(page);
+    }
+
+    static void Load() {
+
+      for (auto page : pages) {
+        page->Load();
+      }
+
+      //set default page = first page
+      if(pages.size() > 0) {
+        currentPage = pages[0];
+      }
+    }
+
+    static void GoToPage(drz::IDisplayPage* page) {
+      //TODO: check if page is in pages
+      //TODO: program full redraw
+      currentPage = page;
+    }
+
+    static void ReadInputs() {
+      if(currentPage != nullptr) {
+        currentPage->ReadInputs();
+      }
+    }
+
+    static void Update(float fElapsedTime) {
+      //set isVisible to false for all pages except the current page
+      for (auto page : pages) {
+        page->isVisible = (page == currentPage);
+        page->Update(fElapsedTime);
+      }
+    }
+
+    static void Render() {
+      if(currentPage != nullptr) {
+        currentPage->Render();
+      }
+    }
+
+  private:
+    inline static drz::IDrzEngine* engine;
+    inline static drz::IDisplayPage* currentPage;
+    inline static std::vector<drz::IDisplayPage*> pages;
 };
 
 

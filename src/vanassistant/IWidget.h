@@ -16,10 +16,7 @@ class IWidget {
       this->screenY = screenY;
       this->width = width;
       this->height = height;
-    }
-
-    void SetEngine(drz::IDrzEngine* engine) {
-      this->engine = engine;
+      this->engine = drz::DisplayPageManager::GetEngine();
     }
 
     void SetPosition(int x, int y) {

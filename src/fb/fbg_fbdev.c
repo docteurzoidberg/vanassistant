@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 #include <linux/kd.h>
 
-#include "fbg_fbdev.h"
+#include <fb/fbg_fbdev.h>
 
 void fbg_fbdevDraw(struct _fbg *fbg);
 void fbg_fbdevFlip(struct _fbg *fbg);

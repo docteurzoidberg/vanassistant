@@ -1,35 +1,17 @@
-#include "Drz_PGE_Engine.h"
-#include "Drz_Miniaudio_Sam.h"
-#include "Drz_Serial.h"
+#include "Drz_Engine_PGE.h"
+#include "Drz_Sam_Miniaudio.h"
+#include "Drz_Serial_Termios.h"
 
-#include "fonts/Computerfont18pt7b.h"
-
-#include "fonts/Mono_Regular18pt7b.h"
-#include "fonts/Mono_Regular14pt7b.h"
-#include "fonts/Mono_Regular12pt7b.h"
-#include "fonts/Mono_Regular8pt7b.h"
-
+#include "IDrzSerial.h"
 #include "fonts/Solid_Mono8pt7b.h"
-#include "fonts/Solid_Mono6pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
  
-#include "vanassistant/DisplayPageManager.h"
 #include "vanassistant/VanAssistant.h"
-#include "vanassistant/SerialProtocol.h"
-
-#define OLC_PGE_APPLICATION
-#include <olcPixelGameEngine.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #endif
 
-#define MINIAUDIO_IMPLEMENTATION
-#include <miniaudio.h>
-
-#include <memory>
-#include <string>
-#include <iostream>
 
 class VanAssistantPGE : public Drz_PGE_Engine {
    
@@ -59,17 +41,15 @@ public:
 
     //Set window title
 		sAppName = "VanAssistant";
+
     //Load fonts
-    const font* comp18 = LoadFont("comp18", &Computerfont18pt7b);
-    const font* mono18 = LoadFont("mono18", &Mono_Regular18pt7b);
-    const font* mono14 = LoadFont("mono14", &Mono_Regular14pt7b);
-    const font* mono12 = LoadFont("mono12", &Mono_Regular12pt7b);
-    const font* mono8 = LoadFont("mono8", &Mono_Regular8pt7b);
     const font* solidmono8 = LoadFont("solidmono8", &Solid_Mono8pt7b);
-    const font* solidmono6 = LoadFont("solidmono6", &Solid_Mono6pt7b);
     const font* solidmono4 = LoadFont("solidmono4", &Solid_Mono4pt7b);
     //Load sprites when any...
+
     //Load sounds when any...
+
+    //Load 3d models when any...
 	}
 
 	bool OnUserCreate() override {
@@ -138,7 +118,7 @@ public:
 private:
   std::unique_ptr<VanAssistant> vanassistant; 
   std::unique_ptr<IDrzSam> sam;
-  std::unique_ptr<Drz_Serial> serial;
+  std::unique_ptr<IDrzSerial> serial;
 
   bool ReadSerial() {
 
@@ -155,7 +135,7 @@ private:
       return false;
     }
 
-    if(!vanassistant->ReadHeader(serial->read_buf, &header)) {
+    if(!vanassistant->ReadHeader(serial->GetReadBuffer(), &header)) {
       std::cerr << "Failed to read header" << std::endl;
       return false;
     }
@@ -163,7 +143,7 @@ private:
     switch (header.type) {
       case J7_SAY_TEXT: {
         J7SayTextPacketData data;
-        if(vanassistant->ReadJ7SayTextPacketData(serial->read_buf, &data)) {
+        if(vanassistant->ReadJ7SayTextPacketData(serial->GetReadBuffer(), &data)) {
           ProcessSayTextPacket(&data);
         } else {
           std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
@@ -172,7 +152,7 @@ private:
       }
       case J7_DASHBOARD: { 
         J7DashboardPacketData data;
-        if(vanassistant->ReadJ7DashboardPacketData(serial->read_buf, &data)) {
+        if(vanassistant->ReadJ7DashboardPacketData(serial->GetReadBuffer(), &data)) {
           ProcessDashboardPacket(&data);
         } else {
           std::cerr << "Failed to read J7DashboardPacketData" << std::endl;
@@ -216,13 +196,12 @@ private:
   }
 };
 
-VanAssistantPGE* app;
+std::unique_ptr<VanAssistantPGE> app;
 
 int main(int argc, char* argv[]) {
-  app = new VanAssistantPGE(argc, argv);
+  app = std::make_unique<VanAssistantPGE>(argc, argv);
   if (app->Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
     app->Start();
-  delete app;
   return 0;
 }
 

@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 
-#include "../Drz_Serial.h"
+#include <IDrzSerial.h>
 
 enum J7PacketType {
   J7_SAY_TEXT = 0,
@@ -61,7 +62,7 @@ class SerialProtocol {
 
     char read_buf[256];
 
-    SerialProtocol(Drz_Serial* serial) : serial(serial) {
+    SerialProtocol(IDrzSerial* serial) : serial(serial) {
       //initialize
     }
 
@@ -153,6 +154,6 @@ class SerialProtocol {
     
 
   private:
-    Drz_Serial* serial;
+    IDrzSerial* serial;
 
 };

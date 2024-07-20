@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "debug.h"
-#include "sam.h"
-#include "render.h"
-#include "SamTabs.h"
+#include <sam/debug.h>
+#include <sam/sam.h>
+#include <sam/render.h>
+#include <sam/SamTabs.h>
 
 enum {
   pR    = 23,
