@@ -2,51 +2,58 @@
 
 #include <IDrzEngine.h>
 #include <memory>
-#include "../Scout.h"
-#include "../../../IWidget.h"
 
-class WidgetScoutScene3d : public IWidget {
+#include "../../../common/widgets/SceneWidget.h"
+
+#include "../Scout.h"
+
+class WidgetScoutScene3d : public SceneWidget {
   public:
-    std::unique_ptr<Scene> scene;
     std::unique_ptr<Scout> scout;
 
-    WidgetScoutScene3d(int screenX, int screenY, int width, int height) : IWidget(screenX, screenY, width, height) {
-      scene = std::make_unique<Scene>(width, height, screenX, screenY);
+    WidgetScoutScene3d(int screenX, int screenY, int width, int height) : SceneWidget(screenX, screenY, width, height) {
+      this->screenX = screenX;
+      this->screenY = screenY;
+      this->width = width;
+      this->height = height;
       scout = std::make_unique<Scout>();
-      scout->AddToScene(scene.get());
+      Load();
     }
 
     void Load() override {
+      for(auto model : scout->GetModels()) {
+        AddModel(model);
+      }
       scout->SetJawOpening(0.5f);
     }
 
     void Update(float fElapsedTime) override {
       scout->Update(fElapsedTime);
-      scene->Update(fElapsedTime);
+      SceneWidget::Update(fElapsedTime);
     }
 
     void Render() override {
-      scene->Render();
+      SceneWidget::Render();
     }
 
     void ToggleRenderMode() {
-      if(scene->renderMode == RENDER_WIREFRAME) {
-        scene->renderMode = RENDER_SOLID;
+      if(renderMode == RENDER_WIREFRAME) {
+        renderMode = RENDER_SOLID;
       } else {
-        scene->renderMode = RENDER_WIREFRAME;
+        renderMode = RENDER_WIREFRAME;
       }
     }
 
     void ToggleDebugTriangles() {
-      scene->ToggleDebugTriangles();
+      SceneWidget::ToggleDebugTriangles();
     }
 
     void DbgNextTriangle() {
-      scene->DbgNextTriangle();
+      SceneWidget::DbgNextTriangle();
     }
 
     void DbgPrevTriangle() {
-      scene->DbgPrevTriangle();
+      SceneWidget::DbgPrevTriangle();
     }
 
     void SetJawOpening(float opening) {

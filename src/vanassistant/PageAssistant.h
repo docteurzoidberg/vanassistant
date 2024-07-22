@@ -1,6 +1,5 @@
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
-#include <iostream>
 
 #define SCREEN_W 256
 #define SCREEN_H 240
@@ -10,10 +9,13 @@
 #include "pages/assistant/widgets/TextAnimator.h"
 #include "pages/assistant/widgets/VerticalTextAnimator.h"
 #include "pages/assistant/widgets/Road.h"
-#include "pages/assistant/widgets/AsmText.h"
 #include "pages/assistant/widgets/ScoutScene3d.h"
+//#include "pages/assistant/widgets/WidgetScoutScene3d.h"
+
+#include "pages/assistant/AsmText.h"
 
 #include <cstdint>
+#include <iostream>
 
 using namespace drz;
 
@@ -47,6 +49,7 @@ public:
 
 
   ///Load assets, initialize variables, etc
+  
   void Load() override { 
 
     engine = DisplayPageManager::GetEngine();
@@ -57,9 +60,12 @@ public:
     }
   
     // Setup
-    asmText = new AsmText();
-    sceneScout3d = new WidgetScoutScene3d(0, 0, engine->GetScreenWidth(), engine->GetScreenHeight());
 
+    asmText = new AsmText();
+
+    // Load widgets
+    
+    sceneScout3d = new WidgetScoutScene3d(0, 0, engine->GetScreenWidth(), engine->GetScreenHeight());
     road = new Road();
     starfield = new Starfield(NUM_STARS);
     
@@ -78,11 +84,14 @@ public:
       8
     );
 
-    // Add models to scene
+   
+    //Setup widgets
+
+    //scout
     sceneScout3d->SetJawOpening(0.5f);
 
-    // Setup say text animator
-    textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6);
+    //textanimator
+    textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6, engine->GetScreenWidth() - 8, 6, WHITE, true);
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
     
@@ -115,7 +124,7 @@ public:
   */
   void Update(float elapsedTime) override {
    
-    textAnimator->Update();
+    textAnimator->Update(elapsedTime);
     //verticalTextAnimator->Update();
     road->Update(elapsedTime);
     

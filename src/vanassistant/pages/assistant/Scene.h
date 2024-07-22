@@ -3,7 +3,7 @@
 #include <IDrzEngine.h>
 #include <gfx3d.h>
 
-#include "IModel.h"
+#include "../../Model.h"
 
 #include <algorithm>
 #include <vector>
@@ -50,7 +50,7 @@ class Scene {
       matProj.m[3][3] = 0.0f;
     }
 
-    void AddModel(IModel* model) {
+    void AddModel(Model* model) {
       iSceneTriangleCount += model->tris.size();
       models.push_back(model);
     }
@@ -219,7 +219,7 @@ class Scene {
 
   private:
     IDrzEngine* engine;
-    std::vector<IModel*> models;
+    std::vector<Model*> models;
     std::vector<trianglec> vecTrianglesToRaster;
     bool iSceneTriangleCount = 0;
     bool bDebugTriangles = false;

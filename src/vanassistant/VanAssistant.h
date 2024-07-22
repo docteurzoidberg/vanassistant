@@ -3,7 +3,6 @@
 //Generic interfaces
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
-#include <memory>
 #include "IDrzSerial.h"
 
 //Display pages

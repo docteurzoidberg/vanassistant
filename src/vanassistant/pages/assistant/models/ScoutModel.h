@@ -2,12 +2,12 @@
 
 #include <IDrzEngine.h>
 
-#include "../IModel.h"
+#include "../../../Model.h"
 
 #include <cmath>
 #include <random>
 
-class ScoutEyeModel : public IModel {
+class ScoutEyeModel : public Model {
   public:
     // clang-format off 
     //Hardcoded face model vertices
@@ -127,7 +127,7 @@ class ScoutEyeModel : public IModel {
     };
     // clang-format on
 
-    ScoutEyeModel(vec3d offset) : offset(offset), IModel(&verts, &faces){ 
+    ScoutEyeModel(vec3d offset) : offset(offset), Model(&verts, &faces){ 
       SetupModel();
     }
 
@@ -156,7 +156,7 @@ class ScoutEyeModel : public IModel {
     vec3d offset;
 };
 
-class ScoutMicModel : public IModel {
+class ScoutMicModel : public Model {
   public:
     // clang-format off 
     //Hardcoded face model vertices
@@ -328,7 +328,7 @@ class ScoutMicModel : public IModel {
     };
     // clang-format on
 
-    ScoutMicModel() : IModel(&verts, &faces){ 
+    ScoutMicModel() : Model(&verts, &faces){ 
       SetupModel();
     }
 
@@ -373,7 +373,7 @@ class ScoutMicModel : public IModel {
     }
 };
 
-class ScoutJawModel : public IModel {
+class ScoutJawModel : public Model {
   public:
     // clang-format off 
     //Hardcoded face model vertices
@@ -406,7 +406,7 @@ class ScoutJawModel : public IModel {
     };
     // clang-format on
 
-    ScoutJawModel() : IModel(&verts, &faces){ 
+    ScoutJawModel() : Model(&verts, &faces){ 
       SetupModel();
     }
 
@@ -461,7 +461,7 @@ class ScoutJawModel : public IModel {
 };
  
 //3d face model including animated subparts
-class ScoutHeadModel : public IModel {
+class ScoutHeadModel : public Model {
   public:
     // clang-format off 
     //Hardcoded face model vertices
@@ -668,7 +668,7 @@ class ScoutHeadModel : public IModel {
     };
     // clang-format on
 
-    ScoutHeadModel() : IModel(&verts, &faces)  {
+    ScoutHeadModel() : Model(&verts, &faces)  {
       //Load model tri and faces
       SetupModel();
     }

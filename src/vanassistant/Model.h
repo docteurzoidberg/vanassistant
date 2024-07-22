@@ -8,9 +8,9 @@
 using namespace drz;
 
 //Base class to load a 3d model
-class IModel {
+class Model {
   public:
-    IModel(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
+    Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
 
     virtual void Update(float fElapsedTime) = 0;
 

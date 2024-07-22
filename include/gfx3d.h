@@ -643,6 +643,11 @@ namespace drz
     m_DepthBuffer = new float[engine->GetScreenWidth() * engine->GetScreenHeight()]{ 0 };
   }
 
+  void GFX3D::ConfigureDisplay(int width, int height, int screenX=0, int screenY=0)
+  {
+    m_DepthBuffer = new float[width * height]{ 0 };
+  }
+
   void GFX3D::SetEngine(IDrzEngine* pEngine)
   {
     engine = pEngine;
@@ -651,6 +656,11 @@ namespace drz
   void GFX3D::ClearDepth()
   {
     memset(m_DepthBuffer, 0, engine->GetScreenWidth() * engine->GetScreenHeight() * sizeof(float));
+  }
+
+  void GFX3D::ClearDepth(int width, int height)
+  {
+    memset(m_DepthBuffer, 0, width * height * sizeof(float));
   }
 
   GFX3D::PipeLine::PipeLine()

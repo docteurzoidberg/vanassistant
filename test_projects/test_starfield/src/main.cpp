@@ -1,14 +1,12 @@
-#include "../../../src/Drz_PGE_Engine.h"
-#include "../../../src/vanassistant/Starfield.h"
-#include "../../../src/fonts/Solid_Mono8pt7b.h"
+#include <Drz_Engine_PGE.h>
 
-#define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
+#include "../../../src/vanassistant/pages/assistant/widgets/Starfield.h"
+#include "../../../src/fonts/Solid_Mono8pt7b.h"
 
 class TestStarfield : public Drz_PGE_Engine {
   public:
     TestStarfield() : Drz_PGE_Engine(this) {
-      startfield = new Starfield(this, 2000);
+      startfield = new Starfield(2000);
       sAppName = "TestGrid";
        //Load font
       LoadFont("solidmono8", &Solid_Mono8pt7b);

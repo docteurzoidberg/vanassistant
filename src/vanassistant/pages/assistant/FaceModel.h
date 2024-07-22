@@ -3,7 +3,7 @@
 #include <IDrzEngine.h>
 
 #include "AnimatedObject.h"
-#include "IModel.h"
+#include "../../Model.h"
 
 #include <cmath>
 
@@ -19,7 +19,7 @@ class MouthPart : public AnimatedObject {
       CLOSE
     };
 
-    MouthPart(IDrzEngine* engine, IModel* model) : AnimatedObject(engine, model) { 
+    MouthPart(IDrzEngine* engine, Model* model) : AnimatedObject(engine, model) { 
       //associate the vertices of the mouth with the corresponding triangles + point indexes
       // clang-format off
       tps = {
@@ -67,7 +67,7 @@ class MouthPart : public AnimatedObject {
 };
  
 //3d face model including animated subparts
-class FaceModel : public IModel {
+class FaceModel : public Model {
   public:
     // clang-format off 
     //Hardcoded face model vertices
@@ -240,7 +240,7 @@ class FaceModel : public IModel {
 
     MouthPart* mouth;
 
-    FaceModel(IDrzEngine* engine) : engine(engine), IModel(&verts, &faces)  {
+    FaceModel(IDrzEngine* engine) : engine(engine), Model(&verts, &faces)  {
 
       //Load model tri and faces
       SetupModel();

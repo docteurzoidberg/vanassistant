@@ -2,7 +2,7 @@
 
 #include "IDrzEngine.h"
 
-class IWidget {
+class Widget {
   public:
     int width=0;
     int height=0;
@@ -11,7 +11,7 @@ class IWidget {
 
     bool isVisible = true;
 
-    IWidget(int screenX, int screenY, int width, int height) {
+    Widget(int screenX, int screenY, int width, int height) {
       this->screenX = screenX;
       this->screenY = screenY;
       this->width = width;
@@ -78,6 +78,5 @@ class IWidget {
 
   protected:
     drz::IDrzEngine* engine;
-
 
 };

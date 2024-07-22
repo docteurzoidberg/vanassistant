@@ -56,7 +56,6 @@ struct J7IMUPacketData {
   float gyro_z;
 };
 
-
 class SerialProtocol {
   public:
 

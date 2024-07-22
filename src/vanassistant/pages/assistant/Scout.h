@@ -1,8 +1,8 @@
 #pragma once
 
 #include <IDrzEngine.h>
-#include "Scene.h"
-
+#include "../../Model.h"
+ 
 #include "models/ScoutModel.h"
 
 #include <random>
@@ -22,8 +22,19 @@ class Scout {
 
       leftEye = new ScoutEyeModel({-0.32f, -0.3f, -0.9f});
       rightEye = new ScoutEyeModel({0.32f, -0.3f, -0.9f});
+
+      models.push_back(head);
+      models.push_back(jaw);
+      models.push_back(mic);
+      models.push_back(leftEye);
+      models.push_back(rightEye);
     }
 
+    //get models
+    std::vector<Model*> GetModels() {
+      return models;
+    }
+ /*
     void AddToScene(Scene* scene) {
       scene->AddModel(head);
       scene->AddModel(jaw);
@@ -31,7 +42,7 @@ class Scout {
       scene->AddModel(leftEye);
       scene->AddModel(rightEye);
     }
-
+*/
     void SetJawOpening(float opening) {
       if(opening < 0.0f) {
         opening = 0.0f;
@@ -74,6 +85,8 @@ class Scout {
     ScoutMicModel* mic;
     ScoutEyeModel* leftEye;
     ScoutEyeModel* rightEye;
+
+    std::vector<Model*> models;
 
     Matrix4x4 rotationMatrix = Matrix4x4::Identity(); // Initialize with your current rotation matrix
     Matrix4x4 translationMatrix = Matrix4x4::Identity(); // Initialize with an identity matrix for no initial translation

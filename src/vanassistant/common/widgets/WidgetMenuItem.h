@@ -2,14 +2,15 @@
 
 #include <IDrzEngine.h>
 #include <string>
-#include "../IWidget.h"
 
-class WidgetMenuItem : public IWidget {
+#include "../../Widget.h"
+
+class WidgetMenuItem : public Widget {
   public:
 
     std::string text = "";
 
-    WidgetMenuItem(int screenX, int screenY, int width, int height, drz::font* font) : IWidget(screenX, screenY, width, height) {
+    WidgetMenuItem(int screenX, int screenY, int width, int height, drz::font* font) : Widget(screenX, screenY, width, height) {
       speedFont = font;
     }
 

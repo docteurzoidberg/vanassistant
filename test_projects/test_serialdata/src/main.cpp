@@ -1,17 +1,15 @@
-#include "../../../src/Drz_PGE_Engine.h"
-#include "../../../src/Drz_Serial.h"
+#include <Drz_Engine_PGE.h>
+#include <Drz_Serial_Termios.h>
 
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
-
 #include "../../../src/vanassistant/SerialProtocol.h"
-#include "IDrzEngine.h"
+
+#include <IDrzEngine.h>
+
 #include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <string>
-
-#define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
 
 #define OLC_PGEX_QUICKGUI
 #include "olcPGEX_QuickGUI.h"

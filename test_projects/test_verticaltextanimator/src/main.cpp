@@ -1,10 +1,8 @@
-#include "../../../src/Drz_PGE_Engine.h"
-#include "../../../src/vanassistant/AsmText.h"
-#include "../../../src/vanassistant/VerticalTextAnimator.h"
+#include <Drz_Engine_PGE.h>
+#include "../../../src/vanassistant/pages/assistant/AsmText.h"
+#include "../../../src/vanassistant/pages/assistant/widgets/VerticalTextAnimator.h"
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
 
-#define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
 
 class TestVerticalTextAnimator : public Drz_PGE_Engine {
   public:
@@ -19,7 +17,7 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
 
       ConsoleCaptureStdOut(true);
 
-      asmText = new AsmText(this);
+      asmText = new AsmText();
 
       verticalTextAnimator = new VerticalTextAnimator(
         this, 

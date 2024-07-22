@@ -2,14 +2,14 @@
 
 #include <IDrzEngine.h>
 #include <string>
-#include "../IWidget.h"
+#include "../../Widget.h"
 
-class WidgetSpeed : public IWidget {
+class WidgetSpeed : public Widget {
   public:
 
     unsigned int speed = 0;
 
-    WidgetSpeed(int screenX, int screenY, int width, int height, drz::font* font) : IWidget(screenX, screenY, width, height) {
+    WidgetSpeed(int screenX, int screenY, int width, int height, drz::font* font) : Widget(screenX, screenY, width, height) {
       speedFont = font;
     }
 

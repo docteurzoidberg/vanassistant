@@ -1,9 +1,6 @@
-#include "../../../src/Drz_PGE_Engine.h"
-#include "../../../src/vanassistant/TextAnimator.h"
+#include <Drz_Engine_PGE.h>
+#include "../../../src/vanassistant/pages/assistant/widgets/TextAnimator.h"
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
-
-#define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
 
 class TestTextAnimator : public Drz_PGE_Engine {
   public:
@@ -16,7 +13,7 @@ class TestTextAnimator : public Drz_PGE_Engine {
 
     bool OnUserCreate() override {
       ConsoleCaptureStdOut(true);
-      textAnimator = new TextAnimator(this, "solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, ScreenHeight() - 6);
+      textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, ScreenHeight() - 6, ScreenWidth()-4, ScreenHeight()-6);
       textAnimator->QueueText("Hello, I am your assistant.");
       textAnimator->QueueText("I am here to help you.");
       return true;
@@ -30,7 +27,7 @@ class TestTextAnimator : public Drz_PGE_Engine {
       }
 
       Clear(BLACK);
-      textAnimator->Update();
+      textAnimator->Update(fElapsedTime);
       textAnimator->Render();
       DrawText(std::to_string(GetFPS()), 4, 14, YELLOW);
       return true;

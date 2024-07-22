@@ -1,15 +1,11 @@
 //https://pgetinker.com/s/v4ObPyh4Brp
 
-#include "../../../src/Drz_PGE_Engine.h"
+#include <Drz_Engine_PGE.h>
+
 #include "../../../src/fonts/Solid_Mono8pt7b.h"
 
 #include "../include/Scene.h"
 #include "../include/ScoutModel.h"
-
-#include <IDrzEngine.h>
-
-#define OLC_PGE_APPLICATION
-#include <olcPixelGameEngine.h>
 
 #define OLC_PGEX_GRAPHICS3D
 #include <gfx3d.h>

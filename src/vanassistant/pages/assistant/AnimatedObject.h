@@ -4,7 +4,7 @@
 
 #include <IDrzEngine.h>
 
-#include "IModel.h"
+#include "../../Model.h"
 
 #include <queue>
 
@@ -17,7 +17,7 @@ struct animkeyduration {
 
 class AnimatedObject {
   public:
-    AnimatedObject(IDrzEngine* engine, IModel* model)
+    AnimatedObject(IDrzEngine* engine, Model* model)
       : engine(engine), model(model), currentAnimationIndex(0), isAnimating(false) {
       }
 
@@ -52,7 +52,7 @@ class AnimatedObject {
 
   private:
     IDrzEngine* engine;
-    IModel* model;
+    Model* model;
     bool isAnimating;
     uint16_t currentAnimationIndex;     //index of the current animation keyframe
     float currentAnimationDuration;     //in seconds

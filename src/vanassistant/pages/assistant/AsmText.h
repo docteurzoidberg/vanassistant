@@ -1,7 +1,7 @@
 #pragma once
 
 #include <IDrzEngine.h>
-#include "../../../../ressources/asmtext.h"
+#include "../../../ressources/asmtext.h"
 #include <cstring>
 #include <vector>
 
@@ -11,7 +11,7 @@ extern const char asm_text_buffer[];
 
 class AsmText {
 public:
-  AsmText() : engine(DisplayPageManager::GetEngine()) {
+  AsmText() {
     //count lines from asm buffer
     lineIndex = 0;
     lineCount = 0;
@@ -57,7 +57,6 @@ public:
     return line;
   }
 private:
-  IDrzEngine* engine;
   int lineCount;
   int lineIndex;
   std::vector<unsigned int> linepos;

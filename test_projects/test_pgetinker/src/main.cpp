@@ -82,6 +82,8 @@ public:
 
         renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_FLAT|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
         //renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_WIRE|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDER_CULL_CW);
+        //renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_WIRE|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDER_CULL_CW);
+
 
         if (GetKey(olc::Key::UP).bHeld)
             vCamera.y += 8.0f * fElapsedTime;	// Travel Upwards
