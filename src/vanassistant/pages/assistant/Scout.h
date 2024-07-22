@@ -1,7 +1,6 @@
 #pragma once
 
 #include <IDrzEngine.h>
-#include "../../Model.h"
  
 #include "models/ScoutModel.h"
 

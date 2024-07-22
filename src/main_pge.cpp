@@ -63,8 +63,6 @@ public:
 
     //protocol = std::make_unique<SerialProtocol>(serial.get());
     
-    DisplayPageManager::SetEngine(this);
-    
     sam = std::make_unique<Drz_Miniaudio_Sam>();
     vanassistant = std::make_unique<VanAssistant>(this, sam.get(), serial.get());
     vanassistant->Setup();

@@ -7,7 +7,7 @@ using namespace drz;
 class Road {
   public:
   
-    Road() : engine(DisplayPageManager::GetEngine()), roadSpeed(88.0f), roadOffset(0.0f), currentFrame(0), eyePos({0, 0, 400})  {
+    Road() : engine(DrzEngine::Get()), roadSpeed(88.0f), roadOffset(0.0f), currentFrame(0), eyePos({0, 0, 400})  {
       screenWidth = engine->GetScreenWidth();
       screenHeight = engine->GetScreenHeight();
     }

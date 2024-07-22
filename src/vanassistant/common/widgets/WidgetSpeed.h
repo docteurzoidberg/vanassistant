@@ -1,8 +1,11 @@
 #pragma once
 
 #include <IDrzEngine.h>
+
+using namespace drz;
+
 #include <string>
-#include "../../Widget.h"
+
 
 class WidgetSpeed : public Widget {
   public:

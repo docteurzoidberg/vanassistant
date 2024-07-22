@@ -1,7 +1,7 @@
 #pragma once
 
 #include <IDrzEngine.h>
-#include "../../../Widget.h"
+
 #include <queue>
 
 using namespace drz;
@@ -9,7 +9,7 @@ using namespace drz;
 class TextAnimator : public Widget {
 public:
   TextAnimator(std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int x, int y, int width, int height, color col= WHITE, bool fillBg = true)
-    : Widget(x, y, width, height), engine(DisplayPageManager::GetEngine()), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), 
+    : Widget(x, y, width, height), engine(DrzEngine::Get()), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), 
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
     lastUpdate = engine->Now();

@@ -16,7 +16,7 @@ class Drz_PGE_Engine : public olc::PixelGameEngine, public IDrzEngine {
 public:
   Drz_PGE_Engine(olc::PixelGameEngine* p) : pge(p) { 
     startedAt = std::chrono::system_clock::now();
-    DisplayPageManager::SetEngine(this);
+    DrzEngine::Set(this);
   }
 
   long Now() override {

@@ -3,8 +3,6 @@
 #include <IDrzEngine.h>
 #include <gfx3d.h>
 
-#include "../../Model.h"
-
 #include <algorithm>
 #include <vector>
 
@@ -35,7 +33,7 @@ class Scene {
 
     RenderMode renderMode = RENDER_SOLID;
 
-    Scene(int width, int height, int x, int y) : width(width), height(height), x(x), y(y), engine(DisplayPageManager::GetEngine()) {
+    Scene(int width, int height, int x, int y) : width(width), height(height), x(x), y(y), engine(DrzEngine::Get()) {
       
       fAspectRatio = (float)width / (float)height;
 

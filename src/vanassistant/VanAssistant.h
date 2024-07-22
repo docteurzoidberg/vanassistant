@@ -67,10 +67,10 @@ class VanAssistant {
 
     std::unique_ptr<SerialProtocol> protocol;
 
-    IDisplayPage* displayPageMenu;
-    IDisplayPage* displayPageRoad; 
-    IDisplayPage* displayPageAssistant;
-    IDisplayPage* displayPageSys;
-    IDisplayPage* displayPageDebug;
+    DisplayPage* displayPageMenu;
+    DisplayPage* displayPageRoad; 
+    DisplayPage* displayPageAssistant;
+    DisplayPage* displayPageSys;
+    DisplayPage* displayPageDebug;
     
 };

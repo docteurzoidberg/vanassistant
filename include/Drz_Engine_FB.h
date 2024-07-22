@@ -20,6 +20,7 @@ public:
 
   Drz_FB_Engine() { 
     startedAt = std::chrono::system_clock::now();
+    DrzEngine::Set(this);
   }
 
   void SetFBG(struct _fbg *fbg) {

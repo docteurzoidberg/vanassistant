@@ -2,8 +2,6 @@
 
 #include <IDrzEngine.h>
 
-#include "../../../Model.h"
-
 using namespace drz;
 
 class J7BodyModel: public Model {

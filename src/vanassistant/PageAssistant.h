@@ -19,7 +19,7 @@
 
 using namespace drz;
 
-class PageAssistant : public IDisplayPage {
+class PageAssistant : public DisplayPage {
 
 public:
 
@@ -52,7 +52,7 @@ public:
   
   void Load() override { 
 
-    engine = DisplayPageManager::GetEngine();
+    engine = DrzEngine::Get();
 
     if(engine == nullptr) {
       std::cerr << "Engine is null" << std::endl;

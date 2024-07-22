@@ -2,7 +2,7 @@
 
 #include <IDrzEngine.h>
 
-#include "../../../Model.h"
+using namespace drz;
 
 #include <cmath>
 #include <random>

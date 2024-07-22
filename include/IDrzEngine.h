@@ -519,13 +519,40 @@ struct font {
 };
 
 
-class IDisplayPage {
+//Base class to load a 3d model
+class Model {
   public:
-    bool isVisible = true;
-    virtual void ReadInputs() = 0;
-    virtual void Load() = 0;
+    Model(std::vector<vec3d>* verts, std::vector<face>* faces) : verts(verts), faces(faces){}
+
     virtual void Update(float fElapsedTime) = 0;
-    virtual void Render() = 0;
+
+    void SetupModel() {
+      //std::cout << "Vert count: " << verts->size() << std::endl;
+      //std::cout << "Face count: " << faces->size() << std::endl;
+      //std::cout << "Loading model" << std::endl;
+      _loadTriRefs();
+      //std::cout << "Model loaded with " << tris.size() << " triangles" << std::endl;
+    }
+
+    std::vector<vec3d>* verts;
+    std::vector<face>* faces;
+    std::vector<triangleref> tris;
+
+    Matrix4x4 rotationMatrix;
+    Matrix4x4 translationMatrix;
+      
+  private:
+    void _loadTriRefs() {
+      for (int i=0; i<faces->size(); i++) {
+        face* f = &faces->at(i);
+        vec3d* p0 = &verts->at(f->f[0] - 1);
+        vec3d* p1 = &verts->at(f->f[1] - 1);
+        vec3d* p2 = &verts->at(f->f[2] - 1);
+        tris.push_back({
+          p0, p1, p2
+        });
+      } 
+    }
 };
 
 class IDrzEngine {
@@ -575,19 +602,121 @@ public:
 
 };
 
+class DrzEngine {
+public:
+  static void Set(IDrzEngine* engine) {
+    DrzEngine::engine = engine;
+  }
+
+  static IDrzEngine* Get() {
+    return DrzEngine::engine;
+  }
+protected:
+  inline static IDrzEngine* engine = nullptr;
+};
+
+class Widget {
+  public:
+    int width=0;
+    int height=0;
+    int screenX=0;
+    int screenY=0;
+
+    bool isVisible = true;
+
+    Widget(int screenX, int screenY, int width, int height) {
+      this->screenX = screenX;
+      this->screenY = screenY;
+      this->width = width;
+      this->height = height;
+      this->engine = drz::DrzEngine::Get();
+    }
+
+    void SetPosition(int x, int y) {
+      this->screenX = x;
+      this->screenY = y;
+    }
+
+    void SetSize(int width, int height) {
+      this->width = width;
+      this->height = height;
+    }
+
+    virtual void Load() = 0;
+
+    virtual void Update(float fElapsedTime) = 0;
+
+    virtual void Render() = 0;
+
+    //Draw pixel relative to the widget position
+    void DrawPixel(int px, int py, drz::color p) {
+      if(engine == nullptr) return;
+      int x = px + screenX;
+      int y = py + screenY; 
+      // Check if the pixel is out of the widget bounds
+      if(x < 0 || x >= width) return;
+      if(y < 0 || y >= height) return;
+      // Check if the pixel is out of the screen bounds
+      if(x >= engine->GetScreenWidth()) return;
+      if(y >= engine->GetScreenHeight()) return;
+
+      engine->DrawPixel(x, y, p);
+    }
+
+    //Draw text relative to the widget position
+    void DrawText(std::string text, int px, int py, drz::color c) {
+      if(engine == nullptr) return;
+      int x = px + screenX;
+      int y = py + screenY; 
+      engine->DrawText(text, x, y, c);
+    }
+
+    //Draw line relative to the widget position
+    void DrawLine(int x1, int y1, int x2, int y2, drz::color c) {
+      if(engine == nullptr) return;
+      int x = x1 + screenX;
+      int y = y1 + screenY;
+      int x_ = x2 + screenX;
+      int y_ = y2 + screenY;
+      engine->DrawLine(x, y, x_, y_, c);
+    }
+
+    //Draw rectangle relative to the widget position
+    void FillRect(int x, int y, int w, int h, drz::color c) {
+      if(engine == nullptr) return;
+      int x_ = x + screenX;
+      int y_ = y + screenY;
+      engine->FillRect(x_, y_, w, h, c);
+    }
+
+  protected:
+    drz::IDrzEngine* engine;
+};
+
+class DisplayPage {
+  public:
+    bool isVisible = true;
+    virtual void ReadInputs() = 0;
+    virtual void Load() = 0;
+    virtual void Update(float fElapsedTime) = 0;
+    virtual void Render() = 0;
+
+    void AddWidget(Widget* widget) {
+      widgets.push_back(widget);
+    }
+
+    std::vector<Widget*> GetWidgets() {
+      return widgets;
+    }
+
+  protected:
+    std::vector<Widget*> widgets;
+};
 
 class DisplayPageManager {
   public:
 
-    static void SetEngine(drz::IDrzEngine* engine) {
-      DisplayPageManager::engine = engine;
-    }
-
-    static drz::IDrzEngine* GetEngine() {
-      return engine;
-    }
-
-    static void AddPage(drz::IDisplayPage* page) {
+    static void AddPage(drz::DisplayPage* page) {
       pages.push_back(page);
     }
 
@@ -603,7 +732,7 @@ class DisplayPageManager {
       }
     }
 
-    static void GoToPage(drz::IDisplayPage* page) {
+    static void GoToPage(drz::DisplayPage* page) {
       //TODO: check if page is in pages
       //TODO: program full redraw
       currentPage = page;
@@ -630,10 +759,11 @@ class DisplayPageManager {
     }
 
   private:
-    inline static drz::IDrzEngine* engine;
-    inline static drz::IDisplayPage* currentPage;
-    inline static std::vector<drz::IDisplayPage*> pages;
+    inline static drz::DisplayPage* currentPage;
+    inline static std::vector<drz::DisplayPage*> pages;
 };
+
+
 
 
 } //namespace drz

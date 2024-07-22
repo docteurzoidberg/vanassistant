@@ -1,9 +1,10 @@
 #pragma once
 
 #include <IDrzEngine.h>
+
 #include <string>
 
-#include "../../Widget.h"
+using namespace drz;
 
 class WidgetMenuItem : public Widget {
   public:

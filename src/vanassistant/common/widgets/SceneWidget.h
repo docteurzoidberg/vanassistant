@@ -2,9 +2,6 @@
 
 #include <IDrzEngine.h>
 
-#include "../../Model.h"
-#include "../../Widget.h"
-
 #include <gfx3d.h>
 #include <algorithm>
 #include <vector>
@@ -30,7 +27,7 @@ public:
   RenderMode renderMode = RENDER_SOLID;
 
   SceneWidget(int x, int y, int width, int height) 
-    : Widget(x, y, width, height), engine(DisplayPageManager::GetEngine()) {
+    : Widget(x, y, width, height), engine(DrzEngine::Get()) {
     fAspectRatio = (float)width / (float)height;
 
     // Setup projection matrix
