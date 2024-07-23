@@ -10,7 +10,7 @@
 class VanAssistantFB : public Drz_FB_Engine {
    
 public:
-	VanAssistantFB(Drz_Serial* serial) : serial(serial), Drz_FB_Engine() {
+	VanAssistantFB(Drz_Serial_Linux* serial) : serial(serial), Drz_FB_Engine() {
     std::cout << "VanAssistantFB constructor" << std::endl;
   }
 
@@ -131,7 +131,7 @@ private:
 
 bool exec = true;
 VanAssistantFB* app;
-Drz_Serial* serialInput;
+Drz_Serial_Linux* serialInput;
 
 int serial_baudrate = 115200;
 std::string serial_port = "/dev/ttyAMA0";
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
       return 0;
   }
 
-  serialInput = new Drz_Serial(serial_port, serial_baudrate);
+  serialInput = new Drz_Serial_Linux(serial_port, serial_baudrate);
   bool serialOpened = serialInput->Setup();
   if(!serialOpened) {
     std::cerr << "Error opening serial port" << std::endl;

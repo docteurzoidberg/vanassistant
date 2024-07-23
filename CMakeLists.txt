@@ -17,6 +17,8 @@ if(DEFINED PLATFORM)
         set(BACKEND "PGE")
     elseif(${PLATFORM} STREQUAL "WASM")
         set(BACKEND "PGE")
+    elseif(${PLATFORM} STREQUAL "WIN")
+        set(BACKEND "PGEW")
     elseif(${PLATFORM} STREQUAL "BUILDROOT")
         set(BACKEND "FB")
     elseif(${PLATFORM} STREQUAL "PIOS")
@@ -40,6 +42,9 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 if(${BACKEND} STREQUAL "PGE")
     #Include the olc::pge entry point
     set(SOURCES ${SOURCES} src/main_pge.cpp)
+elseif(${BACKEND} STREQUAL "PGEW")
+    #Include the olc::pge entry point
+    set(SOURCES ${SOURCES} src/main_pge_win.cpp)
 elseif(${BACKEND} STREQUAL "FB")
     #Include the framebuffer's entry point
     set(SOURCES ${SOURCES} src/main_fb.cpp)
@@ -78,6 +83,43 @@ elseif(${PLATFORM} STREQUAL "WASM")
     set(PLATFORM_LIBS pthread dl embind)
     set(PLATFORM_CXX_FLAGS -O2 -pthread)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/emscripten.cmake)
+elseif(${PLATFORM} STREQUAL "WIN")
+
+    #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/mingw64.cmake)
+    #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake
+
+    #set(PLATFORM_LIBS mingw32 SDL2main SDL2 SDL2_image SDL2_ttf SDL2_mixer SDL2_net SDL2_gfx pthread)
+
+    #taken from Moros1138's CMakeLists.txt <3
+    # OpenGL
+    set(OpenGL_GL_PREFERENCE LEGACY)
+    find_package(OpenGL REQUIRED)
+    include_directories(${OpenGL_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
+
+    
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} -mwindows -municode)
+   
+
+    # GDI+
+    set(GDIPLUS_LIBRARY gdiplus)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${GDIPLUS_LIBRARY})
+    
+    # Shlwapi
+    set(SHLWAPI_LIBRARY shlwapi)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${SHLWAPI_LIBRARY})
+    
+    # Dwmapi
+    set(DWMAPI_LIBRARY dwmapi)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${DWMAPI_LIBRARY})
+
+    # stdc++fs
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} stdc++fs)
+
+    #gcc and stdc++ static linking
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} -static -static-libgcc -static-libstdc++)
+
+
 else()
     message(FATAL_ERROR "Invalid platform: ${PLATFORM}")
 endif()

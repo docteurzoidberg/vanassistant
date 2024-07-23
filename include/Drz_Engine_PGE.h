@@ -5,6 +5,10 @@
 #define OLC_PGE_APPLICATION
 #include <olcPixelGameEngine.h>
 
+#ifdef DrawText
+#undef DrawText
+#endif
+
 #include <chrono>
 #include <cstdint>
 

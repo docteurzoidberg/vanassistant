@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IDrzEngine.h"
-#include "IDrz_Inputs.h"
+#include "IDrzInputs.h"
 
 #include <olcPixelGameEngine.h>
 

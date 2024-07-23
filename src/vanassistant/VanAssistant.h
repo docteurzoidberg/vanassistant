@@ -14,9 +14,9 @@
 class VanAssistant {
   public:
     VanAssistant(IDrzEngine* engine, IDrzSam* sam, IDrzSerial* serial) {
-      this->engine = engine;
+      this->engine = DrzEngine::Get();
       this->sam = sam;
-      this->serial = serial;
+      //this->serial = serial;
 
       displayPageAssistant = new PageAssistant(sam);
       //TODO: add other display pages
@@ -27,7 +27,7 @@ class VanAssistant {
     } 
 
     void Setup() {
-      protocol = std::make_unique<SerialProtocol>(serial);
+      protocol = std::make_unique<SerialProtocol>(DrzSerial::Get());
     
       DisplayPageManager::AddPage(displayPageAssistant);
       //TODO: add other display pages

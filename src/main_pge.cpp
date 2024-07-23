@@ -12,7 +12,6 @@
 #include <emscripten/bind.h>
 #endif
 
-
 class VanAssistantPGE : public Drz_PGE_Engine {
    
 public:
@@ -55,7 +54,7 @@ public:
 	bool OnUserCreate() override {
 
     //Load serial port
-    serial = std::make_unique<Drz_Serial>(serial_port, serial_baudrate);
+    serial = std::make_unique<Drz_Serial_Linux>(serial_port, serial_baudrate);
     if(!serial->Setup()) { 
       std::cerr << "Failed to setup serial port" << std::endl;
       exit(1);

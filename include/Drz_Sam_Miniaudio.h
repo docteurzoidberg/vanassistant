@@ -91,12 +91,11 @@ extern "C" {
   }
 }
 
-
 class Drz_Miniaudio_Sam : public IDrzSam
 {
 public:
     Drz_Miniaudio_Sam() {
-
+      DrzSam::Set(this);
     };
     
     ~Drz_Miniaudio_Sam() {
