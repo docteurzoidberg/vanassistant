@@ -15,7 +15,7 @@
 
 #include <IDrzSerial.h>
 
-class Drz_Serial : public IDrzSerial {
+class Drz_Serial_Linux : public IDrzSerial {
 
   public:
 
@@ -31,7 +31,7 @@ class Drz_Serial : public IDrzSerial {
      // Allocate memory for read buffer, set size according to your needs
     char read_buf[1024];
 
-    Drz_Serial(std::string serial_port="/dev/ttyUSB0", int bauds=115200) : serial_port_name(serial_port) {
+    Drz_Serial_Linux(std::string serial_port="/dev/ttyUSB0", int bauds=115200) : serial_port_name(serial_port), bauds(bauds) {
       switch (bauds) {
         case 9600:
           this->bauds = B9600;
@@ -101,6 +101,9 @@ class Drz_Serial : public IDrzSerial {
           printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
           return 1;
       }
+
+      // Set this instance as the current one
+      DrzSerial::Set(this);
 
       return true;
     }
