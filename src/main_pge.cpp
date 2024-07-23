@@ -5,7 +5,7 @@
 #include "IDrzSerial.h"
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
- 
+
 #include "vanassistant/VanAssistant.h"
 
 #ifdef __EMSCRIPTEN__
@@ -13,7 +13,7 @@
 #endif
 
 class VanAssistantPGE : public Drz_PGE_Engine {
-   
+
 public:
 
   std::string serial_port = "/dev/ttyUSB0";

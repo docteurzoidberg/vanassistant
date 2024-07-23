@@ -16,7 +16,7 @@ class PageMenu : public DisplayPage {
 
     ///Load assets, initialize variables, etc
     void Load() override {
-      engine = DisplayPageManager::GetEngine();
+      engine = DrzEngine::Get();
       if(engine == nullptr) {
         std::cerr << "Engine is null" << std::endl;
         exit(1);
