@@ -5,9 +5,16 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 99)
 
+set(DRZENGINE_INC_DIR lib/drzengine/include)
+set(DRZENGINE_SRC_DIR lib/drzengine/src)
+
 # Set build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+if(NOT PLATFORM)
+    set(PLATFORM "X11")
 endif()
 
 # Include platform-specific configurations
@@ -36,12 +43,13 @@ else()
 endif()
 
 # Include the include directory
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/${DRZENGINE_INC_DIR})
 
 #Source files, depending on the backend
 if(${BACKEND} STREQUAL "PGE")
     #Include the olc::pge entry point
-    set(SOURCES ${SOURCES} src/main_pge.cpp)
+    set(SOURCES ${SOURCES} src/main_pge.cpp ${DRZENGINE_SRC_DIR}/Drz_Engine_PGE.cpp ${DRZENGINE_SRC_DIR}/Drz_Inputs_PGE.cpp)
+
 elseif(${BACKEND} STREQUAL "PGEW")
     #Include the olc::pge entry point
     set(SOURCES ${SOURCES} src/main_pge_win.cpp)
@@ -97,9 +105,7 @@ elseif(${PLATFORM} STREQUAL "WIN")
     include_directories(${OpenGL_INCLUDE_DIRS})
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
 
-    
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} -mwindows -municode)
-   
 
     # GDI+
     set(GDIPLUS_LIBRARY gdiplus)
@@ -159,8 +165,8 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
             /home/drzoid/rpi-zero-minimal-buildroot/vanassistant_overlay/opt/vanassistant/vanassistant.${OUTPUTFILE}
         COMMENT "Copying vanassistant.${OUTPUTFILE} to build directory"
     )
-     #copy make_img script to build directory
-     add_custom_command(
+    #copy make_img script to build directory
+    add_custom_command(
         TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/scripts/make_img.sh

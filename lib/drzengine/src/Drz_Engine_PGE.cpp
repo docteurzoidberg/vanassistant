@@ -1,70 +1,42 @@
-#pragma once
+#define OLC_PGE_APPLICATION
 
-#include <IDrzEngine.h>
-
-#include <chrono>
-#include <cstdint>
-#include <map>
-#include <iostream>
-#include <csignal>
- 
-#include <fb/fbgraphics.h>
-#include <fb/fbg_fbdev.h>
+#include <Drz_Engine_PGE.h>
 
 namespace drz 
 {
-
-class Drz_FB_Engine : public IDrzEngine {
-
-public:
-
-  Drz_FB_Engine() { 
+  Drz_PGE_Engine::Drz_PGE_Engine(olc::PixelGameEngine* p) : pge(p) { 
     startedAt = std::chrono::system_clock::now();
     DrzEngine::Set(this);
   }
 
-  void SetFBG(struct _fbg *fbg) {
-    this->fbg = fbg;
-    std::cout << "SetFBG " << fbg << std::endl;
-  }
-
-  long Now() override {
+  long Drz_PGE_Engine::Now() {
     auto elapsed = std::chrono::system_clock::now() - startedAt;
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
     return millis.count();
   }
-   
+
   /* Get */
 
-  float GetRandomFloat() override {
+  float Drz_PGE_Engine::GetRandomFloat() {
     //return random float between 0 and 1
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
   }
 
-  int GetScreenWidth() override {
-    //std::cout << "gsw: fbg " << fbg << std::endl;
-    return fbg->width;
+  int Drz_PGE_Engine::GetScreenWidth() {
+    return ScreenWidth();
   }
 
-  int GetScreenHeight() override {
-    return fbg->height;
+  int Drz_PGE_Engine::GetScreenHeight() {
+    return ScreenHeight();
   }
 
-  uint32_t GetFPS() override {
-    return fbg_getFramerate(fbg, 0);
-  }
-
-  hwbutton GetKey(uint8_t key) override {
-    //TODO
-    return { 
-      .bPressed = false,
-      .bReleased = false,
-      .bHeld = false
-    };
+  uint32_t Drz_PGE_Engine::GetFPS() {
+    return pge->GetFPS();
   }
 
   /* Set */
-  void SetFont(const std::string& fontName) override {
+
+  void Drz_PGE_Engine::SetFont(const std::string& fontName) {
     auto newfont = fonts[fontName];
     if (newfont) {          // Font struct pointer passed in?
       if (!currentFont) { // And no current font struct?
@@ -80,134 +52,86 @@ public:
     currentFont = newfont;
   }
 
-  void SetFont(const font* f) override {
+  void Drz_PGE_Engine::SetFont(const font* f) {
     currentFont = f;
   }
 
-  void SetCursorPos(uint16_t x, uint16_t y) override {
+  void Drz_PGE_Engine::SetCursorPos(int x, int y) {
     cursorX = x;
     cursorY = y;
   }
 
-  void SetTextColor(color color) override {
+  void Drz_PGE_Engine::SetTextColor(color color) {
     textcolor = color;
   }
 
-  void SetWrap(bool w) override {
+  void Drz_PGE_Engine::SetWrap(bool w) {
     wrap = w;
   }
 
   /* Drawing methods */
 
-  void Clear(color color) override {
-    fbg_background(fbg, color.r, color.g, color.b);
+  void Drz_PGE_Engine::Clear(color color) {
+    pge->Clear(ColorToPixel(color));
   }
 
-  bool DrawPixel(int x, int y, color color) override {
-    fbg_pixel(fbg, x, y, color.r, color.g, color.b);
-    return true;
+  bool Drz_PGE_Engine::DrawPixel(int x, int y, color color) {
+    return pge->Draw(x, y, ColorToPixel(color));
   }
 /*
   void DrawLine(vec2d p1, vec2d p2, color color) override {
     pge->DrawLine(p1.x, p1.y, p2.x, p2.y, ColorToPixel(color));
   }
 */
-  void DrawLine(int x1, int y1, int x2, int y2, color color) override {
-    fbg_line(fbg, x1, y1, x2, y2, color.r, color.g, color.b);
+  void Drz_PGE_Engine::DrawLine(int x1, int y1, int x2, int y2, color color) {
+    pge->DrawLine(x1, y1, x2, y2, ColorToPixel(color));
   }
 
-  void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) override {
-    //TODO
-    DrawLine(x1, y1, x2, y2, color);
-    DrawLine(x2, y2, x3, y3, color);
-    DrawLine(x3, y3, x1, y1, color);
+  void Drz_PGE_Engine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color color) {
+    pge->DrawTriangle(x1, y1, x2, y2, x3, y3, ColorToPixel(color));
+    //pge->DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, ColorToPixel(color));
+    //.pge->DrawLine((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
+    //pge->DrawLine((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, ColorToPixel(color));
   }
 
-  void FillRect(int x, int y, int w, int h, color color) override {
-    
-    //std::cout << "fillrect " << x << " " << y << " " << w << " " << h << std::endl;
-
-
-    if(x<0) {
-      w += x;
-      x = 0;
-    }
-
-    if(y<0) {
-      h += y;
-      y = 0;
-    }
-
-    if(x+w > GetScreenWidth()) {
-      w = GetScreenWidth() - x;
-    }
-
-    if(y+h > GetScreenHeight()) {
-      h = GetScreenHeight() - y;
-    }
-
-    fbg_rect(fbg, x, y, w, h, color.r, color.g, color.b);
+  void Drz_PGE_Engine::DrawRect(int x, int y, int w, int h, color color) {
+    pge->DrawRect(x, y, w, h, ColorToPixel(color));
   }
 
-  void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color col) override {
-    
-    auto drawLine = [this, &col](int sx, int ex, int ny) {
-      if (sx > ex) std::swap(sx, ex);
-      for (int i = sx; i <= ex; i++) {
-        DrawPixel(i, ny, col);
-      }
-    };
-
-    auto sortVertices = [](int& x1, int& y1, int& x2, int& y2) {
-      if (y1 > y2) {
-        std::swap(x1, x2);
-        std::swap(y1, y2);
-      }
-    };
-
-    // Sort vertices by y-coordinate
-    sortVertices(x1, y1, x2, y2);
-    sortVertices(x1, y1, x3, y3);
-    sortVertices(x2, y2, x3, y3);
-
-    int total_height = y3 - y1;
-    for (int i = 0; i < total_height; i++) {
-      bool second_half = i > y2 - y1 || y2 == y1;
-      int segment_height = second_half ? y3 - y2 : y2 - y1;
-      float alpha = (float)i / total_height;
-      float beta = (float)(i - (second_half ? y2 - y1 : 0)) / segment_height; // be careful: with above conditions no division by zero here
-      int ax = x1 + (x3 - x1) * alpha;
-      int bx = second_half ? x2 + (x3 - x2) * beta : x1 + (x2 - x1) * beta;
-
-      if (ax > bx) std::swap(ax, bx);
-      drawLine(ax, bx, y1 + i);
-    }
+  void Drz_PGE_Engine::FillRect(int x, int y, int w, int h, color color) {
+    pge->FillRect(x, y, w, h, ColorToPixel(color));
+  }
+/*
+  void FillTriangle(vec2d p1, vec2d p2, vec2d p3, color color) override {
+    pge->FillTriangle((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, ColorToPixel(color));
+  }
+*/
+  void Drz_PGE_Engine::FillTriangle( int x1, int y1, int x2, int y2, int x3, int y3, color col) {
+    pge->FillTriangle(x1,y1,x2,y2,x3,y3,ColorToPixel(col));
   }
 
-
-  void FillCircle(int x, int y, int radius, color color) override {
-    //TODO
-    
+  void Drz_PGE_Engine::FillCircle(int x, int y, int radius, color color) {
+    pge->FillCircle(x, y, radius, ColorToPixel(color));
   }
 
   /* Text */
 
-  const font* LoadFont(const std::string& fontName, const font* font) override {
+  const font* Drz_PGE_Engine::LoadFont(const std::string& fontName, const font* font) {
     fonts[fontName] = font;
     return font;
   }
 
-  void DrawText(const std::string& text, float x, float y, color color) override {
+  void Drz_PGE_Engine::DrawText(const std::string& text, float x, float y, color color) {
     if(!currentFont) {
       std::cout << "No font set" << std::endl;
       return;
     } 
-    SetCursorPos((uint16_t) x, (uint16_t) y);
+    SetCursorPos((int) x, (int) y);
     SetTextColor(color);
     write(text);
   }
 
-  rect GetTextBounds(const std::string& text, int x, int y) override {
+  rect Drz_PGE_Engine::GetTextBounds(const std::string& text, int x, int y) {
     if(!currentFont) {
       std::cout << "No font set" << std::endl;
       return {0, 0, 0, 0};
@@ -217,21 +141,46 @@ public:
     uint16_t w1, h1;
     _getTextBounds(text, x, y, &x1, &y1, &w1, &h1);
     return {x1, y1, w1, h1};
+  } 
+
+  void Drz_PGE_Engine::DrawPartialSprite(vi2d pos, drz::Sprite* sprite, vi2d sourcePos, vi2d size) {
+    pge->DrawPartialSprite({pos.x, pos.y}, (olc::Sprite*) sprite, {sourcePos.x, sourcePos.y}, {size.x, size.y});
   }
 
-private:
-  struct _fbg *fbg;
-  std::map<std::string, const font*> fonts;
-  const font* currentFont = nullptr;
-  uint16_t cursorX=0;
-  uint16_t cursorY=0;
-  bool wrap = false;
-  color textcolor = WHITE;
-  color textbgcolor = BLACK;
+  void Drz_PGE_Engine::DrawSprite(drz::Sprite* sprite, int x, int y) {
+    pge->DrawSprite(x, y, (olc::Sprite*) sprite);
+  }
 
-  std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> startedAt;
+  void Drz_PGE_Engine::DrawMaskSprite(drz::Sprite* sprite, int x, int y) {
+    SetPixelMode(olc::Pixel::ALPHA);
+    pge->DrawSprite(x, y, (olc::Sprite*) sprite);
+    SetPixelMode(olc::Pixel::NORMAL);
+  };
 
-  void DrawChar(uint16_t x, uint16_t y, unsigned char c, color fg, color bg) {
+  // Function to create olc::Sprite from raw data
+  drz::Sprite* Drz_PGE_Engine::CreateSpriteFromData(const unsigned int* data, int width, int height) {
+    drz::Sprite* sprite = new drz::Sprite(width, height);
+    int index = 0;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int pixel = data[index++];
+        color p(
+          (pixel >> 24) & 0xFF,  // R
+          (pixel >> 16) & 0xFF,  // G
+          (pixel >>  8) & 0xFF,  // B
+          (pixel >>  0) & 0xFF   // A
+        );
+        sprite->SetPixel(x, y, p);
+      }
+    }
+    return sprite;
+  }
+
+  olc::Pixel Drz_PGE_Engine::ColorToPixel(color color) {
+    return olc::Pixel(color.r, color.g, color.b, color.a);
+  }
+
+  void Drz_PGE_Engine::DrawChar(uint16_t x, uint16_t y, unsigned char c, color fg, color bg) {
     c -= (unsigned char) currentFont->first;
     fontglyph *glyph = currentFont->glyph + c;
     uint8_t *bitmap = currentFont->bitmap;
@@ -248,14 +197,14 @@ private:
           bits = bitmap[bo++];
         }
         if (bits & 0x80) {
-          DrawPixel(x + xo + xx, y + yo + yy, fg);
+          pge->Draw(x + xo + xx, y + yo + yy, ColorToPixel(fg));
         }
         bits <<= 1;
       }
     }
   }
 
-  size_t write(unsigned char c) {
+  size_t Drz_PGE_Engine::write(unsigned char c) {
     if (c == '\n') {
       cursorX = 0;
       cursorY += currentFont->yAdvance;
@@ -279,7 +228,7 @@ private:
     return 1;
   }
 
-  size_t write(const char *buffer, size_t size) {
+  size_t Drz_PGE_Engine::write(const char *buffer, size_t size) {
     size_t n = 0;
     while (size--) {
       if (write(*buffer++)) n++;
@@ -288,7 +237,7 @@ private:
     return n;
   }
 
-  size_t write(const std::string &s) {
+  size_t Drz_PGE_Engine::write(const std::string &s) {
     return write(s.c_str(), s.length());
   }
 
@@ -310,7 +259,7 @@ private:
       @param  maxy  Pointer to maximum Y coord, passed in AND returned.
   */
   /**************************************************************************/
-  void _charBounds(unsigned char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
+  void Drz_PGE_Engine::_charBounds(unsigned char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
 
     if (!currentFont) {
       return;
@@ -351,7 +300,7 @@ private:
     }
   }
   
-  void _getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
+  void Drz_PGE_Engine::_getTextBounds(const char *str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
 
     uint8_t c; // Current character
     int16_t minx = 0x7FFF, miny = 0x7FFF, maxx = -1, maxy = -1; // Bound rect
@@ -390,12 +339,24 @@ private:
       @param    h      The boundary height, set by function
   */
   /**************************************************************************/
-  void _getTextBounds(const std::string &str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
+  void Drz_PGE_Engine::_getTextBounds(const std::string &str, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
     if (str.length() != 0) {
       _getTextBounds(const_cast<char *>(str.c_str()), x, y, x1, y1, w, h);
     }
   }
 
-};
 
+  void Drz_PGE_Engine::SetPaintMode(color::Mode mode) {
+    pge->SetPixelMode(ModeToPixelMode(mode));
+  }
+
+  olc::Pixel::Mode Drz_PGE_Engine::ModeToPixelMode(drz::color::Mode m) {
+    switch(m) {
+      case drz::color::Mode::NORMAL: return olc::Pixel::NORMAL;
+      case drz::color::Mode::MASK: return olc::Pixel::MASK;
+      case drz::color::Mode::ALPHA: return olc::Pixel::ALPHA;
+      case drz::color::Mode::CUSTOM: return olc::Pixel::CUSTOM;
+      default: return olc::Pixel::NORMAL;
+    }
+  }
 } // namespace drz

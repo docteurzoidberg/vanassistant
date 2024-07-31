@@ -10,7 +10,9 @@ namespace drz {
 class Drz_Inputs_PGE: public IDrzInputs {
   public:
 
-    Drz_Inputs_PGE(olc::PixelGameEngine* engine) : engine(engine) {}
+    Drz_Inputs_PGE(olc::PixelGameEngine* engine) : engine(engine) {
+      DrzInputs::Set(this);
+    }
 
     //Called once at the beginning of the program
     bool Setup() override {
@@ -30,7 +32,8 @@ class Drz_Inputs_PGE: public IDrzInputs {
     }
 
     hwbutton GetKey(drz::Key k) override {
-      return toHwKey(engine->GetKey(toPGE(k)));
+      auto key = toPGE(k);
+      return toHwKey(engine->GetKey(key));
     }
 
   private:

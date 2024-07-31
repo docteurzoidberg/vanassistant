@@ -1,8 +1,6 @@
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
 
-#define SCREEN_W 256
-#define SCREEN_H 240
 #define NUM_STARS 750
 
 #include "pages/assistant/widgets/Starfield.h" 

@@ -1,51 +1,41 @@
 {
-  "version": 4,
-  "env": {
-    "myIncludePath": [
-      "${workspaceFolder}/include",
-      "${workspaceFolder}/src"
-    ],
-    "myDefines": [
-      "DEBUG"
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Linux",
+            "compilerPath": "/usr/bin/g++",
+            "intelliSenseMode": "linux-clang-x64",
+            "includePath": [
+                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/lib/drzengine/include",
+                "${workspaceFolder}/include"
+            ],
+            "defines": [
+                "_DEBUG"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++17",
+            "browse": {
+                "path": [
+                    "include",
+                    "/usr/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "MINGW",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/i686-w64-mingw32/include"
+            ],
+            "defines": [
+                "_WIN32",
+                "__MINGW32__",
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
+        }
     ]
-  },
-  "configurations": [
-    {
-      "name": "Linux",
-      "compilerPath": "/usr/bin/gcc",
-      "intelliSenseMode": "linux-gcc-x86",
-      "includePath": [
-        "${myIncludePath}",
-        "/usr/include",
-        "/usr/include/SDL"
-      ],
-      "defines": [
-        "${myDefines}",
-        "PLATFORM=X11",
-        "BACKEND=PGE"
-      ],
-      "cStandard": "gnu11",
-      "cppStandard": "gnu++17",
-      "browse": {
-        "path": [
-          "${myIncludePath}",
-          "/usr/include"
-        ],
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
-      }
-    },
-    {
-      "name": "MINGW",
-      "includePath": [
-        "${myIncludePath}",
-        "/usr/i686-w64-mingw32/include"
-      ],
-      "defines": [
-        "_DEBUG",
-        "UNICODE",
-        "_UNICODE"
-      ]
-    }
-  ]
 }

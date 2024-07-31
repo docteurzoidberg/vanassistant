@@ -3,18 +3,21 @@
 #undef DrawText
 #endif
 
+#define SCREEN_W 320
+#define SCREEN_H 240
+
 #include "Drz_Engine_PGE.h"
 #include "Drz_Sam_Miniaudio.h"
 
 #include "IDrzSerial.h"
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
- 
+
 #include "vanassistant/VanAssistant.h"
 
 
 class VanAssistantPGE : public Drz_PGE_Engine {
-   
+
 public:
 
   std::string serial_port = "/dev/ttyUSB0";

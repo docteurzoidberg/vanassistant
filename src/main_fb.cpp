@@ -1,6 +1,6 @@
-#include "Drz_Engine_FB.h"
-#include "Drz_Sam_Miniaudio.h"
-#include "Drz_Serial_Termios.h"
+#include <Drz_Engine_FB.h>
+#include <Drz_Sam_Miniaudio.h>
+#include <Drz_Serial_Termios.h>
 
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
@@ -8,7 +8,7 @@
 #include "vanassistant/VanAssistant.h"
 
 class VanAssistantFB : public Drz_FB_Engine {
-   
+
 public:
 	VanAssistantFB(Drz_Serial_Linux* serial) : serial(serial), Drz_FB_Engine() {
     std::cout << "VanAssistantFB constructor" << std::endl;
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
 
   do {
     currentFrameTime = Clock::now();
-   
+
     // Calculate elapsed time in microseconds
     auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(currentFrameTime - previousFrameTime);
     float fElapsedTime = elapsedTime.count() / 1000000.0f;

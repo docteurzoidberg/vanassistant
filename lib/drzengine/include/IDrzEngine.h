@@ -162,6 +162,10 @@ struct rect {
   int x, y, w, h;
 };
 
+struct vi2d {
+  int x, y;
+};
+
 struct vec2d {
   float x, y;
 };
@@ -555,17 +559,116 @@ class Model {
     }
 };
 
-class IDrzEngine {
+
+class Sprite {
+
 public:
 
-  // Input methods
-  virtual hwbutton GetKey(uint8_t key) = 0;
+  int32_t width = 0;
+  int32_t height = 0;
+  enum Mode { NORMAL, PERIODIC, CLAMP };
+  enum Flip { NONE = 0, HORIZ = 1, VERT = 2 };
+  std::vector<color> pColData;
+  Mode modeSample = Mode::NORMAL;
+
+  Sprite() {  
+    width = 0; 
+    height = 0; 
+  }
+
+  Sprite(int32_t w, int32_t h)
+  {		
+    width = w;		height = h;
+    pColData.resize(width * height);
+    pColData.resize(width * height, nDefaultColor);
+  }
+
+  ~Sprite() { 
+    pColData.clear();
+  }
+
+  void SetSampleMode(Mode mode) { 
+    modeSample = mode; 
+  }
+
+  color GetPixel(int32_t x, int32_t y) const
+  {
+    if (modeSample == drz::Sprite::Mode::NORMAL)
+    {
+      if (x >= 0 && x < width && y >= 0 && y < height)
+        return pColData[y * width + x];
+      else
+        return color(0, 0, 0, 0);
+    }
+    else
+    {
+      if (modeSample == drz::Sprite::Mode::PERIODIC)
+        return pColData[abs(y % height) * width + abs(x % width)];
+      else
+        return pColData[std::max(0, std::min(y, height-1)) * width + std::max(0, std::min(x, width-1))];
+    }
+  }
+
+  bool SetPixel(int32_t x, int32_t y, color p)
+  {
+    if (x >= 0 && x < width && y >= 0 && y < height)
+    {
+      pColData[y * width + x] = p;
+      return true;
+    }
+    else
+      return false;
+  }
+
+  color Sample(float x, float y) const
+  {
+    int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
+    int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
+    return GetPixel(sx, sy);
+  }
+
+  color SampleBL(float u, float v) const
+  {
+    u = u * width - 0.5f;
+    v = v * height - 0.5f;
+    int x = (int)floor(u); // cast to int rounds toward zero, not downward
+    int y = (int)floor(v); // Thanks @joshinils
+    float u_ratio = u - x;
+    float v_ratio = v - y;
+    float u_opposite = 1 - u_ratio;
+    float v_opposite = 1 - v_ratio;
+
+    color p1 = GetPixel(std::max(x, 0), std::max(y, 0));
+    color p2 = GetPixel(std::min(x + 1, (int)width - 1), std::max(y, 0));
+    color p3 = GetPixel(std::max(x, 0), std::min(y + 1, (int)height - 1));
+    color p4 = GetPixel(std::min(x + 1, (int)width - 1), std::min(y + 1, (int)height - 1));
+
+    return color(
+      (uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
+      (uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
+      (uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
+  }
+
+  drz::color* GetData() {
+    return pColData.data();
+  }
+};
+
+
+class IDrzEngine {
+public:
 
   // Drawing methods
   virtual void Clear(drz::color color) = 0;
   virtual bool DrawPixel(int x, int y, drz::color color) = 0;
   virtual void DrawLine(int x1, int y1, int x2, int y2, drz::color color) = 0;
-  
+  virtual void DrawRect(int x, int y, int w, int h, drz::color color) = 0;
+
+  virtual drz::Sprite* CreateSpriteFromData(const unsigned int* data, int width, int height) = 0;
+
+  virtual void DrawPartialSprite(drz::vi2d pos, drz::Sprite* sprite, drz::vi2d srcPos, drz::vi2d size) = 0;
+  virtual void DrawSprite(drz::Sprite* sprite, int x, int y) = 0;
+  virtual void DrawMaskSprite(drz::Sprite* sprite, int x, int y) = 0;
 
   virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, drz::color color) = 0;
   virtual void FillRect(int x, int y, int w, int h, drz::color color) = 0;
@@ -584,7 +687,8 @@ public:
   virtual void SetTextColor(drz::color color) = 0;
   virtual void DrawText(const std::string& text, float x, float y, drz::color color) = 0;
 
-  virtual void SetCursorPos(uint16_t x, uint16_t y) = 0;
+  virtual void SetPaintMode(color::Mode mode) = 0;
+  virtual void SetCursorPos(int x, int y) = 0;
   virtual void SetWrap(bool wrap) = 0;
 
   virtual int GetScreenWidth() = 0; 
@@ -724,6 +828,9 @@ class DisplayPageManager {
 
       for (auto page : pages) {
         page->Load();
+        for(auto widget : page->GetWidgets()) {
+          widget->Load();
+        }
       }
 
       //set default page = first page
@@ -747,6 +854,9 @@ class DisplayPageManager {
     static void Update(float fElapsedTime) {
       //set isVisible to false for all pages except the current page
       for (auto page : pages) {
+        for(auto widget : currentPage->GetWidgets()) {
+          widget->Update(fElapsedTime);
+        }
         page->isVisible = (page == currentPage);
         page->Update(fElapsedTime);
       }
@@ -754,6 +864,11 @@ class DisplayPageManager {
 
     static void Render() {
       if(currentPage != nullptr) {
+        for(auto widget : currentPage->GetWidgets()) {
+          if(widget->isVisible) {
+            widget->Render();
+          }
+        }
         currentPage->Render();
       }
     }

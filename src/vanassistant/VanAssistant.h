@@ -3,9 +3,10 @@
 //Generic interfaces
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
-#include "IDrzSerial.h"
+#include <IDrzSerial.h>
 
 //Display pages
+#include "PageRoad.h"
 #include "PageAssistant.h"
 
 //Serial protocol
@@ -14,9 +15,11 @@
 class VanAssistant {
   public:
     VanAssistant(IDrzEngine* engine, IDrzSam* sam, IDrzSerial* serial) {
-      this->engine = DrzEngine::Get();
+      this->engine = engine;
       this->sam = sam;
-      //this->serial = serial;
+      this->serial = serial;
+
+      displayPageRoad = new PageRoad();
 
       displayPageAssistant = new PageAssistant(sam);
       //TODO: add other display pages
@@ -27,16 +30,15 @@ class VanAssistant {
     } 
 
     void Setup() {
-      protocol = std::make_unique<SerialProtocol>(DrzSerial::Get());
-    
-      DisplayPageManager::AddPage(displayPageAssistant);
+      protocol = std::make_unique<SerialProtocol>(serial);
+      DisplayPageManager::AddPage(displayPageRoad);
+      DisplayPageManager::AddPage(displayPageAssistant); 
       //TODO: add other display pages
     }
 
     void Update(float fElapsedTime) {
       DisplayPageManager::ReadInputs();
       DisplayPageManager::Update(fElapsedTime);
-      //DisplayPageManager::Render();
     }
 
     void Render() {

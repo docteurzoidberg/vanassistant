@@ -1,6 +1,7 @@
 #pragma once
 
-#include "IDrz_Inputs.h"
+#include <IDrzInputs.h>
+
 #include <linux/input.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,11 +15,12 @@ namespace drz {
 
 class Drz_Inputs_hidraw : public IDrzInputs {
 public:
+
 	Drz_Inputs_hidraw() {
 		CreateKeyMap();
 	}
 
-	~Drz_Inputs_hidraw() override {
+	~Drz_Inputs_hidraw() {
 		Close();
 	}
 

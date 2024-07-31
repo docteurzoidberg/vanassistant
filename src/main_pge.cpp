@@ -1,12 +1,15 @@
-#include "Drz_Engine_PGE.h"
-#include "Drz_Sam_Miniaudio.h"
-#include "Drz_Serial_Termios.h"
+#include <Drz_Engine_PGE.h>
+#include <Drz_Inputs_PGE.h>
+#include <Drz_Sam_Miniaudio.h>
+#include <Drz_Serial_Termios.h>
 
-#include "IDrzSerial.h"
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
 
 #include "vanassistant/VanAssistant.h"
+
+#define SCREEN_W 320
+#define SCREEN_H 240
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
@@ -16,7 +19,7 @@ class VanAssistantPGE : public Drz_PGE_Engine {
 
 public:
 
-  std::string serial_port = "/dev/ttyUSB0";
+  std::string serial_port = "/dev/pts/2";
   int serial_baudrate = 115200;
 
 	VanAssistantPGE(int arc, char* argv[]) : Drz_PGE_Engine(this) {
@@ -36,14 +39,15 @@ public:
       }
     }
 
+
     std::cout << "Serial baud rate: " << serial_baudrate << std::endl;
 
     //Set window title
 		sAppName = "VanAssistant";
 
     //Load fonts
-    const font* solidmono8 = LoadFont("solidmono8", &Solid_Mono8pt7b);
-    const font* solidmono4 = LoadFont("solidmono4", &Solid_Mono4pt7b);
+    const font* solidmono8 = Drz_PGE_Engine::LoadFont("solidmono8", &Solid_Mono8pt7b);
+    const font* solidmono4 = Drz_PGE_Engine::LoadFont("solidmono4", &Solid_Mono4pt7b);
     //Load sprites when any...
 
     //Load sounds when any...
@@ -54,14 +58,24 @@ public:
 	bool OnUserCreate() override {
 
     //Load serial port
-    serial = std::make_unique<Drz_Serial_Linux>(serial_port, serial_baudrate);
-    if(!serial->Setup()) { 
+    #ifdef __linux__
+      serial = std::make_unique<Drz_Serial_Linux>(serial_port, serial_baudrate);
+    #endif
+    #ifdef _WIN32
+      serial = std::make_unique<Drz_Serial_Win>(serial_port, serial_baudrate);
+    #endif
+    #ifdef __EMSCRIPTEN__
+      serial = nullptr
+    #endif
+
+    //Open serial port if available
+    if(serial!=nullptr && !serial->Setup()) { 
       std::cerr << "Failed to setup serial port" << std::endl;
-      exit(1);
+      serial = nullptr;
+      //exit(1);
     }
 
-    //protocol = std::make_unique<SerialProtocol>(serial.get());
-    
+    inputs = std::make_unique<Drz_Inputs_PGE>(this);
     sam = std::make_unique<Drz_Miniaudio_Sam>();
     vanassistant = std::make_unique<VanAssistant>(this, sam.get(), serial.get());
     vanassistant->Setup();
@@ -73,6 +87,8 @@ public:
 	}
 
   bool OnUserUpdate(float fElapsedTime) override {
+
+    
 
     // Q: exit the app
     if(GetKey(olc::Key::Q).bPressed) {
@@ -94,9 +110,10 @@ public:
     //  ToggleFps();
    // }
 
+    #ifndef __EMSCRIPTEN__
+      ReadSerial();
+    #endif
 
-    ReadSerial();
-   
     //vanassistant->ReadInputs(fElapsedTime);
     vanassistant->Update(fElapsedTime);
     vanassistant->Render();
@@ -116,8 +133,13 @@ private:
   std::unique_ptr<VanAssistant> vanassistant; 
   std::unique_ptr<IDrzSam> sam;
   std::unique_ptr<IDrzSerial> serial;
+  std::unique_ptr<IDrzInputs> inputs;
 
   bool ReadSerial() {
+
+    if(serial==nullptr) {
+      return false;
+    }
 
     //parse data
     J7PacketHeader header;
@@ -193,10 +215,10 @@ private:
   }
 };
 
-std::unique_ptr<VanAssistantPGE> app;
+VanAssistantPGE* app;
 
 int main(int argc, char* argv[]) {
-  app = std::make_unique<VanAssistantPGE>(argc, argv);
+  app = new VanAssistantPGE(argc, argv);
   if (app->Construct(SCREEN_W, SCREEN_H, 2, 2, false, true))
     app->Start();
   return 0;
