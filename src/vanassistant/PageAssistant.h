@@ -1,6 +1,8 @@
 #include <IDrzEngine.h>
 #include <IDrzSam.h>
 
+#include "DisplayPageManager.h"
+
 #define NUM_STARS 750
 
 #include "pages/assistant/widgets/Starfield.h" 

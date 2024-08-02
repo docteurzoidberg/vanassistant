@@ -1,6 +1,8 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+
+#include "../../../Widget.h"
 
 using namespace drz;
 
@@ -37,15 +39,17 @@ class SimpleVerticalGaugeWidget : public Widget {
     void Render() override {
     
       //Clear the value area 
-      engine->FillRect(screenX+ startValueDrawX, screenY + startValueDrawY, valueBarWidth, valueBarHeight, BLACK);
+      gfx->FillRect(screenX+ startValueDrawX, screenY + startValueDrawY, valueBarWidth, valueBarHeight, BLACK);
 
       //Draw value bar
       auto valueHeight = (value - min) * (endValueDrawY - startValueDrawY) / (max - min);
-      engine->FillRect(screenX + startValueDrawX, screenY + endValueDrawY - valueHeight, valueBarWidth, valueHeight, WHITE);
+      gfx->FillRect(screenX + startValueDrawX, screenY + endValueDrawY - valueHeight, valueBarWidth, valueHeight, WHITE);
 
       //Draw front mask
       if(mask!=nullptr) {
-        engine->DrawMaskSprite(mask, screenX, screenY);
+        gfx->SetPaintMode(Mode::ALPHA);
+        gfx->DrawSprite(screenX, screenY, mask);
+        gfx->SetPaintMode(Mode::NORMAL);
       }
     }
 

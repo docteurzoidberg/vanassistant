@@ -1,12 +1,16 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+
+#include "../../../Widget.h"
 
 #include "../sprites/compassbar.h"
 #include "../sprites/compassarrow.h"
 #include "../sprites/compassdir.h"
 
 //https://pgetinker.com/s/xShtLdEVCjH
+
+using namespace drz;
 
 class CompassWidget : public Widget {
   public:
@@ -21,9 +25,9 @@ class CompassWidget : public Widget {
     }
 
     void Load() override {
-      compassBarSprite = engine->CreateSpriteFromData(COMPASSBAR_SPRITE_DATA, COMPASSBAR_SPRITE_WIDTH, COMPASSBAR_SPRITE_HEIGHT);
-      compassArrowSpriteSheet = engine->CreateSpriteFromData(COMPASSARROW_SPRITE_DATA, COMPASSARROW_SPRITE_WIDTH, COMPASSARROW_SPRITE_HEIGHT);
-      compassDirSpriteSheet = engine->CreateSpriteFromData(COMPASSDIR_SPRITE_DATA, COMPASSDIR_SPRITE_WIDTH, COMPASSDIR_SPRITE_HEIGHT);
+      compassBarSprite = new Sprite(COMPASSBAR_SPRITE_WIDTH, COMPASSBAR_SPRITE_HEIGHT, COMPASSBAR_SPRITE_DATA);
+      compassArrowSpriteSheet = new Sprite( COMPASSARROW_SPRITE_WIDTH, COMPASSARROW_SPRITE_HEIGHT, COMPASSARROW_SPRITE_DATA);
+      compassDirSpriteSheet = new Sprite(COMPASSDIR_SPRITE_WIDTH, COMPASSDIR_SPRITE_HEIGHT, COMPASSDIR_SPRITE_DATA);
     }
 
     void Update(float elapsedTime) override {
@@ -34,7 +38,7 @@ class CompassWidget : public Widget {
 
     void Render() override {
       //compass bar background
-      engine->FillRect(screenX+compassBarWidgetX, screenY+compassBarWidgetY, compassBarWidth, compassBarHeight, BLACK);
+      gfx->FillRect(screenX+compassBarWidgetX, screenY+compassBarWidgetY, compassBarWidth, compassBarHeight, BLACK);
       //compass bar
       DrawCompassBar();
       //compass arrow
@@ -44,8 +48,8 @@ class CompassWidget : public Widget {
       //compass heading
       DrawHeadingText();
       //Rect around compass
-      engine->DrawRect(screenX+compassBarWidgetX-3, screenY+compassBarWidgetY-2, compassBarWidth+3, compassBarHeight+2, BLACK);
-      engine->DrawRect(screenX+compassBarWidgetX-2, screenY+compassBarWidgetY-1, compassBarWidth+1, compassBarHeight, WHITE);
+      gfx->DrawRect(screenX+compassBarWidgetX-3, screenY+compassBarWidgetY-2, compassBarWidth+3, compassBarHeight+2, BLACK);
+      gfx->DrawRect(screenX+compassBarWidgetX-2, screenY+compassBarWidgetY-1, compassBarWidth+1, compassBarHeight, WHITE);
     }
 
   private:
@@ -77,26 +81,29 @@ class CompassWidget : public Widget {
     void DrawArrow() {
       int spriteIndex = (int)(((heading-360.0f)/360.0f)*16);
       vi2d spriteSheetPos = {spriteIndex*compassArrowSize.x,0};
-      engine->DrawPartialSprite({screenX+compassArrowWidgetX, screenY+compassArrowWidgetY}, compassArrowSpriteSheet, spriteSheetPos, compassArrowSize);
+      gfx->DrawPartialSprite({screenX+compassArrowWidgetX, screenY+compassArrowWidgetY}, compassArrowSpriteSheet, spriteSheetPos, compassArrowSize);
     }
 
     void DrawCompassBar() {
       compassBarSprite->SetSampleMode(Sprite::Mode::PERIODIC);
       int nCompassOffset = (heading/360.0f)*(float)compassBarSprite->width - (((float)compassBarWidth)/2.0f);
       vi2d displaySize{compassBarWidth+2,compassBarSprite->height};
-      engine->DrawPartialSprite({compassBarWidgetX+screenX-2, compassBarWidgetY+screenY + ((compassBarHeight-compassBarSprite->height)/2) },compassBarSprite,{nCompassOffset,0},displaySize);
+      gfx->DrawPartialSprite({compassBarWidgetX+screenX-2, compassBarWidgetY+screenY + ((compassBarHeight-compassBarSprite->height)/2) },compassBarSprite,{nCompassOffset,0},displaySize);
     }
 
     void DrawDirection() {
       int dirIndex = (int)(((heading-360.0f)/360.0f)*8);
       vi2d spriteSheetPos = {dirIndex*compassDirSize.x,0};
-      engine->DrawPartialSprite({screenX+compassDirWidgetX, screenY+compassDirWidgetY}, compassDirSpriteSheet, spriteSheetPos, compassDirSize);
+      gfx->DrawPartialSprite({screenX+compassDirWidgetX, screenY+compassDirWidgetY}, compassDirSpriteSheet, spriteSheetPos, compassDirSize);
     }
 
     void DrawHeadingText() {
-      engine->SetFont("solidmono8");
+      gfx->SetFont("solidmono8");
       auto text = std::to_string((int)(heading-360.0f));
-      auto textBounds = engine->GetTextBounds(text, 0, 0);
-      engine->DrawText(text, screenX + compassHeadingWidgetX - (textBounds.w/2) , screenY + compassHeadingWidgetY + textBounds.h, WHITE);
+      auto textBounds = gfx->GetTextBounds(text, 0, 0);
+      gfx->DrawText(text, screenX + compassHeadingWidgetX - (textBounds.w/2) , screenY + compassHeadingWidgetY + textBounds.h, WHITE);
+
+      //draw "degree" symbol as 3x3 outline square
+      gfx->DrawRect(screenX + compassHeadingWidgetX + textBounds.w/2 + 3, screenY + compassHeadingWidgetY - 1, 3, 3, WHITE);
     }
 };

@@ -1,0 +1,6 @@
+{
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "clangd.arguments": [
+    "--compile-commands-dir=build"  // Adjust the path if your build directory is named differently
+  ]
+}

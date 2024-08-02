@@ -1,10 +1,12 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzEngine.h>
+#include <DrzGraphics.h>
 
 #include <gfx3d.h>
-#include <algorithm>
 #include <vector>
+
+#include "../../Widget.h"
 
 using namespace drz;
 
@@ -16,7 +18,7 @@ enum RenderMode {
 class SceneWidget : public Widget {
 public:
   vec3d vCamera;
-  Matrix4x4 matProj;
+  GFX3D::mat4x4 matProj;
 
   float fFov = 90.0f;
   float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
@@ -27,11 +29,11 @@ public:
   RenderMode renderMode = RENDER_SOLID;
 
   SceneWidget(int x, int y, int width, int height) 
-    : Widget(x, y, width, height), engine(DrzEngine::Get()) {
+    : Widget(x, y, width, height), gfx(DrzGraphics::Get()) {
     fAspectRatio = (float)width / (float)height;
 
     // Setup projection matrix
-    matProj = Matrix4x4::Identity();
+    matProj = GFX3D::Math::Mat_MakeIdentity();
     matProj.m[0][0] = fAspectRatio * fFovRad;
     matProj.m[1][1] = fFovRad;
     matProj.m[2][2] = fFar / (fFar - fNear);
@@ -53,13 +55,13 @@ public:
       model->Update(fElapsedTime);
 
       for (auto tri : model->tris) {
-        trianglec triProjected, triTranslated, triRotated;
+        triangle triProjected, triTranslated, triRotated;
 
         // Apply rotationMatrix instead of individual rotations
         auto rotationMatrix = model->rotationMatrix;
-        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[0], triRotated.p[0]);
-        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[1], triRotated.p[1]);
-        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[2], triRotated.p[2]);
+        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[0], triRotated.p[0]);
+        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[1], triRotated.p[1]);
+        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[2], triRotated.p[2]);
 
         // Apply translationMatrix instead of individual translations
         auto translationMatrix = model->translationMatrix;
@@ -112,13 +114,16 @@ public:
           float dp = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z;
 
           // Choose colors as required
-          triTranslated.col = color(dp * 255, dp * 255, dp * 255);
+          triTranslated.color = Color(dp * 255, dp * 255, dp * 255);
 
           // Project triangles from 3D --> 2D
+
+          //triProjected.p[0] = GFX3D::Math::Mat_MultiplyVector(matProj, triTranslated.p);
+
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[0], triProjected.p[0]);
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[1], triProjected.p[1]);
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[2], triProjected.p[2]);
-          triProjected.col = triTranslated.col;
+          triProjected.color = triTranslated.color;
           
           // Scale into view
           triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
@@ -138,7 +143,7 @@ public:
     }
 
     // Sort triangles from back to front
-    sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](trianglec &t1, trianglec &t2) {
+    sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](triangle &t1, triangle &t2) {
       float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
       float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
       return z1 > z2;
@@ -183,14 +188,15 @@ public:
   }
 
 private:
-  IDrzEngine* engine;
+  
+  IDrzGraphics* gfx;
   std::vector<Model*> models;
-  std::vector<trianglec> vecTrianglesToRaster;
+  std::vector<triangle> vecTrianglesToRaster;
   int iSceneTriangleCount = 0;
   bool bDebugTriangles = false;
   int iDbgTriangleIndex = 0;
 
-  void ClipAndDrawTriangle(const trianglec& t) {
+  void ClipAndDrawTriangle(const triangle& t) {
     if (renderMode == RENDER_WIREFRAME) {
       ClipAndDrawLine(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, WHITE);
       ClipAndDrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, WHITE);
@@ -200,10 +206,10 @@ private:
     }
   }
 
-  void ClipAndDrawLine(int x1, int y1, int x2, int y2, color col) {
+  void ClipAndDrawLine(int x1, int y1, int x2, int y2, Color col) {
     // Clip and draw line within the render area
     if (ClipLine(x1, y1, x2, y2)) {
-      engine->DrawLine(x1 + screenX, y1 + screenY, x2 + screenX, y2 + screenY, col);
+      gfx->DrawLine(x1 + screenX, y1 + screenY, x2 + screenX, y2 + screenY, col);
     }
   }
 
@@ -249,7 +255,7 @@ private:
     if (clippedVertices.size() < 3) return;
 
     for (size_t i = 1; i < clippedVertices.size() - 1; i++) {
-      engine->FillTriangle(
+      gfx->FillTriangle(
         clippedVertices[0].x + screenX, clippedVertices[0].y + screenY,
         clippedVertices[i].x + screenX, clippedVertices[i].y + screenY,
         clippedVertices[i + 1].x + screenX, clippedVertices[i + 1].y + screenY,

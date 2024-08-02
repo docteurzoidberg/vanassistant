@@ -1,7 +1,7 @@
 #pragma once 
 
 //Generic interfaces
-#include <IDrzEngine.h>
+#include <IDrzGraphics.h>
 #include <IDrzSam.h>
 #include <IDrzSerial.h>
 
@@ -15,7 +15,7 @@
 class VanAssistant {
   public:
     VanAssistant(IDrzEngine* engine, IDrzSam* sam, IDrzSerial* serial) {
-      this->engine = engine;
+      //this->engine = engine;
       this->sam = sam;
       this->serial = serial;
 
@@ -63,7 +63,7 @@ class VanAssistant {
     }
 
   private:
-    IDrzEngine* engine;
+    IDrzGraphics* gfx;
     IDrzSam* sam;
     IDrzSerial* serial;
 

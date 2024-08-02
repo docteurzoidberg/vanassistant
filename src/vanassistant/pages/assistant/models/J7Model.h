@@ -2,6 +2,8 @@
 
 #include <IDrzEngine.h>
 
+#include <vector>
+
 using namespace drz;
 
 class J7BodyModel: public Model {

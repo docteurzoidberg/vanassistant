@@ -1,18 +1,19 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+
+#include "../../Widget.h"
 
 using namespace drz;
 
 #include <string>
-
 
 class WidgetSpeed : public Widget {
   public:
 
     unsigned int speed = 0;
 
-    WidgetSpeed(int screenX, int screenY, int width, int height, drz::font* font) : Widget(screenX, screenY, width, height) {
+    WidgetSpeed(int screenX, int screenY, int width, int height, font* font) : Widget(screenX, screenY, width, height) {
       speedFont = font;
     }
 
@@ -28,20 +29,20 @@ class WidgetSpeed : public Widget {
     // Update the widget 
     void Update(float fElapsedTime) override {  
       //calc text bounds
-      engine->SetFont(speedFont);
-      textBounds = engine->GetTextBounds(std::to_string(speed), 0, 0);
+      gfx->SetFont(speedFont);
+      textBounds = gfx->GetTextBounds(std::to_string(speed), 0, 0);
     }
     
     // Render the widget
     void Render() override {
       //draw text centered
-      engine->SetFont(speedFont);
-      DrawText(std::to_string(speed),  (width - textBounds.w) / 2,  (height - textBounds.h) / 2, drz::color(255, 255, 255)); 
+      gfx->SetFont(speedFont);
+      DrawText(std::to_string(speed),  (width - textBounds.w) / 2,  (height - textBounds.h) / 2, Color(255, 255, 255)); 
     }
 
 
   protected:
-    drz::font* speedFont;
+    font* speedFont;
 
   private:
     drz::rect textBounds;

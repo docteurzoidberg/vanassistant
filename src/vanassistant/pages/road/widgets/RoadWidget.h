@@ -2,10 +2,17 @@
 
 #include <IDrzEngine.h>
 
+#include <DrzGraphics.h>
+#include <cmath>
+
+#include "../../../Widget.h"
+
 #include "../sprites/speedmask.h"
 #include "../sprites/j7sprite.h"
 
 //https://pgetinker.com/s/0n49K0w0p4c
+
+using namespace drz;
 
 class RoadWidget : public Widget {
   public:
@@ -25,8 +32,8 @@ class RoadWidget : public Widget {
     }
 
     void Load() override {
-      speedMask = engine->CreateSpriteFromData(SPEEDMASK_SPRITE_DATA, SPEEDMASK_SPRITE_WIDTH, SPEEDMASK_SPRITE_HEIGHT);
-      j7Sprite = engine->CreateSpriteFromData(J7SPRITE_SPRITE_DATA, J7SPRITE_SPRITE_WIDTH, J7SPRITE_SPRITE_HEIGHT);
+      speedMask = new Sprite(SPEEDMASK_SPRITE_WIDTH, SPEEDMASK_SPRITE_HEIGHT, SPEEDMASK_SPRITE_DATA);
+      j7Sprite = new Sprite(J7SPRITE_SPRITE_WIDTH, J7SPRITE_SPRITE_HEIGHT, J7SPRITE_SPRITE_DATA);
     }
 
     void Update(float elapsedTime) override {
@@ -52,11 +59,11 @@ class RoadWidget : public Widget {
     void Render() override {
       
       //background
-      engine->FillRect(screenX, screenY, width, height, BLACK);
+      gfx->FillRect(screenX, screenY, width, height, BLACK);
 
       //draw grid road
 
-      engine->SetPaintMode(color::ALPHA);
+      gfx->SetPaintMode(Mode::ALPHA);
 
       // draw vertical lines, no speed offset
       for (int i = 0; i <= roadWidth; ++i) {
@@ -67,21 +74,21 @@ class RoadWidget : public Widget {
           //fill column with vertical lines proportionnal to the speed value
           auto speedLineHeight = ((float)speed/(float)speedMax) * roadHeight * roadGridSize;
           for(int s=1; s <= roadGridSize+-1; s++) {
-            drawLine3D(x+s, 0, 0, x+s, 0, speedLineHeight, color(255,255,255,64));
+            drawLine3D(x+s, 0, 0, x+s, 0, speedLineHeight, Color(255,255,255,64));
           }
         }
-        drawLine3D(x, 0, 0, x, 0, roadHeight * roadGridSize, color(255, 255, 255, 64));
+        drawLine3D(x, 0, 0, x, 0, roadHeight * roadGridSize, Color(255, 255, 255, 64));
       }
 
       // draw horizontal lines with offset based on speed to achieve a scrolling road effect
       for (int j = -1; j <= roadHeight*2; ++j) {
         float y = j * roadGridSize - roadOffset;
         if (y >= -roadGridSize && y <= roadHeight * roadGridSize) { // Only draw lines within the visible area
-          drawLine3D(gridOffsetX, 0, y, gridOffsetX + roadWidth * roadGridSize, 0, y, color(255, 255, 255, 64));
+          drawLine3D(gridOffsetX, 0, y, gridOffsetX + roadWidth * roadGridSize, 0, y, Color(255, 255, 255, 64));
         }
       }
 
-      engine->SetPaintMode(color::NORMAL);
+      gfx->SetPaintMode(Mode::NORMAL);
 
 
       //clear speed value bar area
@@ -96,7 +103,10 @@ class RoadWidget : public Widget {
       //engine->DrawMaskSprite(speedMask, screenX, screenY);
 
       //j7 sprite
-      engine->DrawMaskSprite(j7Sprite, screenX + J7offsetX, screenY + J7offsetY);
+      gfx->SetPaintMode(Mode::MASK);
+      //gfx->DrawMaskSprite(j7Sprite, screenX + J7offsetX, screenY + J7offsetY);
+      gfx->DrawSprite(screenX + J7offsetX, screenY + J7offsetY, j7Sprite);
+      gfx->SetPaintMode(Mode::NORMAL);
     }
 
   private:
@@ -137,12 +147,12 @@ class RoadWidget : public Widget {
       return { screenXCoord, screenYCoord };
     }
 
-    void drawLine3D(float x1, float y1, float z1, float x2, float y2, float z2, color lineColor) {
+    void drawLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Color lineColor) {
       vec2d p1 = get3DCoords(x1, y1, z1);
       vec2d p2 = get3DCoords(x2, y2, z2);
       //if ((p1.x >= screenX && p1.x <= screenX + width && p1.y >= screenY && p1.y <= screenY + height) ||
       //    (p2.x >= screenX && p2.x <= screenX + width && p2.y >= screenY && p2.y <= screenY + height)) {
-        engine->DrawLine(p1.x, p1.y, p2.x, p2.y, lineColor);
+        gfx->DrawLine(p1.x, p1.y, p2.x, p2.y, lineColor);
       //}
     }
 };

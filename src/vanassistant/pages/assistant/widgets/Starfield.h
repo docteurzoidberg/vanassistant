@@ -1,8 +1,10 @@
 #pragma once
 
 #include <IDrzEngine.h>
+#include <DrzGraphics.h>
 
 #include <cmath>
+#include <cstdint>
 #include <vector>
 
 using namespace drz;
@@ -13,18 +15,18 @@ struct star {
 
 class Starfield {
 public:
-  Starfield(uint16_t starcount) : engine(DrzEngine::Get()), starcount(starcount) {
+  Starfield(uint16_t starcount) : gfx(DrzGraphics::Get()), starcount(starcount) {
     for(int i = 0; i < starcount; i++){
       stars.push_back({
-        .x = (float)engine->GetRandomFloat() * engine->GetScreenWidth(),
-        .y = (float)engine->GetRandomFloat() * engine->GetScreenHeight(),
-        .z = (float)engine->GetRandomFloat() * engine->GetScreenWidth(),
+        .x = (float)engine->GetRandomFloat() * gfx->GetScreenWidth(),
+        .y = (float)engine->GetRandomFloat() * gfx->GetScreenHeight(),
+        .z = (float)engine->GetRandomFloat() * gfx->GetScreenWidth(),
         .o = ((float)floor(engine->GetRandomFloat() * 99) + 1) / 10
       });
     }
-    centerX = (float)engine->GetScreenWidth() / 2;
-    centerY = (float)engine->GetScreenHeight() / 2;
-    focalLength = engine->GetScreenWidth()*2;
+    centerX = (float)gfx->GetScreenWidth() / 2;
+    centerY = (float)gfx->GetScreenHeight() / 2;
+    focalLength = gfx->GetScreenWidth()*2;
   }
 
   void Update(float elapsedTime) {
@@ -38,7 +40,7 @@ public:
     for(auto &star : stars){
       star.z-= 0.1f;
       if(star.z <= 0){
-        star.z = engine->GetScreenWidth();
+        star.z = gfx->GetScreenWidth();
       }
       pixelX = (star.x - centerX) * (focalLength / star.z);
       pixelX += centerX;
@@ -46,15 +48,16 @@ public:
       pixelY += centerY;
       pixelRadius = 1 * (focalLength / star.z);
       uint8_t brightness = star.o * 255;
-      auto pixelColor = color(brightness,brightness,brightness);
-      engine->FillRect(pixelX, pixelY, pixelRadius, pixelRadius, pixelColor);
+      auto pixelColor = Color(brightness,brightness,brightness);
+      gfx->FillRect(pixelX, pixelY, pixelRadius, pixelRadius, pixelColor);
     }
   }
   
   std::vector<star> stars;
   
-private: 
+private:  
   IDrzEngine* engine;
+  IDrzGraphics* gfx;
   bool warp = false;
   uint16_t starcount=0;
   int focalLength = 0;

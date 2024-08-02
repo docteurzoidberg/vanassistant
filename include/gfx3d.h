@@ -1,6 +1,7 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+
 /*
   from olcPGEX_Graphics3D.h
 
@@ -74,11 +75,10 @@
 #include <cstring>
 #include <vector>
 #include <cstdint>
+#include <cmath>
 
 #undef min
 #undef max
-
-#include <IDrzEngine.h>
 
 namespace drz
 {
@@ -107,7 +107,7 @@ namespace drz
     {
       vec3d p[3];
       vec2d t[3];
-      color col[3];
+      drz::graphics::Color col[3];
     };
 
     struct mat4x4
@@ -182,11 +182,11 @@ namespace drz
       void SetTransform(drz::GFX3D::mat4x4 &transform);
       //void SetTexture(olc::Sprite *texture);
       //void SetMipMapTexture(olc::GFX3D::MipMap *texture);
-      void SetLightSource(uint32_t nSlot, uint32_t nType, drz::color col, drz::GFX3D::vec3d pos, GFX3D::vec3d dir =  { 0.0f, 0.0f, 1.0f, 1.0f }, float fParam = 0.0f);
+      void SetLightSource(uint32_t nSlot, uint32_t nType, drz::graphics::Color col, drz::GFX3D::vec3d pos, GFX3D::vec3d dir =  { 0.0f, 0.0f, 1.0f, 1.0f }, float fParam = 0.0f);
       uint32_t Render(std::vector<drz::GFX3D::triangle> &triangles, uint32_t flags = RENDER_CULL_CW | RENDER_TEXTURED | RENDER_DEPTH);
       uint32_t Render(std::vector<drz::GFX3D::triangle> &triangles, uint32_t flags, int nOffset, int nCount);
-      uint32_t RenderLine(drz::GFX3D::vec3d &p1, drz::GFX3D::vec3d &p2, color col = WHITE);
-      uint32_t RenderCircleXZ(drz::GFX3D::vec3d &p1, float r, color col = WHITE);
+      uint32_t RenderLine(drz::GFX3D::vec3d &p1, drz::GFX3D::vec3d &p2, drz::graphics::Color col = drz::graphics::WHITE);
+      uint32_t RenderCircleXZ(drz::GFX3D::vec3d &p1, float r, drz::graphics::Color col = drz::graphics::WHITE);
 
     private:
       GFX3D::mat4x4 matProj;
@@ -205,7 +205,7 @@ namespace drz
         uint32_t type;
         GFX3D::vec3d pos;
         GFX3D::vec3d dir;
-        color col;
+        drz::graphics::Color col;
         float param;
       } lights[4];
     };
@@ -213,24 +213,33 @@ namespace drz
 
   public:
     static void ConfigureDisplay();
+    static void ConfigureDisplay(int w, int h, int sx, int sy);
+
     static void ClearDepth();
+    static void ClearDepth(int w, int h);
+
+
     static void AddTriangleToScene(GFX3D::triangle &tri);
     static void RenderScene();
 
     static void DrawTriangleFlat(GFX3D::triangle &tri);
-    static void DrawTriangleWire(GFX3D::triangle &tri, color col = WHITE);
+    static void DrawTriangleWire(GFX3D::triangle &tri, drz::graphics::Color col = drz::graphics::WHITE);
 
     static void RasterTriangle(
-      int x1, int y1, float u1, float v1, float w1, color c1,
-      int x2, int y2, float u2, float v2, float w2, color c2,
-      int x3, int y3, float u3, float v3, float w3, color c3,
+      int x1, int y1, float u1, float v1, float w1, drz::graphics::Color c1,
+      int x2, int y2, float u2, float v2, float w2, drz::graphics::Color c2,
+      int x3, int y3, float u3, float v3, float w3, drz::graphics::Color c3,
       uint32_t nFlags);
 
-    static void SetEngine(IDrzEngine* engine);
+    static void SetEngine(IDrzGraphics* gfx);
 
   private:
     static float* m_DepthBuffer;
-    static IDrzEngine* engine;
+    static IDrzGraphics* gfx;
+    static int width;
+    static int height;
+    static int screenX;
+    static int screenY;
   };
 }
 
@@ -626,36 +635,42 @@ namespace drz
 
   void GFX3D::DrawTriangleFlat(drz::GFX3D::triangle &tri)
   {
-    engine->FillTriangle((int32_t)tri.p[0].x, (int32_t)tri.p[0].y, (int32_t)tri.p[1].x, (int32_t)tri.p[1].y, (int32_t)tri.p[2].x, (int32_t)tri.p[2].y, tri.col[0]);
+    gfx->FillTriangle((int32_t)tri.p[0].x, (int32_t)tri.p[0].y, (int32_t)tri.p[1].x, (int32_t)tri.p[1].y, (int32_t)tri.p[2].x, (int32_t)tri.p[2].y, tri.col[0]);
   }
 
-  void GFX3D::DrawTriangleWire(drz::GFX3D::triangle &tri, color col)
+  void GFX3D::DrawTriangleWire(drz::GFX3D::triangle &tri, drz::graphics::Color col)
   {
-    engine->DrawTriangle((int32_t)tri.p[0].x, (int32_t)tri.p[0].y, (int32_t)tri.p[1].x, (int32_t)tri.p[1].y, (int32_t)tri.p[2].x, (int32_t)tri.p[2].y, col);
+    gfx->DrawTriangle((int32_t)tri.p[0].x, (int32_t)tri.p[0].y, (int32_t)tri.p[1].x, (int32_t)tri.p[1].y, (int32_t)tri.p[2].x, (int32_t)tri.p[2].y, col);
   }
 
   float* GFX3D::m_DepthBuffer = nullptr;
 
-  IDrzEngine* GFX3D::engine = nullptr;
+  IDrzGraphics* GFX3D::gfx = nullptr;
 
   void GFX3D::ConfigureDisplay()
   {
-    m_DepthBuffer = new float[engine->GetScreenWidth() * engine->GetScreenHeight()]{ 0 };
+    GFX3D::width = gfx->GetScreenWidth();
+    GFX3D::height = gfx->GetScreenHeight();
+    m_DepthBuffer = new float[width * height]{ 0 };
   }
 
   void GFX3D::ConfigureDisplay(int width, int height, int screenX=0, int screenY=0)
   {
+    GFX3D::width = width;
+    GFX3D::height = height;
+    GFX3D::screenX = screenX;
+    GFX3D::screenY = screenY;
     m_DepthBuffer = new float[width * height]{ 0 };
   }
 
-  void GFX3D::SetEngine(IDrzEngine* pEngine)
+  void GFX3D::SetEngine(IDrzGraphics* pGfx)
   {
-    engine = pEngine;
+    gfx = pGfx;
   }
 
   void GFX3D::ClearDepth()
   {
-    memset(m_DepthBuffer, 0, engine->GetScreenWidth() * engine->GetScreenHeight() * sizeof(float));
+    memset(m_DepthBuffer, 0, width * height * sizeof(float));
   }
 
   void GFX3D::ClearDepth(int width, int height)
@@ -688,7 +703,7 @@ namespace drz
     matWorld = transform;
   }
 
-  void GFX3D::PipeLine::SetLightSource(uint32_t nSlot, uint32_t nType, drz::color col, drz::GFX3D::vec3d pos, drz::GFX3D::vec3d dir, float fParam)
+  void GFX3D::PipeLine::SetLightSource(uint32_t nSlot, uint32_t nType, drz::graphics::Color col, drz::GFX3D::vec3d pos, drz::GFX3D::vec3d dir, float fParam)
   {
     if (nSlot < 4)
     {
@@ -705,7 +720,7 @@ namespace drz
     return Render(triangles, flags, 0, triangles.size());
   }
 
-  uint32_t GFX3D::PipeLine::RenderLine(drz::GFX3D::vec3d &p1, drz::GFX3D::vec3d &p2, color col)
+  uint32_t GFX3D::PipeLine::RenderLine(drz::GFX3D::vec3d &p1, drz::GFX3D::vec3d &p2, drz::graphics::Color col)
   {
     // Coordinates are assumed to be in world space
     drz::GFX3D::vec3d t1, t2;
@@ -740,12 +755,12 @@ namespace drz
     t1 = Math::Vec_Add(t1, vOffsetView);
     t2 = Math::Vec_Add(t2, vOffsetView);
     
-    engine->DrawLine((int32_t)t1.x, (int32_t)t1.y, (int32_t)t2.x, (int32_t)t2.y, col);
+    gfx->DrawLine((int32_t)t1.x, (int32_t)t1.y, (int32_t)t2.x, (int32_t)t2.y, col);
     
     return 0;
   }
 
-  uint32_t GFX3D::PipeLine::RenderCircleXZ(drz::GFX3D::vec3d &p1, float r, color col)
+  uint32_t GFX3D::PipeLine::RenderCircleXZ(drz::GFX3D::vec3d &p1, float r, drz::graphics::Color col)
   {
     // Coordinates are assumed to be in world space
     drz::GFX3D::vec3d t1;
@@ -781,7 +796,7 @@ namespace drz
     t1 = Math::Vec_Add(t1, vOffsetView);
     t2 = Math::Vec_Add(t2, vOffsetView);
 
-    engine->FillCircle((int32_t)t1.x, (int32_t)t1.y, (int32_t)fabs(t2.x - t1.x), col);
+    gfx->FillCircle((int32_t)t1.x, (int32_t)t1.y, (int32_t)fabs(t2.x - t1.x), col);
 
     return 0;
   }
@@ -837,8 +852,8 @@ namespace drz
       // If Lighting, calculate shading
       if (flags & RENDER_LIGHTS)
       {
-        drz::color ambient_clamp = { 0,0,0 };
-        drz::color light_combined = { 0,0,0 };
+        drz::graphics::Color ambient_clamp = { 0,0,0 };
+        drz::graphics::Color light_combined = { 0,0,0 };
         uint32_t nLightSources = 0;
         float nLightR = 0, nLightG = 0, nLightB = 0;
 
@@ -880,9 +895,9 @@ namespace drz
         nLightG = std::max(nLightG, ambient_clamp.g / 255.0f);
         nLightB = std::max(nLightB, ambient_clamp.b / 255.0f);
 
-        triTransformed.col[0] = color(uint8_t(nLightR * triTransformed.col[0].r), uint8_t(nLightG * triTransformed.col[0].g), uint8_t(nLightB * triTransformed.col[0].b));
-        triTransformed.col[1] = color(uint8_t(nLightR * triTransformed.col[1].r), uint8_t(nLightG * triTransformed.col[1].g), uint8_t(nLightB * triTransformed.col[1].b));
-        triTransformed.col[2] = color(uint8_t(nLightR * triTransformed.col[2].r), uint8_t(nLightG * triTransformed.col[2].g), uint8_t(nLightB * triTransformed.col[2].b));
+        triTransformed.col[0] = Color(uint8_t(nLightR * triTransformed.col[0].r), uint8_t(nLightG * triTransformed.col[0].g), uint8_t(nLightB * triTransformed.col[0].b));
+        triTransformed.col[1] = Color(uint8_t(nLightR * triTransformed.col[1].r), uint8_t(nLightG * triTransformed.col[1].g), uint8_t(nLightB * triTransformed.col[1].b));
+        triTransformed.col[2] = Color(uint8_t(nLightR * triTransformed.col[2].r), uint8_t(nLightG * triTransformed.col[2].g), uint8_t(nLightB * triTransformed.col[2].b));
 
 
 
@@ -1047,9 +1062,9 @@ namespace drz
     return nTriangleDrawnCount;
   }
 
-  void GFX3D::RasterTriangle(int x1, int y1, float u1, float v1, float w1, drz::color c1,
-                 int x2, int y2, float u2, float v2, float w2, drz::color c2,
-                 int x3, int y3, float u3, float v3, float w3, drz::color c3,
+  void GFX3D::RasterTriangle(int x1, int y1, float u1, float v1, float w1, Color c1,
+                 int x2, int y2, float u2, float v2, float w2, Color c2,
+                 int x3, int y3, float u3, float v3, float w3, Color c3,
                  uint32_t nFlags)
 
   {
@@ -1194,7 +1209,7 @@ namespace drz
             //if (spr != nullptr)
             {
              // olc::Pixel sample = spr->Sample(tex_u / tex_w, tex_v / tex_w);
-              drz::color sample = color(0,0,0);
+              drz::graphics::Color sample = Color(0,0,0);
               pixel_r *= sample.r / 255.0f;
               pixel_g *= sample.g / 255.0f;
               pixel_b *= sample.b / 255.0f;
@@ -1204,13 +1219,14 @@ namespace drz
 
           if (nFlags & GFX3D::RENDER_DEPTH)
           {
-            if (tex_w > m_DepthBuffer[i*engine->GetScreenWidth() + j])
-              if (engine->DrawPixel(j, i, color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
-                m_DepthBuffer[i*engine->GetScreenWidth() + j] = tex_w;
+
+            if (tex_w > m_DepthBuffer[i*width + j])
+              if (gfx->DrawPixel(j, i, Color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
+                m_DepthBuffer[i*width + j] = tex_w;
           }
           else
           {
-            engine->DrawPixel(j, i, color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f)));
+            gfx->DrawPixel(j, i, Color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f)));
           }
         
           t += tstep;
@@ -1310,7 +1326,7 @@ namespace drz
             //if (spr != nullptr)
             //{
               //olc::Pixel sample = spr->Sample(tex_u / tex_w, tex_v / tex_w);
-              drz::color sample = color(0, 0, 0);
+              Color sample = Color(0, 0, 0);
               pixel_r *= sample.r / 255.0f;
               pixel_g *= sample.g / 255.0f;
               pixel_b *= sample.b / 255.0f;
@@ -1320,13 +1336,13 @@ namespace drz
 
           if (nFlags & GFX3D::RENDER_DEPTH)
           {
-            if (tex_w > m_DepthBuffer[i*engine->GetScreenWidth() + j])
-              if (engine->DrawPixel(j, i, color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
-                m_DepthBuffer[i*engine->GetScreenWidth() + j] = tex_w;
+            if (tex_w > m_DepthBuffer[i*width + j])
+              if (gfx->DrawPixel(j, i, Color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
+                m_DepthBuffer[i*width + j] = tex_w;
           }
           else
           {
-            engine->DrawPixel(j, i, color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f)));
+            gfx->DrawPixel(j, i, Color(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f)));
           }
 
           t += tstep;

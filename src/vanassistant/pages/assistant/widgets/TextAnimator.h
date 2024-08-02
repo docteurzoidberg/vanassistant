@@ -1,6 +1,9 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzEngine.h>
+#include <DrzGraphics.h>
+
+#include "../../../Widget.h"
 
 #include <queue>
 
@@ -8,8 +11,8 @@ using namespace drz;
 
 class TextAnimator : public Widget {
 public:
-  TextAnimator(std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int x, int y, int width, int height, color col= WHITE, bool fillBg = true)
-    : Widget(x, y, width, height), engine(DrzEngine::Get()), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), 
+  TextAnimator(std::string fontname, float typeSpeed, float pauseTime, float cursorBlinkRate, float cursorWidth, float cursorHeight, int x, int y, int width, int height, Color col= WHITE, bool fillBg = true)
+    : Widget(x, y, width, height), engine(DrzEngine::Get()), gfx(DrzGraphics::Get()), fontname(fontname), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate), cursorWidth(cursorWidth), cursorHeight(cursorHeight), col(col), 
       currentIndex(0), isTyping(false), cursorVisible(true), firstMessage(true), displayText(true), fillBg(fillBg) {
 
     lastUpdate = engine->Now();
@@ -48,12 +51,12 @@ public:
     if (displayText) {
       //draw black rectangle behind text
       if(fillBg) {
-        engine->FillRect(0, yOffset-18, engine->GetScreenWidth() , 24, BLACK);
+        gfx->FillRect(0, yOffset-18, gfx->GetScreenWidth() , 24, BLACK);
       }
       std::string toDraw = currentText.substr(0, currentIndex);
 
-      engine->SetFont(fontname); //TODO: set font
-      engine->DrawText(toDraw, xOffset, yOffset-2, WHITE);
+      gfx->SetFont(fontname); //TODO: set font
+      gfx->DrawText(toDraw, xOffset, yOffset-2, WHITE);
     
       DrawCursor(xOffset, yOffset, toDraw, col);
     }
@@ -61,6 +64,7 @@ public:
 
 private:
   IDrzEngine* engine;
+  IDrzGraphics* gfx;
   std::string fontname;
   std::queue<std::string> textQueue;
   std::string currentText;
@@ -81,7 +85,7 @@ private:
   bool fillBg = true;
   int xOffset;
   int yOffset;
-  color col;
+  Color col;
 
   void StartTyping() {
     currentText = textQueue.front();
@@ -131,11 +135,11 @@ private:
     }
   }
 
-  void DrawCursor(int x, int y, const std::string& toDraw, color color) {
+  void DrawCursor(int x, int y, const std::string& toDraw, Color color) {
     if (cursorVisible && displayText) {
 
-      engine->SetFont(fontname);
-      auto textSize = engine->GetTextBounds(toDraw,x,y);
+      gfx->SetFont(fontname);
+      auto textSize = gfx->GetTextBounds(toDraw,x,y);
 
       //todo: do not use font yAdvance... as font isn't exposed in the engine
       //auto cursorWidth = 8;
@@ -143,8 +147,8 @@ private:
 
       int cursorX = x + textSize.w+2;
       int cursorY = y - cursorHeight;
-     
-      engine->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor as an 8x8 rectangle
+
+      gfx->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor as an 8x8 rectangle
     }
   }
 };

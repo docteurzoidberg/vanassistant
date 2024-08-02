@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0077 NEW)
 project(vanassistant VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 99)
 
-set(DRZENGINE_LIB_DIR /home/drzoid/dev/drzengine)
+set(DRZENGINE_INC_DIR lib/drzengine/include)
+set(DRZENGINE_SRC_DIR lib/drzengine/src)
 
 # Set build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -45,19 +43,19 @@ else()
 endif()
 
 # Include the include directory
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/${DRZENGINE_INC_DIR})
 
 #Source files, depending on the backend
 if(${BACKEND} STREQUAL "PGE")
     #Include the olc::pge entry point
-    set(SOURCES ${SOURCES} src/main_pge.cpp src/vanassistant/Widget.cpp src/vanassistant/DisplayPageManager.cpp src/VanAssistantApp.cpp)
+    set(SOURCES ${SOURCES} src/main_pge.cpp ${DRZENGINE_SRC_DIR}/Drz_Engine_PGE.cpp ${DRZENGINE_SRC_DIR}/Drz_Inputs_PGE.cpp)
 
 elseif(${BACKEND} STREQUAL "PGEW")
     #Include the olc::pge entry point
-    set(SOURCES ${SOURCES} src/main_pge_win.cpp src/VanAssistantApp.cpp)
+    set(SOURCES ${SOURCES} src/main_pge_win.cpp)
 elseif(${BACKEND} STREQUAL "FB")
     #Include the framebuffer's entry point
-    set(SOURCES ${SOURCES} src/main_fb.cpp src/VanAssistantApp.cpp)
+    set(SOURCES ${SOURCES} src/main_fb.cpp)
     #Include the FBG"s source directories
     file(GLOB FBG_SOURCES ${CMAKE_SOURCE_DIR}/src/fb/*.c)
     list(APPEND SOURCES ${FBG_SOURCES})
@@ -70,60 +68,30 @@ else()
 endif()
 
 # Include the sam's source directory
-#file(GLOB SAM_SOURCES ${CMAKE_SOURCE_DIR}/src/sam/*.c)
-#list(APPEND SOURCES ${SAM_SOURCES})
-
-# Set options to not build tests, examples, or documentation for the library
-set(BUILD_PGELIB OFF)
-set(BUILD_FBLIB OFF)
-set(BUILD_DOC OFF)
-set(BUILD_TEST_APPS OFF)
-
-if(${BACKEND} STREQUAL "PGE")
-    set(BUILD_PGELIB ON)
-elseif(${BACKEND} STREQUAL "PGEW")
-    set(BUILD_PGELIB ON)
-elseif(${BACKEND} STREQUAL "FB")
-    set(BUILD_FBLIB ON)
-else()
-    message(FATAL_ERROR "Invalid backend for the drzengine library: ${BACKEND}")
-endif()
+file(GLOB SAM_SOURCES ${CMAKE_SOURCE_DIR}/src/sam/*.c)
+list(APPEND SOURCES ${SAM_SOURCES})
 
 # Define the executable
 add_executable(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${SOURCES})
-
-# Add the path to your external library
-add_subdirectory(${DRZENGINE_LIB_DIR} ${CMAKE_BINARY_DIR}/drzengine_build)
 
 #Select platform libs
 if(${PLATFORM} STREQUAL "X11")
     set(PLATFORM_LIBS X11 GL pthread png stdc++fs dl)
     set(PLATFORM_CXX_FLAGS -O2)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake)
-    # Link the drzenginepge library 
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
 elseif(${PLATFORM} STREQUAL "BUILDROOT")
     set(PLATFORM_LIBS pthread dl atomic)
     set(PLATFORM_CXX_FLAGS -O2)
-    # Link the drzenginefb library 
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginefb)
     #set(CMAKE_TOOLCHAIN_FILE "/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/usr/share/buildroot/toolchainfile.cmake")
 elseif(${PLATFORM} STREQUAL "PIOS")
     set(PLATFORM_LIBS pthread dl atomic)
     set(PLATFORM_CXX_FLAGS -O2)
-    # Link the drzenginefb library 
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginefb)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/crosspigcc.cmake)
 elseif(${PLATFORM} STREQUAL "WASM")
     set(PLATFORM_LIBS pthread dl embind)
     set(PLATFORM_CXX_FLAGS -O2 -pthread)
-    # Link the drzenginefb library 
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/emscripten.cmake)
 elseif(${PLATFORM} STREQUAL "WIN")
-
-    # Link the drzenginefb library
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
 
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/mingw64.cmake)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake

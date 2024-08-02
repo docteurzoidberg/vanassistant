@@ -2,6 +2,8 @@
 
 #include <IDrzEngine.h>
 
+#include <vector>
+
 #include "models/J7Model.h"
 
 using namespace drz;

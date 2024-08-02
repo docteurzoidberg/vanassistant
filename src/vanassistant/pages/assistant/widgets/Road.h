@@ -1,17 +1,17 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include "DrzGraphics.h"
 
 using namespace drz;
 
 class Road {
   public:
   
-    Road() : engine(DrzEngine::Get()), roadSpeed(88.0f), roadOffset(0.0f), currentFrame(0), eyePos({0, 0, 400})  {
-      screenWidth = engine->GetScreenWidth();
-      screenHeight = engine->GetScreenHeight();
+    Road() : gfx(DrzGraphics::Get()), roadSpeed(88.0f), roadOffset(0.0f), currentFrame(0), eyePos({0, 0, 400})  {
+      screenWidth = gfx->GetScreenWidth();
+      screenHeight = gfx->GetScreenHeight();
     }
- 
+
     void Update(float elapsedTime) {
       roadOffset += roadSpeed * elapsedTime;
       if (roadOffset >= squaresize) {
@@ -36,7 +36,7 @@ class Road {
 
   private: 
   
-    IDrzEngine* engine;
+    IDrzGraphics* gfx;
     
     int screenWidth;
     int screenHeight;
@@ -54,9 +54,9 @@ class Road {
       return { screenX, screenY };
     }
 
-    void drawLine3D(float x1, float y1, float z1, float x2, float y2, float z2, color color) {
+    void drawLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Color color) {
       vec2d p1 = get3DCoords(x1, y1, z1);
       vec2d p2 = get3DCoords(x2, y2, z2);
-      engine->DrawLine(p1.x, p1.y, p2.x, p2.y, color);
+      gfx->DrawLine(p1.x, p1.y, p2.x, p2.y, color);
     }
 };

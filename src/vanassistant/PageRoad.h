@@ -1,5 +1,9 @@
+#include <DrzGraphics.h>
+#include <DrzInputs.h>
+
 #include <IDrzEngine.h>
-#include <IDrzInputs.h>
+
+#include "DisplayPageManager.h"
 
 #include "pages/road/widgets/SimpleGaugeWidget.h"
 #include "pages/road/widgets/RoadWidget.h"
@@ -8,7 +12,9 @@
 #include "pages/road/sprites/fuelgaugemask.h"
 #include "pages/road/sprites/tempgaugemask.h"
 
-using namespace drz;
+#include <iostream>
+
+using namespace drz::graphics;
 
 class PageRoad : public DisplayPage {
   public :
@@ -25,22 +31,21 @@ class PageRoad : public DisplayPage {
 
       compass = new CompassWidget(121, 0, 80, 80); 
 
-      engine = DrzEngine::Get();
+      //engine = DrzEngine::Get();
+      gfx = DrzGraphics::Get();
       inputs = DrzInputs::Get();
     }
 
     void ReadInputs() override {
       //TODO
-      if(inputs->GetKey(Key::E).bPressed) {
+      if(inputs->GetKey(Key::E).isPressed) {
         std::cout << "E pressed" << std::endl;
       }
     }
 
     void Load() override {
-      fuelGaugeMask = engine->CreateSpriteFromData(FUELGAUGEMASK_SPRITE_DATA, FUELGAUGEMASK_SPRITE_WIDTH, FUELGAUGEMASK_SPRITE_HEIGHT);
-      tempGaugeMask = engine->CreateSpriteFromData(TEMPGAUGEMASK_SPRITE_DATA, TEMPGAUGEMASK_SPRITE_WIDTH, TEMPGAUGEMASK_SPRITE_HEIGHT);
-      gaugeFuel->SetMask(fuelGaugeMask);
-      gaugeTemp->SetMask(tempGaugeMask);
+      gaugeFuel->SetMask(new Sprite(FUELGAUGEMASK_SPRITE_WIDTH, FUELGAUGEMASK_SPRITE_HEIGHT, FUELGAUGEMASK_SPRITE_DATA));
+      gaugeTemp->SetMask(new Sprite(TEMPGAUGEMASK_SPRITE_WIDTH, TEMPGAUGEMASK_SPRITE_HEIGHT, TEMPGAUGEMASK_SPRITE_DATA));
       AddWidget(gaugeFuel);
       AddWidget(gaugeTemp);
       AddWidget(road);
@@ -48,7 +53,8 @@ class PageRoad : public DisplayPage {
     }
 
     void Update(float fElapsedTime) override {
-      engine->Clear(YELLOW);
+      //TODO
+      gfx->Clear(YELLOW);
     }
 
     void Render() override {
@@ -60,10 +66,8 @@ class PageRoad : public DisplayPage {
     RoadWidget* road;
     CompassWidget* compass;
 
-    Sprite* fuelGaugeMask;
-    Sprite* tempGaugeMask;
-
-    IDrzEngine* engine;
-    IDrzInputs* inputs;
+    //IDrzEngine* engine;
+    IDrzGraphics* gfx;
+    IDrzInputs* inputs; 
 
 };

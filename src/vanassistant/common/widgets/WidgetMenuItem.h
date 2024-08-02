@@ -1,6 +1,8 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+
+#include "../../Widget.h"
 
 #include <string>
 
@@ -11,7 +13,7 @@ class WidgetMenuItem : public Widget {
 
     std::string text = "";
 
-    WidgetMenuItem(int screenX, int screenY, int width, int height, drz::font* font) : Widget(screenX, screenY, width, height) {
+    WidgetMenuItem(int screenX, int screenY, int width, int height, font* font) : Widget(screenX, screenY, width, height) {
       speedFont = font;
     }
 
@@ -27,21 +29,21 @@ class WidgetMenuItem : public Widget {
     // Update the widget 
     void Update(float fElapsedTime) override {  
       //calc text bounds
-      engine->SetFont(speedFont);
-      textBounds = engine->GetTextBounds(text, 0, 0);
+      gfx->SetFont(speedFont);
+      textBounds = gfx->GetTextBounds(text, 0, 0);
     }
     
     // Render the widget
     void Render() override {
       //draw text centered
-      engine->SetFont(speedFont);
-      DrawText(text,  (width - textBounds.w) / 2,  (height - textBounds.h) / 2, drz::color(255, 255, 255)); 
+      gfx->SetFont(speedFont);
+      DrawText(text,  (width - textBounds.w) / 2,  (height - textBounds.h) / 2, Color(255, 255, 255)); 
 
       //draw border
-      DrawLine(0, 0, width, 0, drz::color(255, 255, 255));
+      DrawLine(0, 0, width, 0, Color(255, 255, 255));
       //DrawLine(0, 0, 0, height, drz::color(255, 255, 255));
-      DrawLine(width, 0, width, height, drz::color(255, 255, 255));
-      DrawLine(0, height, width, height, drz::color(255, 255, 255));
+      DrawLine(width, 0, width, height, Color(255, 255, 255));
+      DrawLine(0, height, width, height, Color(255, 255, 255));
     }
 
 

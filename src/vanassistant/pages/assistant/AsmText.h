@@ -1,11 +1,10 @@
 #pragma once
 
-#include <IDrzEngine.h>
 #include "../../../ressources/asmtext.h"
-#include <cstring>
-#include <vector>
 
-using namespace drz;
+#include <cstring>
+#include <string>
+#include <vector>
 
 extern const char asm_text_buffer[];
 

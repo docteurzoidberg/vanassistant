@@ -1,6 +1,7 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
+#include <DrzEngine.h>
 
 #include <cstdint>
 #include <iostream>
@@ -11,8 +12,8 @@ using namespace drz;
 
 class VerticalTextAnimator {
 public:
-  VerticalTextAnimator(IDrzEngine* engine, std::string fontname, uint8_t lineHeight, float typeSpeed, float pauseTime, float cursorBlinkRate, int rectX, int rectY, int rectWidth, int rectHeight, int cursorWidth, int cursorHeight)
-    : engine(engine), fontname(fontname), lineHeight(lineHeight), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate),
+  VerticalTextAnimator(std::string fontname, uint8_t lineHeight, float typeSpeed, float pauseTime, float cursorBlinkRate, int rectX, int rectY, int rectWidth, int rectHeight, int cursorWidth, int cursorHeight)
+    : engine(DrzEngine::Get()), gfx(DrzGraphics::Get()), fontname(fontname), lineHeight(lineHeight), typeSpeed(typeSpeed), pauseTime(pauseTime), cursorBlinkRate(cursorBlinkRate),
       rectX(rectX), rectY(rectY), rectWidth(rectWidth), rectHeight(rectHeight), cursorWidth(cursorWidth), cursorHeight(cursorHeight),
       currentIndex(0), isTyping(false), cursorVisible(true), displayText(true),
       currentLine(0), verticalOffset(0) {
@@ -43,14 +44,14 @@ public:
     UpdateCursorBlink(now);
   }
 
-  void DrawText(color color = WHITE) {
+  void DrawText(Color color = WHITE) {
     if (!displayText) {
       return;
     }
 
     int drawY = rectY - verticalOffset;
 
-    engine->SetFont(fontname);
+    gfx->SetFont(fontname);
 
     for (size_t i = 0; i < drawnLines.size(); ++i) {
 
@@ -59,7 +60,7 @@ public:
       std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight << " i: " << i << " y: " << y << std::endl;
 
       //engine->SetCursorPos(rectX,  drawY + lineHeight * (i+1));
-      engine->DrawText(drawnLines[i], 0, y, color);
+      gfx->DrawText(drawnLines[i], 0, y, color);
 
       //TODO: remove lines as it scrolls off the screen
     }
@@ -68,12 +69,13 @@ public:
     //engine->SetCursorPos(rectX,  drawY+ lineHeight * drawnLines.size());
     auto y = drawY + lineHeight * (drawnLines.size()+1);
     std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight  << " y: " << y << std::endl;
-    engine->DrawText(toDraw, rectX, y, color);
+    gfx->DrawText(toDraw, rectX, y, color);
     DrawCursor(rectX, drawY - cursorHeight + lineHeight * (drawnLines.size()+1), toDraw, color);
   }
 
 private:
   IDrzEngine* engine;
+  IDrzGraphics* gfx;
   std::string fontname;
   std::queue<std::string> textQueue;
   std::string currentText;
@@ -156,14 +158,14 @@ private:
     if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
       //int cursorX = x + toDraw.length() * cursorWidth; // Use cursorWidth
         
-      engine->SetFont(fontname);
+      gfx->SetFont(fontname);
       
-      auto textSize = engine->GetTextBounds(toDraw,x,y);
+      auto textSize = gfx->GetTextBounds(toDraw,x,y);
 
       int cursorX = x + textSize.w+2;
       int cursorY = y;
 
-      engine->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor using specified width and height
+      gfx->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor using specified width and height
     }
   }
 
