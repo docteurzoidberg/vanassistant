@@ -25,7 +25,7 @@ see [TODO] to setup the buildroot directory
 cd ~/vanasssistant
 mkdir build.x11
 cd build.x11
-cmake .. -DPLATFORM=X11 -BACKEND=PGE
+cmake ..
 make
 ```
 
@@ -42,7 +42,7 @@ cd build.x11
 cd ~/vanasssistant
 mkdir build.wasm
 cd build.wasm
-cmake .. -DPLATFORM=WASM -BACKEND=PGE -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/emscripten.cmake
+cmake .. -DPLATFORM=WASM -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/emscripten.cmake
 make 
 ```
 
@@ -61,8 +61,29 @@ Then open [http://localhost:8000/build.wasm/vanassistant.html](http://localhost:
 cd ~/vansssistant
 mkdir build.pi
 cd build.pi
-cmake .. -DPLATFORM=PIOS -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/crosspigcc.cmake
+cmake .. -DPLATFORM=PIOS -CMAKE_TOOLCHAIN_FILE=/home/drzoid/cmake/toolchains/crosspigcc.cmake
 make
+```
+
+To copy the output binary to the raspberry pi zero W on raspbian over ssh (wifi enabled):
+
+First time, make sure to adapt scripts/deploy_pi.sh to fit your networks and ssh and paths
+
+```bash
+cd ~/vansssistant
+nano scripts/deploy_pi.sh
+```
+
+Then run a build again so the script is copied to build's output dir
+
+```bash
+cd build.pios
+make
+```
+Then run the make_img.sh script from the build folder itself
+
+```bash
+./deploy_pi.sh
 ```
 
 ## for the PI Zero on BUILDROOT with direct framebuffer output
@@ -71,14 +92,46 @@ make
 cd ~/vansssistant
 mkdir build.buildroot
 cd build.buildroot
-cmake .. -DPLATFORM=BUILDROOT -BACKEND=FB -CMAKE_TOOLCHAIN_FILE=/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/share/buildroot/toolchainfile.cmake
+cmake .. -DPLATFORM=BUILDROOT -CMAKE_TOOLCHAIN_FILE=/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/share/buildroot/toolchainfile.cmake
 make
 ```
 
-# Testing sam lib locally
+To copy the output binary to buildroot's overlayfs and build the img file:
+
+First time, make sure to adapt scripts/make_img.sh BEFORE your run the build to setup correct paths
+
+```bash
+cd ~/vansssistant
+nano scripts/make_img.sh
+```
+
+Then run a build again so the script is copied to build's output dir
+
+```bash
+cd build.buildroot
+make
+```
+Then run the make_img.sh script from the build folder itself
+
+```bash
+./make_img.sh
+```
+
+# Tinker with sam lib locally
 
 ```bash
 cd samlibs/SAM-master
 make
 ./say Hello world
+```
+
+# Generate new font headers for drzengine
+
+using fontconvert online: #TODO
+(using adafruit's gfx font format)
+
+# Generate raw sprite headers for drzengine
+
+```bash
+python3 scripts/make_sprite_header.py filename.png output.h
 ```

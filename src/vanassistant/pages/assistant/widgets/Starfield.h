@@ -1,6 +1,6 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzEngine.h>
 #include <DrzGraphics.h>
 
 #include <cmath>
@@ -15,7 +15,7 @@ struct star {
 
 class Starfield {
 public:
-  Starfield(uint16_t starcount) : gfx(DrzGraphics::Get()), starcount(starcount) {
+  Starfield(uint16_t starcount) : gfx(DrzGraphics::Get()), engine(DrzEngine::Get()), starcount(starcount) {
     for(int i = 0; i < starcount; i++){
       stars.push_back({
         .x = (float)engine->GetRandomFloat() * gfx->GetScreenWidth(),

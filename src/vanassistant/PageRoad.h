@@ -1,8 +1,6 @@
 #include <DrzGraphics.h>
 #include <DrzInputs.h>
 
-#include <IDrzEngine.h>
-
 #include "DisplayPageManager.h"
 
 #include "pages/road/widgets/SimpleGaugeWidget.h"
@@ -53,8 +51,7 @@ class PageRoad : public DisplayPage {
     }
 
     void Update(float fElapsedTime) override {
-      //TODO
-      gfx->Clear(YELLOW);
+      gfx->Clear(BLACK);
     }
 
     void Render() override {
@@ -66,8 +63,6 @@ class PageRoad : public DisplayPage {
     RoadWidget* road;
     CompassWidget* compass;
 
-    //IDrzEngine* engine;
     IDrzGraphics* gfx;
     IDrzInputs* inputs; 
-
 };

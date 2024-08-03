@@ -59,7 +59,7 @@ class RoadWidget : public Widget {
     void Render() override {
       
       //background
-      gfx->FillRect(screenX, screenY, width, height, BLACK);
+      //gfx->FillRect(screenX, screenY, width, height, BLACK);
 
       //draw grid road
 
@@ -88,7 +88,7 @@ class RoadWidget : public Widget {
         }
       }
 
-      gfx->SetPaintMode(Mode::NORMAL);
+      //gfx->SetPaintMode(Mode::NORMAL);
 
 
       //clear speed value bar area
@@ -103,7 +103,7 @@ class RoadWidget : public Widget {
       //engine->DrawMaskSprite(speedMask, screenX, screenY);
 
       //j7 sprite
-      gfx->SetPaintMode(Mode::MASK);
+      //gfx->SetPaintMode(Mode::ALPHA);
       //gfx->DrawMaskSprite(j7Sprite, screenX + J7offsetX, screenY + J7offsetY);
       gfx->DrawSprite(screenX + J7offsetX, screenY + J7offsetY, j7Sprite);
       gfx->SetPaintMode(Mode::NORMAL);

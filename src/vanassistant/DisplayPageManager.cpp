@@ -1,5 +1,3 @@
-#pragma once 
-
 #include "DisplayPageManager.h"
 
 using namespace drz;
@@ -38,29 +36,30 @@ void DisplayPageManager::GoToPage(DisplayPage* page) {
 }
 
 void DisplayPageManager::ReadInputs() {
-  if(currentPage != nullptr) {
-    currentPage->ReadInputs();
+  if(currentPage == nullptr) {
+    return;  
   }
+  currentPage->ReadInputs();
 }
 
 void DisplayPageManager::Update(float fElapsedTime) {
-  //set isVisible to false for all pages except the current page
-  for (auto page : pages) {
-    for(auto widget : currentPage->GetWidgets()) {
-      widget->Update(fElapsedTime);
-    }
-    page->isVisible = (page == currentPage);
-    page->Update(fElapsedTime);
+  if(currentPage == nullptr) {
+    return;
   }
+  for(auto widget : currentPage->GetWidgets()) {
+    widget->Update(fElapsedTime);
+  }
+  currentPage->Update(fElapsedTime);
 }
 
 void DisplayPageManager::Render() {
-  if(currentPage != nullptr) {
-    for(auto widget : currentPage->GetWidgets()) {
-      if(widget->isVisible) {
-        widget->Render();
-      }
-    }
-    currentPage->Render();
+  if(currentPage == nullptr) {
+    return;
   }
+  for(auto widget : currentPage->GetWidgets()) {
+    if(widget->isVisible) {
+      widget->Render();
+    }
+  }
+  currentPage->Render();
 }

@@ -4,7 +4,10 @@
 #include <cstring>
 #include <iostream>
 
+#include <DrzSerial.h>
 #include <IDrzSerial.h>
+
+using namespace drz;
 
 enum J7PacketType {
   J7_SAY_TEXT = 0,
@@ -56,18 +59,25 @@ struct J7IMUPacketData {
   float gyro_z;
 };
 
+class ISerialProtocolReceiver {
+  public:
+    virtual void ProcessJ7DashboardPacketData(J7DashboardPacketData* data) = 0;
+    virtual void ProcessJ7IMUPacketData(J7IMUPacketData* data) = 0;
+    virtual void ProcessJ7SayTextPacketData(J7SayTextPacketData* data) = 0;
+};
+
 class SerialProtocol {
   public:
 
     char read_buf[256];
 
-    SerialProtocol(IDrzSerial* serial) : serial(serial) {
-      //initialize
+    #pragma region WRITE
+
+    static void Use(ISerialProtocolReceiver* receiver) {
+      SerialProtocol::receiver = receiver;
     }
 
-    #pragma region SEND
-
-    bool SendJ7SayTextPacketData(J7SayTextPacketData* data) {
+    static bool WriteJ7SayTextPacketData(J7SayTextPacketData* data) {
       J7PacketHeader header;
       header.type = J7_SAY_TEXT;
       header.len = sizeof(J7SayTextPacketData);
@@ -78,10 +88,10 @@ class SerialProtocol {
       memcpy(packet + sizeof(J7PacketHeader), data, sizeof(J7SayTextPacketData));
 
       // Send the entire packet
-      return serial->Write(packet, sizeof(packet));
+      return DrzSerial::Get()->Write(packet, sizeof(packet));
     }
 
-    bool SendJ7DashboardPacketData(J7DashboardPacketData* data) {
+    static bool WriteJ7DashboardPacketData(J7DashboardPacketData* data) {
       J7PacketHeader header;
       header.type = J7_DASHBOARD;
       header.len = sizeof(J7DashboardPacketData);
@@ -92,10 +102,10 @@ class SerialProtocol {
       memcpy(packet + sizeof(J7PacketHeader), data, sizeof(J7DashboardPacketData));
 
       // Send the entire packet
-      return serial->Write(packet, sizeof(packet));
+      return DrzSerial::Get()->Write(packet, sizeof(packet));
     }
 
-    bool SendJ7IMUPacketData(J7IMUPacketData* data) {
+    static bool Write7IMUPacketData(J7IMUPacketData* data) {
       J7PacketHeader header;
       header.type = J7_IMU;
       header.len = sizeof(J7IMUPacketData);
@@ -106,12 +116,74 @@ class SerialProtocol {
       memcpy(packet + sizeof(J7PacketHeader), data, sizeof(J7IMUPacketData));
 
       // Send the entire packet
-      return serial->Write(packet, sizeof(packet));
+      return DrzSerial::Get()->Write(packet, sizeof(packet));
     }
     
     #pragma region READ
 
-    bool ReadJ7DashboardPacketData(char* data, J7DashboardPacketData *dashboard_data) {
+    static bool ReadSerial() {
+      std::cout << "SerialProtocol::ReadSerial called" << std::endl;
+
+      IDrzSerial* serial = DrzSerial::Get();
+      if(serial==nullptr) {
+        return false;
+      }
+
+      //parse data
+      J7PacketHeader header;
+      int bytesRead = serial->Read();
+      if(bytesRead<=0) {
+        //no data
+        return false;
+      }
+
+      if (bytesRead < sizeof(J7PacketHeader)) {
+        std::cerr << "Incorrect packet len" << std::endl;
+        return false;
+      }
+
+      if(!ReadHeader(serial->GetReadBuffer(), &header)) {
+        std::cerr << "Failed to read header" << std::endl;
+        return false;
+      }
+
+      switch (header.type) {
+        case J7_IMU: {
+          J7IMUPacketData data;
+          if(ReadJ7IMUPacketData(serial->GetReadBuffer(), &data)) {
+            receiver->ProcessJ7IMUPacketData(&data);
+          } else {
+            std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
+          }
+          break;
+        }
+        case J7_SAY_TEXT: {
+          J7SayTextPacketData data;
+          if(ReadJ7SayTextPacketData(serial->GetReadBuffer(), &data)) {
+            receiver->ProcessJ7SayTextPacketData(&data);
+          } else {
+            std::cerr << "Failed to read J7SayTextPacketData" << std::endl;
+          }
+          break;
+        }
+        case J7_DASHBOARD: { 
+          J7DashboardPacketData data;
+          if(ReadJ7DashboardPacketData(serial->GetReadBuffer(), &data)) {
+            receiver->ProcessJ7DashboardPacketData(&data);
+          } else {
+            std::cerr << "Failed to read J7DashboardPacketData" << std::endl;
+          }
+          break;
+        }
+        default:
+          std::cerr << "Unknown packet type: " << header.type << std::endl;
+          return false;
+          break;
+      }
+      return true;
+    }
+
+    static bool ReadJ7DashboardPacketData(char* data, J7DashboardPacketData *dashboard_data) {
       J7PacketHeader header;
       memcpy(&header, data, sizeof(J7PacketHeader));
       if (header.type != J7_DASHBOARD) { 
@@ -122,7 +194,7 @@ class SerialProtocol {
       return true;
     }
 
-    bool ReadJ7SayTextPacketData(char* data, J7SayTextPacketData *saytext_data) {
+    static bool ReadJ7SayTextPacketData(char* data, J7SayTextPacketData *saytext_data) {
       J7PacketHeader header;
       memcpy(&header, data, sizeof(J7PacketHeader));
       if (header.type != J7_SAY_TEXT) { 
@@ -133,7 +205,7 @@ class SerialProtocol {
       return true;
     }
 
-    bool ReadJ7IMUPacketData(char* data, J7IMUPacketData *imu_data) {
+    static bool ReadJ7IMUPacketData(char* data, J7IMUPacketData *imu_data) {
       J7PacketHeader header;
       memcpy(&header, data, sizeof(J7PacketHeader));
       if (header.type != J7_IMU) { 
@@ -144,15 +216,14 @@ class SerialProtocol {
       return true;
     }
 
-    bool ReadHeader (char* data, J7PacketHeader *header) {
+    static bool ReadHeader (char* data, J7PacketHeader *header) {
       memcpy(header, data, sizeof(J7PacketHeader));
       return true;
     }
 
     #pragma endregion
-    
-
   private:
-    IDrzSerial* serial;
+    inline static ISerialProtocolReceiver* receiver;
 
 };
+

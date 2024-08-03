@@ -1,11 +1,10 @@
 #pragma once
 
-#include <IDrzEngine.h>
-#include <memory>
-
 #include "../../../common/widgets/SceneWidget.h"
 
 #include "../Scout.h"
+
+#include <memory>
 
 class WidgetScoutScene3d : public SceneWidget {
   public:

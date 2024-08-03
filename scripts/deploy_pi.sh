@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#kill the existing process if any
 ssh gringos@gringos.local "killall vanassistant.pios"
 
 #copy the binary to the pi /opt folder

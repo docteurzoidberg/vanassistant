@@ -1,12 +1,11 @@
 #pragma once
 
-#include <DrzEngine.h>
 #include <DrzGraphics.h>
-
 #include <gfx3d.h>
-#include <vector>
 
 #include "../../Widget.h"
+
+#include <vector>
 
 using namespace drz;
 
@@ -18,7 +17,7 @@ enum RenderMode {
 class SceneWidget : public Widget {
 public:
   vec3d vCamera;
-  GFX3D::mat4x4 matProj;
+  Matrix4x4 matProj;
 
   float fFov = 90.0f;
   float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
@@ -33,7 +32,7 @@ public:
     fAspectRatio = (float)width / (float)height;
 
     // Setup projection matrix
-    matProj = GFX3D::Math::Mat_MakeIdentity();
+    matProj = Matrix4x4::Identity();
     matProj.m[0][0] = fAspectRatio * fFovRad;
     matProj.m[1][1] = fFovRad;
     matProj.m[2][2] = fFar / (fFar - fNear);
@@ -59,9 +58,10 @@ public:
 
         // Apply rotationMatrix instead of individual rotations
         auto rotationMatrix = model->rotationMatrix;
-        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[0], triRotated.p[0]);
-        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[1], triRotated.p[1]);
-        GFX3D::Math::Mat_MultiplyVector(rotationMatrix, *tri.p[2], triRotated.p[2]);
+
+        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[0], triRotated.p[0]);
+        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[1], triRotated.p[1]);
+        Matrix4x4::MultiplyVector(rotationMatrix, *tri.p[2], triRotated.p[2]);
 
         // Apply translationMatrix instead of individual translations
         auto translationMatrix = model->translationMatrix;
@@ -118,8 +118,7 @@ public:
 
           // Project triangles from 3D --> 2D
 
-          //triProjected.p[0] = GFX3D::Math::Mat_MultiplyVector(matProj, triTranslated.p);
-
+          //TODO: Fix this
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[0], triProjected.p[0]);
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[1], triProjected.p[1]);
           Matrix4x4::MultiplyVector(matProj, triTranslated.p[2], triProjected.p[2]);
@@ -202,7 +201,7 @@ private:
       ClipAndDrawLine(t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, WHITE);
       ClipAndDrawLine(t.p[2].x, t.p[2].y, t.p[0].x, t.p[0].y, WHITE);
     } else {
-      ClipAndFillTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.col);
+      ClipAndFillTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.color);
     }
   }
 
@@ -239,7 +238,7 @@ private:
     return true;
   }
 
-  void ClipAndFillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, color col) {
+  void ClipAndFillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Color col) {
     // Implement Sutherland-Hodgman polygon clipping algorithm
     std::vector<vec3d> vertices = { {float(x1), float(y1), 0}, {float(x2), float(y2), 0}, {float(x3), float(y3), 0} };
     std::vector<vec3d> clippedVertices;

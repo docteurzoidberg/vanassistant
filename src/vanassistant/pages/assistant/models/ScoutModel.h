@@ -1,6 +1,6 @@
 #pragma once
 
-#include <IDrzEngine.h>
+#include <DrzGraphics.h>
 
 using namespace drz;
 

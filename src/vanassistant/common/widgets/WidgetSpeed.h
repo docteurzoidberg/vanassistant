@@ -4,9 +4,9 @@
 
 #include "../../Widget.h"
 
-using namespace drz;
-
 #include <string>
+
+using namespace drz;
 
 class WidgetSpeed : public Widget {
   public:

@@ -10,24 +10,16 @@
 #include <emscripten/bind.h>
 #endif
 
-#include "VanAssistantApp.h"
+#include "vanassistant/VanAssistantApp.h"
 
 #define SCREEN_W 320
 #define SCREEN_H 240
-
-#include <memory>
 
 using namespace drz;
 
 std::unique_ptr<IDrzEngine> drzenginepge = nullptr;
 
 VanAssistantApp* app = nullptr;
-
-#ifdef _WIN32
-//TODO: include win serial
-#elif __linux__
-//TODO: include linux serial
-#endif
 
 //emscripten exposes the Say function to the javascript
 bool Say(std::string text) {
@@ -37,20 +29,41 @@ bool Say(std::string text) {
 
 int main(int argc, char* argv[]) {
 
-  //TODO: use serial only if serial port is provided
-  //TODO: do not use serial if emscripten
+  //NOTE: emscripten will not use command line arguments, so no serial port will be used
+
+  std::string serialPort = "";
+  for(int i = 0; i < argc; i++) {
+    if(std::string(argv[i]) == "--serial") {
+      serialPort = argv[i+1];
+    }
+  }
+  int serialBauds = 115200;
+  for(int i = 0; i < argc; i++) {
+    if(std::string(argv[i]) == "--bauds") {
+      serialBauds = std::stoi(argv[i+1]);
+    }
+  }
 
   //Engine implementation
   drzenginepge = std::make_unique<DrzEngine_PGE>(SCREEN_W, SCREEN_H, 2);
 
-  #ifdef _WIN32
-  //TODO: include win serial
-  #elif __linux__
-  //TODO: include linux serial
-  #endif
+  auto serial = DrzSerial::Get();
 
+  if(serial==nullptr) {
+    std::cout << "DrzSerial is null" << std::endl;
+    exit(1);
+  }
 
-  app = new VanAssistantApp(/* graphics, serial, input */);
+  if(!serialPort.empty()) {
+    serial->SetPort(serialPort.c_str());
+    serial->SetBaudRate(serialBauds);
+    if(!serial->Setup()) {
+      std::cout << "Serial port setup failed" << std::endl;
+      exit(1);
+    }
+  }
+
+  app = new VanAssistantApp();
   
   DrzEngine::UseApp(app);
   
@@ -65,6 +78,22 @@ int main(int argc, char* argv[]) {
 
 #ifdef _WIN32
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+  // Convert command line to argc and argv
+  int __argc;
+  char** __argv;
+  {
+    LPWSTR* szArglist;
+    int nArgs;
+    szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+    __argc = nArgs;
+    __argv = (char**)malloc(nArgs * sizeof(char*));
+    for (int i = 0; i < nArgs; i++) {
+      int size = wcslen(szArglist[i]) + 1;
+      __argv[i] = (char*)malloc(size);
+      wcstombs(__argv[i], szArglist[i], size);
+    }
+    LocalFree(szArglist);
+  }
   return main(__argc, __argv);
 }
 #endif
