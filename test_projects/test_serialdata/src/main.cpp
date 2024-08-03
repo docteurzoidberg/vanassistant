@@ -1,24 +1,24 @@
-#include <DrzEngine_PGE.h>
 #include <DrzSerial.h>
+#include <DrzSerial_Linux.h>
+#include <IDrzSerial.h>
 
-#include "../../../src/vanassistant/fonts/Solid_Mono8pt7b.h"
 #include "../../../src/vanassistant/SerialProtocol.h"
-
-#include "DrzGraphics.h"
-#include "DrzSerial_Linux.h"
-#include "IDrzSerial.h"
-
-#include <IDrzEngine.h>
 
 #include <cstring>
 #include <iostream>
 #include <string>
+
+#define OLC_PGE_APPLICATION
+#include "olcPixelGameEngine.h"
 
 #define OLC_PGEX_QUICKGUI
 #include "olcPGEX_QuickGUI.h"
 
 #include "Counter.h"
 #include "Gauge.h"
+
+
+using namespace olc;
 
 // Function to round a float up to N decimal places
 std::string strRoundUpToNDecimals(float value, int N) {
@@ -33,37 +33,23 @@ std::string strRoundUpToNDecimals(float value, int N) {
     return stream.str();
 }
 
-class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
+class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
 
   public:
     std::string serial_port="/dev/ttyUSB0";
     std::string baud_rate="115200";
     olc::QuickGUI::Manager guiManager;
 
-    DrzEngine_PGE* drzpge;
-    olc::PixelGameEngine* pge;
-
     TestSerialData(std::string serial_port, int baud_rate) {
-
-      drzpge = new DrzEngine_PGE(640, 480, 1);
-      pge = drzpge->pge;
-    
-      pge->sAppName = serial_port + "@" +  std::to_string(baud_rate);
-
-      gfx = DrzGraphics::Get();
-
-      //Load font
-      gfx->LoadFont("solidmono8", const_cast<font*>(&Solid_Mono8pt7b));
-      gfx->SetFont("solidmono8");
+      sAppName = serial_port + "@" +  std::to_string(baud_rate);
     }
 
     ~TestSerialData() {
+      std::cout << "TestSerialData destructor called" << std::endl;
       //SerialProtocol::Close();
     }
 
-    void Setup() override {
-
-
+    bool OnUserCreate() override {
       //initialize data
       data.fuelgauge = 100;           // 100/255=39%
       data.battery = 134;             // /10 = 134/10=13.4V
@@ -85,24 +71,24 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
 
       SetupGUI();
       DataToGUI();
-
+      return true;
     }
 
-    void Update(float fElapsedTime) override {
+    bool OnUserUpdate(float fElapsedTime) override {
       
 
       // F1: show console
-      if(pge->GetKey(olc::Key::F1).bPressed) {
-        pge->ConsoleShow(olc::Key::ESCAPE, false);
+      if(GetKey(olc::Key::F1).bPressed) {
+        ConsoleShow(olc::Key::ESCAPE, false);
       }
 
       // F: toggle show fps
-      if(pge->GetKey(olc::Key::F).bPressed) {
+      if(GetKey(olc::Key::F).bPressed) {
         drawFPS = !drawFPS;
       }
 
       //M: toggle mask
-      if(pge->GetKey(olc::Key::M).bPressed) {
+      if(GetKey(olc::Key::M).bPressed) {
         drawMask = !drawMask;
       }
 
@@ -158,7 +144,7 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
         } catch (std::invalid_argument& e) {
           std::cerr << "Invalid odometer value" << std::endl;
           guiTextBoxOdometer->sText = sGuiTextBoxOdometerOldValue;
-          guiManager.Update(pge);
+          guiManager.Update((olc::PixelGameEngine*)this);
         }
       }
 
@@ -176,7 +162,7 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
         } catch(std::invalid_argument& e) {
           std::cerr << "Invalid trip value" << std::endl;
           guiTextBoxTrip->sText = sGuiTextBoxTripOldValue;
-          guiManager.Update(pge);
+          guiManager.Update((olc::PixelGameEngine*) this);
         }
       }
 
@@ -238,7 +224,7 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
       }
       // We must update the manager at some point each frame. Values of controls
 		  // are only valid AFTER this call to update()
-      guiManager.Update(pge);
+      guiManager.Update((olc::PixelGameEngine*)this);
 
       if(bGUIDataUpdated) {
         bGUIDataUpdated = false;
@@ -262,10 +248,10 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
       }
 
       //black background
-      pge->Clear(olc::BLACK);
+      Clear(olc::BLACK);
 
       //Draw GUI//draw gui elements
-      guiManager.DrawDecal(pge);
+      guiManager.DrawDecal(this);
       counterTotalDistance->Render(185,164);
       counterDistance->Render(193, 192);
 
@@ -273,27 +259,21 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
       DrawLamps();
 
       //Draw dashboard mask
-      pge->SetPixelMode(olc::Pixel::MASK);
+      SetPixelMode(olc::Pixel::MASK);
       if(drawMask)
-        pge->DrawSprite(30, gfx->GetScreenHeight()-110, sprInstrumentMask);
-      pge->SetPixelMode(olc::Pixel::NORMAL);
+        DrawSprite(30, ScreenHeight()-110, sprInstrumentMask);
+      SetPixelMode(olc::Pixel::NORMAL);
 
       //Draw FPS
       if(drawFPS) {
-        //text size:
-        auto text = std::to_string(pge->GetFPS());
-        auto size = gfx->GetTextBounds(text, 0, 0);
-        gfx->DrawText(text, gfx->GetScreenWidth()-size.w-4, 14, YELLOW);
+        //text size?
+        DrawString(0,0, std::to_string(GetFPS()), olc::YELLOW);
       }
-      
-    }
-
-    bool Command(const std::string& command) override {
-      SendJ7TextData(command);
       return true;
     }
 
-    bool Data(const uint8_t* data, size_t size) override {
+    bool OnConsoleCommand(const std::string& command) override {
+      SendJ7TextData(command);
       return true;
     }
 
@@ -374,7 +354,6 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
 
   private:
     IDrzSerial* serial;
-    IDrzGraphics* gfx;
     SerialProtocol* serialProtocol; 
 
     Counter* counterTotalDistance;
@@ -400,17 +379,17 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
     std::string sGuiTextBoxOdometerOldValue = "";
     std::string sGuiTextBoxTripOldValue = "";
 
-    const Color lampColorOrangeOn = Color(230, 148, 25);
-    const Color lampColorOrangeOff = Color(80, 50, 0);
+    const Pixel lampColorOrangeOn = Pixel(230, 148, 25);
+    const Pixel lampColorOrangeOff = Pixel(80, 50, 0);
 
-    const Color lampColorRedOn = Color(230, 0, 0);
-    const Color lampColorRedOff = Color(80, 0, 0);
+    const Pixel lampColorRedOn = Pixel(230, 0, 0);
+    const Pixel lampColorRedOff = Pixel(80, 0, 0);
 
-    const Color lampColorGreenOn = Color(0, 230, 0);
-    const Color lampColorGreenOff = Color(0, 80, 0);
+    const Pixel lampColorGreenOn = Pixel(0, 230, 0);
+    const Pixel lampColorGreenOff = Pixel(0, 80, 0);
 
-    const Color lampColorBlueOn = Color(0, 0, 230);
-    const Color lampColorBlueOff = Color(0, 0, 80);
+    const Pixel lampColorBlueOn = Pixel(0, 0, 230);
+    const Pixel lampColorBlueOff = Pixel(0, 0, 80);
 
     void LoadSprites() {
       sprCounterSpritesheet = new olc::Sprite("sprites/counterdigits.png");
@@ -428,10 +407,10 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
     void SetupGUI() {
 
 
-      counterTotalDistance = new Counter(pge, 6, sprCounterSpritesheet, {8,10});
+      counterTotalDistance = new Counter(this, 6, sprCounterSpritesheet, {8,10});
       counterTotalDistance->SetCounter(data.odometer);
       
-      counterDistance = new Counter(pge, 4, sprCounterSpritesheet, {8,10});
+      counterDistance = new Counter(this, 4, sprCounterSpritesheet, {8,10});
       counterDistance->SetCounter(data.trip);
 
       float lx = 4.0f;
@@ -737,65 +716,65 @@ class TestSerialData : public IDrzEngineApp, public ISerialProtocolReceiver {
     void DrawLamps() {
       //pre heating
       if(data.lamp_preheat) {
-        gfx->FillRect(250, 130, 24, 24, lampColorOrangeOn);
+        FillRect(250, 130, 24, 24, lampColorOrangeOn);
       } else {
-        gfx->FillRect(250, 130, 24, 24, lampColorOrangeOff);
+        FillRect(250, 130, 24, 24, lampColorOrangeOff);
       }
 
       //alarm
       if(data.lamp_problem) {
-        gfx->FillRect(150, 130, 24, 24, lampColorRedOn);
+        FillRect(150, 130, 24, 24, lampColorRedOn);
       } else {
-        gfx->FillRect(150, 130, 24, 24, lampColorRedOff);
+        FillRect(150, 130, 24, 24, lampColorRedOff);
       }
 
       //warnings
       if(data.lamp_warnings && bLampWarningsBlink) {
-        gfx->FillRect(250, 200, 40, 40, lampColorRedOn);
+        FillRect(250, 200, 40, 40, lampColorRedOn);
       } else {
-        gfx->FillRect(250, 200, 40, 40, lampColorRedOff);
+        FillRect(250, 200, 40, 40, lampColorRedOff);
       }  
 
       //turn signals
       if(data.lamp_turnsignals && bTurnSignalBlink) {
-        gfx->FillRect(98, 200, 28, 12, lampColorGreenOn);
+        FillRect(98, 200, 28, 12, lampColorGreenOn);
       } else {
-        gfx->FillRect(98, 200, 28, 12, lampColorGreenOff);
+        FillRect(98, 200, 28, 12, lampColorGreenOff);
       } 
 
       //not charging
       if(data.lamp_notcharging) {
-        gfx->FillRect(65, 186, 20, 20, lampColorRedOn);
+        FillRect(65, 186, 20, 20, lampColorRedOn);
       } else {
-        gfx->FillRect(65, 186, 20, 20, lampColorRedOff);
+        FillRect(65, 186, 20, 20, lampColorRedOff);
       }
 
       //oil
       if(data.lamp_oil) {
-        gfx->FillRect(135, 186, 20, 20, lampColorRedOn);
+        FillRect(135, 186, 20, 20, lampColorRedOn);
       } else {
-        gfx->FillRect(135, 186, 20, 20, lampColorRedOff);
+        FillRect(135, 186, 20, 20, lampColorRedOff);
       }
 
       //high beam
       if(data.lamp_highbeam) {
-        gfx->FillRect(80, 204, 18, 20, lampColorBlueOn);
+        FillRect(80, 204, 18, 20, lampColorBlueOn);
       } else {
-        gfx->FillRect(80, 204, 18, 20, lampColorBlueOff);
+        FillRect(80, 204, 18, 20, lampColorBlueOff);
       }
 
       //low beam
       if(data.lamp_lowbeam) {
-        gfx->FillRect(122, 204, 18, 20, lampColorGreenOn);
+        FillRect(122, 204, 18, 20, lampColorGreenOn);
       } else {
-        gfx->FillRect(122, 204, 18, 20, lampColorGreenOff);
+        FillRect(122, 204, 18, 20, lampColorGreenOff);
       }
     }
 };
 
 int main(int argc, char* argv[]) {
 
-  std::string serialPort = "";
+  std::string serialPort = "/dev/pts/7";
   for(int i = 0; i < argc; i++) {
     if(std::string(argv[i]) == "--serial") {
       serialPort = argv[i+1];
@@ -830,16 +809,9 @@ int main(int argc, char* argv[]) {
 
   SerialProtocol::Use(app);
 
-  DrzEngine::UseApp(app);
-  
-  //engine setup autodetects engine sub parts
-  DrzEngine::Setup();  
-
-  //Start engine main loop
-  DrzEngine::Start();
-
-  //if (app->Construct(320, 240, 2, 2)) {
-  //  app->Start();
-  //}
+  //pge main
+  if (app->Construct(320, 240, 2, 2)) {
+    app->Start();
+  }
   return 0;
 }

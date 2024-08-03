@@ -18,7 +18,7 @@ LDFLAGS :=
 LDPATHS := $(addprefix -l,$(EXT_LIB))
 
 # Include directories
-INC_DIRS := $(INC) ../../include $(shell find $(SRC) -type d) 
+INC_DIRS := $(INC) ../../include /home/drzoid/dev/drzengine/include $(shell find $(SRC) -type d) 
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # Construct build output and dependency filenames

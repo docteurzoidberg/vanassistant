@@ -3,3 +3,6 @@ obj/
 build.*
 build
 .cache
+_before_*
+lib/_drzengine
+gfx/Sprite-*
