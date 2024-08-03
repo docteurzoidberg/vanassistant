@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0077 NEW)
 
-project(va_serialtest VERSION 0.1.1 LANGUAGES CXX)
+project(va_serialtest VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
