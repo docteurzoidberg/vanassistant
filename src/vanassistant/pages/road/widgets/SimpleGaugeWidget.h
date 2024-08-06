@@ -30,6 +30,10 @@ class SimpleVerticalGaugeWidget : public Widget {
       valueBarWidth = endValueDrawX - startValueDrawX;
     }
 
+    void SetValue(int value) {
+      this->value = value;
+    }
+
     void Load() override {
     }
 

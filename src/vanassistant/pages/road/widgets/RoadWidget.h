@@ -56,6 +56,10 @@ class RoadWidget : public Widget {
       this->pitch = pitch;
     }
 
+    float GetSpeed() {
+      return speed;
+    }
+
     void Render() override {
       
       //background

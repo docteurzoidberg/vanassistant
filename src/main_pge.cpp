@@ -1,3 +1,4 @@
+#include "DrzSerial.h"
 #include <DrzEngine.h>
 #include <DrzEngine_PGE.h>
 
@@ -61,6 +62,8 @@ int main(int argc, char* argv[]) {
       std::cout << "Serial port setup failed" << std::endl;
       exit(1);
     }
+  } else {
+    DrzSerial::Set(nullptr);
   }
 
   app = new VanAssistantApp();

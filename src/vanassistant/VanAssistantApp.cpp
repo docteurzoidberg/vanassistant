@@ -48,13 +48,18 @@ void VanAssistantApp::Setup() {
   //Initialize all display pages and set default page to first one
   DisplayPageManager::Load();
 
-  //Set the serial protocol receiver callbacks
-  SerialProtocol::Use(this);
+  if(DrzSerial::Get()!=nullptr) {
+    std::cout << "DrzSerial is not null" << std::endl;
+    //Set the serial protocol receiver callbacks
+    SerialProtocol::Use(this);  
+  }
 }
 
 void VanAssistantApp::Update(float elapsedTime) {
   //std::cout << "VanAssistantApp::Update called" << std::endl;
-  SerialProtocol::ReadSerial();
+  if(DrzSerial::Get()!=nullptr) {
+    SerialProtocol::ReadSerial();
+  }
   DisplayPageManager::ReadInputs();
   DisplayPageManager::Update(elapsedTime);
   DisplayPageManager::Render();

@@ -15,8 +15,14 @@ using namespace drz;
 class CompassWidget : public Widget {
   public:
 
-    CompassWidget(int screenX, int screenY, int width, int heigth) : Widget(screenX, screenY, width, heigth) {
+    CompassWidget(int screenX, int screenY, int width, int heigth) : Widget(screenX, screenY, width, heigth) {    
+      compassBarSprite = new Sprite(COMPASSBAR_SPRITE_WIDTH, COMPASSBAR_SPRITE_HEIGHT, COMPASSBAR_SPRITE_DATA);
+      compassArrowSpriteSheet = new Sprite( COMPASSARROW_SPRITE_WIDTH, COMPASSARROW_SPRITE_HEIGHT, COMPASSARROW_SPRITE_DATA);
+      compassDirSpriteSheet = new Sprite(COMPASSDIR_SPRITE_WIDTH, COMPASSDIR_SPRITE_HEIGHT, COMPASSDIR_SPRITE_DATA);
+    }
 
+    float GetHeading() {
+      return trueHeading;
     }
 
     void SetHeading(float heading) {
@@ -25,15 +31,13 @@ class CompassWidget : public Widget {
     }
 
     void Load() override {
-      compassBarSprite = new Sprite(COMPASSBAR_SPRITE_WIDTH, COMPASSBAR_SPRITE_HEIGHT, COMPASSBAR_SPRITE_DATA);
-      compassArrowSpriteSheet = new Sprite( COMPASSARROW_SPRITE_WIDTH, COMPASSARROW_SPRITE_HEIGHT, COMPASSARROW_SPRITE_DATA);
-      compassDirSpriteSheet = new Sprite(COMPASSDIR_SPRITE_WIDTH, COMPASSDIR_SPRITE_HEIGHT, COMPASSDIR_SPRITE_DATA);
+      this->SetHeading(0);
     }
 
     void Update(float elapsedTime) override {
-      heading+=elapsedTime*15.0f;
+      //heading+=elapsedTime*15.0f;
       if(heading>720.0f) heading-=360.0f;
-      if(heading<=360.0f) heading+=360.0f;
+      if(heading<360.0f) heading+=360.0f;
     }
 
     void Render() override {

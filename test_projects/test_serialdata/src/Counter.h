@@ -3,10 +3,12 @@
 
 //https://pgetinker.com/s/ndGcN-fvm
 
+//animating each digit only hen changing (wip) https://pgetinker.com/s/ALuoLnaw66f
+
 class Counter {
   public:
     Counter(olc::PixelGameEngine *pge, int digits, olc::Sprite* spritesheet, olc::vi2d digitSpriteSize) : pge(pge), counterDigits(digits), digitSpriteSize(digitSpriteSize), spritesheet(spritesheet) {
-      mySprite = new olc::Sprite(digits*8,10);
+    
     }
     void SetCounter(unsigned int value) {
       counterValue=value;
