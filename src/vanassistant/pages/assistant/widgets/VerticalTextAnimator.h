@@ -154,7 +154,7 @@ private:
     }
   }
 
-  void DrawCursor(int x, int y, const std::string& toDraw, color color) {
+  void DrawCursor(int x, int y, const std::string& toDraw, Color color) {
     if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
       //int cursorX = x + toDraw.length() * cursorWidth; // Use cursorWidth
         

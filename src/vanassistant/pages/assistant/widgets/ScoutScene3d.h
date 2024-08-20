@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../common/widgets/SceneWidget.h"
+#include "../../common/widgets/SceneWidget.h"
 
 #include "../Scout.h"
 

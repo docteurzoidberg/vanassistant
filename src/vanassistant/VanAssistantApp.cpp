@@ -4,11 +4,12 @@
 
 #include "VanAssistantApp.h"
 
-#include "SerialProtocol.h"
 #include "fonts/Solid_Mono8pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
 
+#include "SerialProtocol.h"
 #include "DisplayPageManager.h"
+
 #include "PageRoad.h"
 
 #include <iostream>

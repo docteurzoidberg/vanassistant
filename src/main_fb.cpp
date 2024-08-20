@@ -1,6 +1,7 @@
 #include <DrzEngine.h>
 #include <DrzEngine_FB.h>
 
+#include "DrzSerial.h"
 #include "vanassistant/VanAssistantApp.h"
 
 #define SCREEN_W 320
@@ -58,6 +59,9 @@ int main(int argc, char* argv[]) {
       std::cout << "Serial port setup failed" << std::endl;
       exit(1);
     }
+  } else {
+    //Disable serial if no port is set
+    DrzSerial::Set(nullptr);
   }
   
   app = new VanAssistantApp();

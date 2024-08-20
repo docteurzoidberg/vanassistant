@@ -115,7 +115,7 @@ class AnimatedDigitalCounter {
           currentDigitSettings = digitsSettings.at(iDigitVecIndex);
         }
     
-        int screenOffX = (digitSpriteSize.x+(currentDigitSettings.marginLeft))*(iDigitPos);
+        int screenOffX = ((digitSpriteSize.x+1)*iDigitPos) + (currentDigitSettings.marginLeft);
         int spriteOffY = 180 + (9-iDigit)*digitSpriteSize.y;
 
         for(auto animDigit:animDigits) {
@@ -178,7 +178,7 @@ class DistanceWidget : public Widget {
       counterSpritesheet->SetSampleMode(Sprite::Mode::PERIODIC);
       
       counterTotal = new AnimatedDigitalCounter(gfx, 6, counterSpritesheet, counterDigitMask, {10,18}, {
-        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=1, .bgColor=WHITE},
         {.spriteSheetColumn=1, .bgColor=WHITE},
         {.spriteSheetColumn=1, .bgColor=WHITE},
         {.spriteSheetColumn=1, .bgColor=WHITE},
@@ -189,11 +189,12 @@ class DistanceWidget : public Widget {
       counterTotal->SetCounter(totalDistance);
       
       //counterTrip= new AnimatedDigitalCounter(gfx, 4, counterSpritesheet, counterDigitMask, {10,18},{1,0,0,0}, {WHITE, BLACK, BLACK, BLACK});
-      counterTrip= new AnimatedDigitalCounter(gfx, 4, counterSpritesheet, counterDigitMask, {10,18}, {
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=0, .bgColor=BLACK},
-        {.spriteSheetColumn=0, .bgColor=BLACK},
-        {.spriteSheetColumn=0, .bgColor=BLACK}
+      counterTrip= new AnimatedDigitalCounter(gfx, 5, counterSpritesheet, counterDigitMask, {10,18}, {
+        {.spriteSheetColumn=0, .bgColor=RED, .drawBackground=true, .marginLeft=4},
+        {.spriteSheetColumn=0, .bgColor=BLACK, .drawBackground=false },
+        {.spriteSheetColumn=0, .bgColor=BLACK, .drawBackground=false },
+        {.spriteSheetColumn=0, .bgColor=BLACK, .drawBackground=false },
+        {.spriteSheetColumn=0, .bgColor=BLACK, .drawBackground=false }
       });
       counterTrip->SetCounter(tripDistance*10);
     }
@@ -240,7 +241,7 @@ class DistanceWidget : public Widget {
       gfx->DrawSprite(screenX, screenY, distanceBackSprite);
       
       counterTotal->Render(screenX+3,screenY+5);
-      counterTrip->Render(screenX+3, screenY+32);
+      counterTrip->Render(screenX+10, screenY+32);
     }
 
   private: 

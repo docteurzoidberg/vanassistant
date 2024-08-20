@@ -2,6 +2,7 @@
 #include <IDrzSam.h>
 
 #include "DisplayPageManager.h"
+#include "DrzGraphics.h"
 
 #define NUM_STARS 750
 
@@ -52,10 +53,11 @@ public:
   
   void Load() override { 
 
+    gfx = DrzGraphics::Get();
     engine = DrzEngine::Get();
 
-    if(engine == nullptr) {
-      std::cerr << "Engine is null" << std::endl;
+    if(gfx == nullptr) {
+      std::cerr << "gfx is null" << std::endl;
       exit(1);
     }
   
@@ -65,12 +67,11 @@ public:
 
     // Load widgets
     
-    sceneScout3d = new WidgetScoutScene3d(0, 0, engine->GetScreenWidth(), engine->GetScreenHeight());
+    sceneScout3d = new WidgetScoutScene3d(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight());
     road = new Road();
     starfield = new Starfield(NUM_STARS);
     
     verticalTextAnimator = new VerticalTextAnimator(
-      engine, 
       "solidmono4", 
       8, 
       0.01f, 
@@ -78,20 +79,20 @@ public:
       0.5f,
       2,
       4,
-      engine->GetScreenWidth(), 
-      engine->GetScreenHeight()-30,
+      gfx->GetScreenWidth(), 
+      gfx->GetScreenHeight()-30,
       5,
       8
     );
 
-   
+
     //Setup widgets
 
     //scout
     sceneScout3d->SetJawOpening(0.5f);
 
     //textanimator
-    textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, engine->GetScreenHeight() - 6, engine->GetScreenWidth() - 8, 6, WHITE, true);
+    textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, gfx->GetScreenHeight() - 6, gfx->GetScreenWidth() - 8, 6, WHITE, true);
     textAnimator->QueueText("Hello, I am your assistant.");
     textAnimator->QueueText("I am here to help you.");
     
@@ -123,7 +124,7 @@ public:
   * @param elapsedTime time since the last frame in seconds
   */
   void Update(float elapsedTime) override {
-   
+
     textAnimator->Update(elapsedTime);
     //verticalTextAnimator->Update();
     road->Update(elapsedTime);
@@ -155,12 +156,15 @@ public:
     //faceModel->Render(); 
 
     DrawTitle();
-    DrawFPS( engine->GetFPS());
+    //TODO
+    //DrawFPS( gfx->GetFPS());
   }
 
   bool Say(const std::string& text) {
     textAnimator->QueueText(text);
-    return sam->Say(text);
+    return false;
+    //TODO
+    //return sam->Say(text);
   }
 
   //HELP NEEDED
@@ -192,6 +196,7 @@ public:
 
 private: 
   IDrzEngine* engine;
+  IDrzGraphics* gfx;
   IDrzSam* sam;
 
 
@@ -215,13 +220,13 @@ private:
   void DrawFPS(uint32_t fps) {
     if(bShowFps) {
       //TODO
-      engine->SetFont("solidmono8");
+      gfx->SetFont("solidmono8");
       //engine->SetCursorPos(0, engine->GetScreenHeight()-12);
       auto text = std::to_string(fps);
-      auto textsize = engine->GetTextBounds(text, 0, 0);
-      auto x = engine->GetScreenWidth() - textsize.w - 4;
+      auto textsize = gfx->GetTextBounds(text, 0, 0);
+      auto x = gfx->GetScreenWidth() - textsize.w - 4;
       auto y = 18;
-      engine->DrawText(text, x, y, YELLOW);
+      gfx->DrawText(text, x, y, YELLOW);
     }
   }
 };

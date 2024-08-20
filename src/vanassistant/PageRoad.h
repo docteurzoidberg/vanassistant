@@ -38,7 +38,7 @@ class PageRoad : public DisplayPage {
         gaugeFuel->SetValue(50);
         gaugeTemp->SetValue(84);
         distance->SetTotalDistance(12345);
-        distance->SetTripDistance(123.4);
+        distance->SetTripDistance(0);
         road->SetSpeed(0);
         compass->SetHeading(0);
       }
