@@ -38,7 +38,7 @@ if(DEFINED PLATFORM)
     elseif(${PLATFORM} STREQUAL "BUILDROOT")
         set(BACKEND "FB")
     elseif(${PLATFORM} STREQUAL "PIOS")
-        set(BACKEND "FB")
+        #set(BACKEND "FB")
     endif()
 else()
     message(FATAL_ERROR "Please define the PLATFORM option (e.g., -DPLATFORM=PIOS / -DPLATFORM=WSL / -DPLATFORM=WASM / -DPLATFORM=BUILDROOT)")
@@ -193,9 +193,49 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
 elseif(${PLATFORM} STREQUAL "PIOS") 
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/crosspigcc.cmake)
-    set(PLATFORM_LIBS pthread dl atomic drzenginefb)
-    set(PLATFORM_CXX_FLAGS -O2)
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
+
+    if(${BACKEND} STREQUAL "FB")
+
+        set(PLATFORM_LIBS pthread dl atomic drzenginefb)
+        set(PLATFORM_CXX_FLAGS -O2)
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
+        
+    elseif(${BACKEND} STREQUAL "PGE")
+
+        # Link the drzenginepge library 
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} atomic drzenginepge)
+
+        #taken from Moros1138's CMakeLists.txt <3
+
+        # OpenGL
+        set(OpenGL_GL_PREFERENCE LEGACY)
+        find_package(OpenGL REQUIRED)
+        include_directories(${OpenGL_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
+
+        # X11
+        find_package(X11 REQUIRED)
+        include_directories(${X11_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} X11::X11)
+
+        # Threads
+        find_package(Threads REQUIRED)
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} Threads::Threads)
+        include_directories(${Threads_INCLUDE_DIRS})
+
+        find_package(PNG REQUIRED)
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PNG::PNG)
+        include_directories(${PNG_INCLUDE_DIRS})
+
+        # stdc++fs
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} stdc++fs)
+
+        # dl, for miniaudio
+        target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
+
+    
+    endif()
+
 else()
     message(FATAL_ERROR "Invalid platform: ${PLATFORM}")
 endif()
