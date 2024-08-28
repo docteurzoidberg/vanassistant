@@ -90,8 +90,6 @@ public:
 		std::cout << "SetDecalMode: not implemented" << std::endl;
 	}
 
-
-
 	uint32_t CreateTexture(uint32_t textureIndex, uint32_t h, bool a, bool b) override {
 		// Not implemented
 		std::cout << "CreateTexture: not implemented" << std::endl;
@@ -175,9 +173,11 @@ public:
 
 	void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, olc::Pixel tint) override {
   
+  		//TODO: help me implement this and other drwing methods
+		
 		// Not implemented
 		std::cout << "DrawLayerQuad: not implemented" << std::endl;
-		//TODO: help me implement this
+
 		if (!fbg_instance) return;
 
 		// Calculate the size of the quad
