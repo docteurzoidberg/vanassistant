@@ -6,3 +6,6 @@ build
 _before_*
 lib/_drzengine
 gfx/Sprite-*
+.vscode/browse.vc.db
+.clangd/
+
