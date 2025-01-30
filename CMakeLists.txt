@@ -24,12 +24,14 @@ endif()
 
 # Set the platform to X11 if not specified
 if(NOT DEFINED PLATFORM)
-    set(PLATFORM "X11")
+    set(PLATFORM "LINUX_X11")
 endif()
 
 # Platform-determined backend
 if(DEFINED PLATFORM)
-    if(${PLATFORM} STREQUAL "X11")
+    if(${PLATFORM} STREQUAL "LINUX_X11")
+        set(BACKEND "PGE")
+    elseif(${PLATFORM} STREQUAL "PI_X11")
         set(BACKEND "PGE")
     elseif(${PLATFORM} STREQUAL "WASM")
         set(BACKEND "PGE")
@@ -37,7 +39,9 @@ if(DEFINED PLATFORM)
         set(BACKEND "PGE")
     elseif(${PLATFORM} STREQUAL "BUILDROOT")
         set(BACKEND "FB")
-    elseif(${PLATFORM} STREQUAL "PIOS")
+    elseif(${PLATFORM} STREQUAL "LINUX_FB")
+        set(BACKEND "FB")
+    elseif(${PLATFORM} STREQUAL "PI_FB")
         set(BACKEND "FB")
     endif()
 else()
@@ -45,7 +49,7 @@ else()
 endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
-include_directories(${CMAKE_SOURCE_DIR}/include ${FBGRAPHICS_LIB_DIR}/include ${SAM_LIB_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include ${FBGRAPHICS_LIB_DIR}/include ${SAM_LIB_DIR}/include)
 
 # Others backend specific source files
 if(${BACKEND} STREQUAL "PGE")
@@ -101,15 +105,13 @@ add_executable(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${SOURCES})
 add_subdirectory(${DRZENGINE_LIB_DIR} ${CMAKE_BINARY_DIR}/drzengine_build)
 
 # Select platform libraries and flags
-if(${PLATFORM} STREQUAL "X11")
+if(${PLATFORM} STREQUAL "LINUX_X11")
 
-    #set(PLATFORM_LIBS X11 GL pthread png stdc++fs dl)
-    set(PLATFORM_CXX_FLAGS -O2)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake)
+    set(PLATFORM_CXX_FLAGS -O2)   
 
-    # Link the drzenginepge library 
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
-    
+
     #taken from Moros1138's CMakeLists.txt <3
 
     # OpenGL
@@ -138,11 +140,22 @@ if(${PLATFORM} STREQUAL "X11")
     # dl, for miniaudio
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
 
+elseif(${PLATFORM} STREQUAL "LINUX_FB")  
+    
+    set(PLATFORM_CXX_FLAGS -O2)
+
+    # Threads
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} Threads::Threads)
+    include_directories(${Threads_INCLUDE_DIRS})
+
+    # dl, for miniaudio
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
+
 elseif(${PLATFORM} STREQUAL "WASM")
     #set(PLATFORM_LIBS pthread dl embind)
     set(PLATFORM_CXX_FLAGS -O2 -pthread)
-    # Link the drzenginepge library 
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
+    
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/emscripten.cmake)
 
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} pthread)
@@ -150,9 +163,6 @@ elseif(${PLATFORM} STREQUAL "WASM")
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} embind)
 
 elseif(${PLATFORM} STREQUAL "WIN")
-
-    # Link the drzenginepge library
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
 
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/mingw64.cmake)
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake
@@ -187,17 +197,75 @@ elseif(${PLATFORM} STREQUAL "WIN")
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} -static -static-libgcc -static-libstdc++)
 
 elseif(${PLATFORM} STREQUAL "BUILDROOT") 
-    #set(CMAKE_TOOLCHAIN_FILE "/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/usr/share/buildroot/toolchainfile.cmake")
-    set(PLATFORM_LIBS pthread dl atomic drzenginefb)
+    #use provided CMAKE_TOOLCHAIN_FILE from buildroot's build output
+    #cmake -DCMAKE_TOOLCHAIN_FILE=/home/drzoid/rpi-zero-minimal-buildroot/build_workdir/host/usr/share/buildroot/toolchainfile.cmake
+    
+    set(PLATFORM_LIBS pthread dl atomic)
     set(PLATFORM_CXX_FLAGS -O2)
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
-elseif(${PLATFORM} STREQUAL "PIOS") 
+
+
+        
+elseif(${PLATFORM} STREQUAL "PI_FB") 
+
+    #for cross compiling use CMAKE_TOOLCHAIN_FILE !
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/crosspigcc.cmake)
-    set(PLATFORM_LIBS pthread dl atomic drzenginefb)
+
+    set(PLATFORM_LIBS atomic)
     set(PLATFORM_CXX_FLAGS -O2)
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${PLATFORM_LIBS})
+
+    # Threads
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} Threads::Threads)
+    include_directories(${Threads_INCLUDE_DIRS})
+
+    # dl, for miniaudio
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
+        
+elseif(${PLATFORM} STREQUAL "PI_X11")
+
+    # Link ATOMIC
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} atomic)
+
+    # OpenGL
+    set(OpenGL_GL_PREFERENCE LEGACY)
+    find_package(OpenGL REQUIRED)
+    include_directories(${OpenGL_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
+
+    # X11
+    find_package(X11 REQUIRED)
+    include_directories(${X11_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} X11::X11)
+
+    # Threads
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} Threads::Threads)
+    include_directories(${Threads_INCLUDE_DIRS})
+    
+    # PNG
+    find_package(PNG REQUIRED)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PNG::PNG)
+    include_directories(${PNG_INCLUDE_DIRS})
+
+    # stdc++fs
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} stdc++fs)
+
+    # dl, for miniaudio
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
+
 else()
     message(FATAL_ERROR "Invalid platform: ${PLATFORM}")
+endif()
+
+# Link DrzEngine library
+if(${BACKEND} STREQUAL "PGE")
+    # Link the drzenginepge library 
+    #target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
+elseif(${BACKEND} STREQUAL "FB")
+    # Link the drzenginefb library 
+    #target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginefb)
 endif()
 
 # Set the output file for the project
@@ -219,7 +287,7 @@ else()
 endif()
 
 # Post build commands
-if(${PLATFORM} STREQUAL "PIOS")
+if(${PLATFORM} STREQUAL "PI_FB" OR ${PLATFORM} STREQUAL "PI_X11")
     #copy ssh deploy script to build directory
     add_custom_command(
         TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD

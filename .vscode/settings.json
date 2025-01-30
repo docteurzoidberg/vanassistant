@@ -1,6 +1,11 @@
 {
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "C_Cpp.intelliSenseEngine": "disabled",
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "clangd.arguments": [
-    "--compile-commands-dir=build"  // Adjust the path if your build directory is named differently
-  ]
+  "clangd.arguments": ["-log=verbose", 
+                       "-pretty", 
+                       "--background-index", 
+                       //"--query-driver=/bin/arm-buildroot-linux-gnueabihf-g++", //for cross compile usage
+                       "--compile-commands-dir=build/"]
 }
