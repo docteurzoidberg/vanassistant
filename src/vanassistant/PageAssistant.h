@@ -25,7 +25,7 @@ class PageAssistant : public DisplayPage {
 public:
 
   PageAssistant(IDrzSam* sam) : sam(sam) {}
-  
+  PageAssistant() {}
 
   void ReadInputs() override{
         
@@ -67,9 +67,9 @@ public:
 
     // Load widgets
     
-    sceneScout3d = new WidgetScoutScene3d(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight());
-    road = new Road();
-    starfield = new Starfield(NUM_STARS);
+    sceneScout3d = new WidgetScoutScene3d(0, 0, 320, gfx->GetScreenHeight());
+    //road = new Road();
+    //starfield = new Starfield(NUM_STARS);
     
     verticalTextAnimator = new VerticalTextAnimator(
       "solidmono4", 
@@ -125,9 +125,9 @@ public:
   */
   void Update(float elapsedTime) override {
 
-    textAnimator->Update(elapsedTime);
+    //textAnimator->Update(elapsedTime);
     //verticalTextAnimator->Update();
-    road->Update(elapsedTime);
+    //road->Update(elapsedTime);
     
 
     if(verticalTextAnimator->GetQueueSize() <= 4) {
@@ -136,7 +136,7 @@ public:
       verticalTextAnimator->QueueText(nextLine);
     }
 
-    starfield->Update(elapsedTime);
+    //starfield->Update(elapsedTime);
     sceneScout3d->Update(elapsedTime);
   }
 
@@ -146,16 +146,16 @@ public:
   void Render() override {
 
     //Clear screen
-    //engine->Clear(BLACK);
+    gfx->Clear(BLACK);
     
     //verticalTextAnimator->DrawText();
-    starfield->Render();
+    //starfield->Render();
     //road->Render(); 
     sceneScout3d->Render();
-    textAnimator->Render();
+    //textAnimator->Render();
     //faceModel->Render(); 
 
-    DrawTitle();
+    //DrawTitle();
     //TODO
     //DrawFPS( gfx->GetFPS());
   }

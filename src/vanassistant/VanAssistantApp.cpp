@@ -11,6 +11,7 @@
 #include "DisplayPageManager.h"
 
 #include "PageRoad.h"
+#include "PageAssistant.h"
 
 #include <iostream>
 
@@ -38,16 +39,21 @@ void VanAssistantApp::Setup() {
   //gfx->LoadFont("...", const_cast<font*>(&...));
 
   //Create display pages
-  DisplayPage* roadPage = new PageRoad();
+  DisplayPage* roadPage = new PageRoad(); 
+  DisplayPage* assistantPage = new PageAssistant();
   //DisplayPage* ... = new ...();
 
   //Add all display pages
-  DisplayPageManager::AddPage(roadPage);
+  //DisplayPageManager::AddPage(roadPage);
+  DisplayPageManager::AddPage(assistantPage);
   //DisplayPageManager::AddPage(...);
   //DisplayPageManager::AddPage(...);
 
+  
+
   //Initialize all display pages and set default page to first one
   DisplayPageManager::Load();
+  DisplayPageManager::GoToPage(assistantPage);
 
   if(DrzSerial::Get()!=nullptr) {
     std::cout << "DrzSerial is not null" << std::endl;

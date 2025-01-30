@@ -459,7 +459,7 @@ class ScoutJawModel : public Model {
       }
     }
 };
- 
+
 //3d face model including animated subparts
 class ScoutHeadModel : public Model {
   public:
