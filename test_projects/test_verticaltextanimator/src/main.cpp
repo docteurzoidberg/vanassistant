@@ -1,7 +1,7 @@
-#include <Drz_Engine_PGE.h>
+#include <DrzEngine_PGE.h>
 #include "../../../src/vanassistant/pages/assistant/AsmText.h"
 #include "../../../src/vanassistant/pages/assistant/widgets/VerticalTextAnimator.h"
-#include "../../../src/fonts/Solid_Mono8pt7b.h"
+#include "../../../src/vanassistant/fonts/Solid_Mono8pt7b.h"
 
 
 class TestVerticalTextAnimator : public Drz_PGE_Engine {

@@ -10,6 +10,7 @@
 #include "SerialProtocol.h"
 #include "DisplayPageManager.h"
 
+#include "PageMenu.h"
 #include "PageRoad.h"
 #include "PageAssistant.h"
 
@@ -39,12 +40,14 @@ void VanAssistantApp::Setup() {
   //gfx->LoadFont("...", const_cast<font*>(&...));
 
   //Create display pages
+  DisplayPage* menuPage = new PageMenu();
   DisplayPage* roadPage = new PageRoad(); 
   DisplayPage* assistantPage = new PageAssistant();
   //DisplayPage* ... = new ...();
 
   //Add all display pages
-  //DisplayPageManager::AddPage(roadPage);
+  DisplayPageManager::AddPage(menuPage);
+  DisplayPageManager::AddPage(roadPage);
   DisplayPageManager::AddPage(assistantPage);
   //DisplayPageManager::AddPage(...);
   //DisplayPageManager::AddPage(...);

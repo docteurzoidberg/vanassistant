@@ -32,6 +32,11 @@ void DisplayPageManager::Load() {
 void DisplayPageManager::GoToPage(DisplayPage* page) {
   //TODO: check if page is in pages
   //TODO: program full redraw
+
+  if(currentPage != nullptr) {
+    currentPage->isVisible = false;
+  }
+
   currentPage = page;
 }
 

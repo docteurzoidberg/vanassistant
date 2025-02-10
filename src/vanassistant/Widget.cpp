@@ -61,3 +61,12 @@ void Widget::FillRect(int x, int y, int w, int h, Color c) {
   gfx->FillRect(x_, y_, w, h, c);
 }
 
+//Clear the widget
+void Widget::Clear(Color c) {
+  if(gfx == nullptr) return;
+  gfx->FillRect(screenX, screenY, width, height, c);
+}
+
+void Widget::Clear() {
+  Clear(BLACK);
+}

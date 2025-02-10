@@ -29,7 +29,7 @@ public:
 
   SceneWidget(int x, int y, int width, int height) 
     : Widget(x, y, width, height), gfx(DrzGraphics::Get()) {
-    fAspectRatio = (float)width / (float)height;
+    fAspectRatio = (float)height / (float)width;
 
     // Setup projection matrix
     matProj = Matrix4x4::Identity();

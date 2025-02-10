@@ -168,6 +168,7 @@ elseif(${PLATFORM} STREQUAL "WIN")
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/local.cmake
 
     #set(PLATFORM_LIBS mingw32 SDL2main SDL2 SDL2_image SDL2_ttf SDL2_mixer SDL2_net SDL2_gfx pthread)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
 
     #taken from Moros1138's CMakeLists.txt <3
     # OpenGL

@@ -67,7 +67,7 @@ public:
 
     // Load widgets
     
-    sceneScout3d = new WidgetScoutScene3d(0, 0, 320, gfx->GetScreenHeight());
+    sceneScout3d = new WidgetScoutScene3d(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight());
     //road = new Road();
     //starfield = new Starfield(NUM_STARS);
     
@@ -84,12 +84,14 @@ public:
       5,
       8
     );
-
+    
 
     //Setup widgets
 
+    
+
     //scout
-    sceneScout3d->SetJawOpening(0.5f);
+    //sceneScout3d->SetJawOpening(0.5f);
 
     //textanimator
     textAnimator = new TextAnimator("solidmono8", 0.1f, 1.5f, 0.5f, 8, 16, 4, gfx->GetScreenHeight() - 6, gfx->GetScreenWidth() - 8, 6, WHITE, true);
@@ -116,6 +118,8 @@ public:
     //Say(text2);
     //Say(text3);
     //-- end of TTS test code
+
+    
   }
   
   /**
@@ -125,17 +129,17 @@ public:
   */
   void Update(float elapsedTime) override {
 
-    //textAnimator->Update(elapsedTime);
-    //verticalTextAnimator->Update();
+    textAnimator->Update(elapsedTime);
+    verticalTextAnimator->Update();
     //road->Update(elapsedTime);
     
-
+    
     if(verticalTextAnimator->GetQueueSize() <= 4) {
       //fetch next line from asm text and queue it
       auto nextLine = asmText->GetLine();
       verticalTextAnimator->QueueText(nextLine);
     }
-
+    
     //starfield->Update(elapsedTime);
     sceneScout3d->Update(elapsedTime);
   }
@@ -148,11 +152,11 @@ public:
     //Clear screen
     gfx->Clear(BLACK);
     
-    //verticalTextAnimator->DrawText();
+    verticalTextAnimator->DrawText();
     //starfield->Render();
     //road->Render(); 
-    sceneScout3d->Render();
-    //textAnimator->Render();
+    //sceneScout3d->Render();
+    textAnimator->Render();
     //faceModel->Render(); 
 
     //DrawTitle();
@@ -198,7 +202,6 @@ private:
   IDrzEngine* engine;
   IDrzGraphics* gfx;
   IDrzSam* sam;
-
 
   AsmText* asmText;
   Road* road;

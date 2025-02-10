@@ -36,6 +36,10 @@ namespace drz {
       //Draw rectangle relative to the widget position
       void FillRect(int x, int y, int w, int h, Color c);
 
+      //Clear the widget
+      void Clear(Color c);
+      void Clear();
+
     protected:
       IDrzGraphics* gfx;
   };

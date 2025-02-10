@@ -2,7 +2,7 @@
 
 #include <DrzGraphics.h>
 
-#include "../../Widget.h"
+#include "../../../Widget.h"
 
 #include <string>
 

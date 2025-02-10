@@ -1,11 +1,12 @@
-#include <DrzSerial.h>
-#include <DrzEngine.h>
-#include <DrzEngine_PGE.h>
-
 #ifdef _WIN32
 #include <windows.h>
 #undef DrawText
+#undef SetPort
 #endif
+
+#include <DrzSerial.h>
+#include <DrzEngine.h>
+#include <DrzEngine_PGE.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
