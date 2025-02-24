@@ -5,7 +5,7 @@
 
 #include "../../../Widget.h"
 
-#include "../sprites/distanceback.h"
+#include "../sprites/distanceback2.h"
 #include "../sprites/counterdigits.h"
 #include "../sprites/counterdigitmask.h"
 
@@ -171,19 +171,19 @@ class DistanceWidget : public Widget {
   
   public:
     DistanceWidget(int screenX, int screenY, int width, int heigth) : Widget(screenX, screenY, width, heigth) { 
-      distanceBackSprite = new Sprite(DISTANCEBACK_SPRITE_WIDTH, DISTANCEBACK_SPRITE_HEIGHT, DISTANCEBACK_SPRITE_DATA);
+      distanceBackSprite = new Sprite(DISTANCEBACK2_SPRITE_WIDTH, DISTANCEBACK2_SPRITE_HEIGHT, DISTANCEBACK2_SPRITE_DATA);
       counterSpritesheet = new Sprite(COUNTERDIGITS_SPRITE_WIDTH, COUNTERDIGITS_SPRITE_HEIGHT, COUNTERDIGITS_SPRITE_DATA);
       counterDigitMask = new Sprite(COUNTERDIGITMASK_SPRITE_WIDTH, COUNTERDIGITMASK_SPRITE_HEIGHT, COUNTERDIGITMASK_SPRITE_DATA);
 
       counterSpritesheet->SetSampleMode(Sprite::Mode::PERIODIC);
       
       counterTotal = new AnimatedDigitalCounter(gfx, 6, counterSpritesheet, counterDigitMask, {10,18}, {
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=1, .bgColor=WHITE},
-        {.spriteSheetColumn=1, .bgColor=WHITE}
+        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=0, .bgColor=BLACK},
+        {.spriteSheetColumn=0, .bgColor=BLACK}
       });
       //counterTotal = new AnimatedDigitalCounter(gfx, 6, counterSpritesheet, counterDigitMask, {10,18}, {0,1,1,1,1,1}, {BLACK, WHITE, WHITE, WHITE, WHITE, WHITE});
       counterTotal->SetCounter(totalDistance);
@@ -237,11 +237,13 @@ class DistanceWidget : public Widget {
     }
 
     void Render() override {
+
+      //gfx->FillRect(screenX, screenY, width, height, Color(0,255,255));
       //distance back
       gfx->DrawSprite(screenX, screenY, distanceBackSprite);
       
-      counterTotal->Render(screenX+3,screenY+5);
-      counterTrip->Render(screenX+10, screenY+32);
+      counterTotal->Render(screenX+20,screenY+2);
+      counterTrip->Render(screenX+20+7, screenY+23);
     }
 
   private: 

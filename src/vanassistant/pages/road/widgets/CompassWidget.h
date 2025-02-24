@@ -41,6 +41,9 @@ class CompassWidget : public Widget {
     }
 
     void Render() override {
+      
+      //gfx->FillRect(screenX, screenY, width, height, Color(0,255,255));
+      
       //compass bar background
       gfx->FillRect(screenX+compassBarWidgetX, screenY+compassBarWidgetY, compassBarWidth, compassBarHeight, BLACK);
       //compass bar
@@ -66,21 +69,21 @@ class CompassWidget : public Widget {
     float trueHeading = 0.0f;
 
     //compass bar position relative to the widget
-    const int compassBarWidgetX = 5;
-    const int compassBarWidgetY = 26;
+    const int compassBarWidgetX = 45;
+    const int compassBarWidgetY = 4;
     const int compassBarWidth = 71;
     const int compassBarHeight = 24;
     //compass arrow 
     const int compassArrowWidgetX = 0;
-    const int compassArrowWidgetY = 5;
+    const int compassArrowWidgetY = 16;
     const vi2d compassArrowSize = {24,18};
     //compass direction
-    const int compassDirWidgetX = 60;
-    const int compassDirWidgetY = 5;
+    const int compassDirWidgetX = 22;
+    const int compassDirWidgetY = 16;
     const vi2d compassDirSize = {20,14};
     //compass heading text
-    const int compassHeadingWidgetX = 40;
-    const int compassHeadingWidgetY = 5;
+    const int compassHeadingWidgetX = 20;
+    const int compassHeadingWidgetY = 2;
 
     void DrawArrow() {
       int spriteIndex = (int)(((heading-360.0f)/360.0f)*16);
