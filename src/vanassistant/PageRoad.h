@@ -3,14 +3,20 @@
 
 #include "DisplayPageManager.h"
 
-#include "DrzSerial.h"
+#include "DrzSerial.h"     
+
+#include "pages/common/widgets/Starfield.h"
+
 #include "pages/road/widgets/DistanceWidget.h"
+#include "pages/road/widgets/IconWidget.h"
 #include "pages/road/widgets/SimpleGaugeWidget.h"
 #include "pages/road/widgets/RoadWidget.h"
 #include "pages/road/widgets/CompassWidget.h"
+#include "pages/road/widgets/IconWidget.h"
+#include "pages/road/widgets/SpeedometerWidget.h"
 
-#include "pages/road/sprites/fuelgaugemask.h"
-#include "pages/road/sprites/tempgaugemask.h"
+#include "pages/road/sprites/fuelgaugemask2.h"
+#include "pages/road/sprites/tempgaugemask2.h"
 
 #include <iostream>
 
@@ -19,20 +25,38 @@ using namespace drz::graphics;
 class PageRoad : public DisplayPage {
   public :
 
-    PageRoad() {
+    PageRoad() : DisplayPage("road") {
+
+        //engine = DrzEngine::Get();
+      gfx = DrzGraphics::Get();
+      inputs = DrzInputs::Get();
+
       
       //set semo mode if no serial
       isDemo = DrzSerial::Get() == nullptr;
 
-      gaugeFuel = new SimpleVerticalGaugeWidget(0, 80, 80, 80, 0, 100, 0);
-      gaugeFuel->SetBarRect({36, 19, 24, 48});
+      starfield = new Starfield(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight(), 750);
+
+      gaugeFuel = new SimpleVerticalGaugeWidget(320-40, 33, 38, 53, 0, 100, 0);
+      gaugeFuel->SetBarRect({19, 5, 16, 45});
       
-      gaugeTemp = new SimpleVerticalGaugeWidget(0, 160, 80, 80, 0, 110, 0);
-      gaugeTemp->SetBarRect({36, 19, 24, 48});
+      gaugeTemp = new SimpleVerticalGaugeWidget(320-40, 87, 38, 53, 0, 110, 0);
+      gaugeTemp->SetBarRect({19, 5, 16, 45});
 
       road = new RoadWidget(81, 81, 160, 160);
-      compass = new CompassWidget(121, 0, 80, 80); 
-      distance = new DistanceWidget(240, 0, 80, 80);
+      compass = new CompassWidget(81, 0, 160, 32); 
+
+      distance = new DistanceWidget(0, 60, 88, 42);
+
+      speedometer = new SpeedometerWidget(100, 50, 120, 70);
+      iconPreheat = new IconWidget(2, 240-8-88, 22, 22, true);
+      iconNotcharging = new IconWidget(2, 240-6-66, 22, 22, true);
+      iconOil = new IconWidget(2, 240-4-44, 22, 22, true);
+      iconTurnSignals = new IconWidget(2, 240-2-22, 22, 22, true);
+      iconHighBeam = new IconWidget(295, 240-8-88, 22, 22, true);
+      iconLowBeam = new IconWidget(295, 240-6-66, 22, 22, true);
+      iconWarnings = new IconWidget(295, 240-4-44, 22, 22, true);
+      iconProblem = new IconWidget(295, 240-2-22, 22, 22, true);
 
       if(isDemo) {
         gaugeFuel->SetValue(50);
@@ -42,27 +66,42 @@ class PageRoad : public DisplayPage {
         road->SetSpeed(0);
         compass->SetHeading(0);
       }
-
-      //engine = DrzEngine::Get();
-      gfx = DrzGraphics::Get();
-      inputs = DrzInputs::Get();
     }
 
     void ReadInputs() override {
-      //TODO
-      if(inputs->GetKey(Key::E).isPressed) {
-        std::cout << "E pressed" << std::endl;
+      if(
+        inputs->GetKey(Key::K1).isPressed || 
+        inputs->GetKey(Key::K2).isPressed || 
+        inputs->GetKey(Key::K3).isPressed || 
+        inputs->GetKey(Key::K4).isPressed
+      ) {
+        DisplayPageManager::GoToPage("menu");
       }
     }
 
     void Load() override {
-      gaugeFuel->SetMask(new Sprite(FUELGAUGEMASK_SPRITE_WIDTH, FUELGAUGEMASK_SPRITE_HEIGHT, FUELGAUGEMASK_SPRITE_DATA));
-      gaugeTemp->SetMask(new Sprite(TEMPGAUGEMASK_SPRITE_WIDTH, TEMPGAUGEMASK_SPRITE_HEIGHT, TEMPGAUGEMASK_SPRITE_DATA));
+      gaugeFuel->SetMask(new Sprite(FUELGAUGEMASK2_SPRITE_WIDTH, FUELGAUGEMASK2_SPRITE_HEIGHT, FUELGAUGEMASK2_SPRITE_DATA));
+      gaugeTemp->SetMask(new Sprite(TEMPGAUGEMASK2_SPRITE_WIDTH, TEMPGAUGEMASK2_SPRITE_HEIGHT, TEMPGAUGEMASK2_SPRITE_DATA));
+
+      AddWidget(starfield);
       AddWidget(road);
-      AddWidget(gaugeFuel);
-      AddWidget(gaugeTemp);
       AddWidget(compass);
       AddWidget(distance);
+      AddWidget(gaugeFuel);
+      AddWidget(gaugeTemp);
+      AddWidget(speedometer);
+
+      AddWidget(iconPreheat);
+      AddWidget(iconNotcharging);
+      AddWidget(iconOil);
+      AddWidget(iconTurnSignals);
+      AddWidget(iconHighBeam);
+      AddWidget(iconLowBeam);
+      AddWidget(iconWarnings);
+      AddWidget(iconProblem);
+    }
+
+    void Activate(DisplayPage* lastPage) override {
     }
 
     void Update(float fElapsedTime) override {
@@ -100,6 +139,7 @@ class PageRoad : public DisplayPage {
             currentSpeed = demoMaxSpeed;
           }
           road->SetSpeed(currentSpeed);
+          speedometer->SetSpeed(currentSpeed);
         }
       }
 
@@ -124,11 +164,24 @@ class PageRoad : public DisplayPage {
     }   
 
   private:
+
+    Starfield* starfield;
+    RoadWidget* road;  
+
     SimpleVerticalGaugeWidget* gaugeFuel;
     SimpleVerticalGaugeWidget* gaugeTemp;
-    RoadWidget* road;
     CompassWidget* compass;
     DistanceWidget* distance;
+    SpeedometerWidget* speedometer;
+
+    IconWidget* iconPreheat;
+    IconWidget* iconNotcharging;
+    IconWidget* iconOil;
+    IconWidget* iconTurnSignals;
+    IconWidget* iconHighBeam;
+    IconWidget* iconLowBeam;
+    IconWidget* iconWarnings;
+    IconWidget* iconProblem;
 
     IDrzGraphics* gfx;
     IDrzInputs* inputs; 
@@ -141,14 +194,11 @@ class PageRoad : public DisplayPage {
     float demoIncrementSpeedCurrent = 0.0f;
     float demoIncrementSpeedEvery = 0.1f;
 
-    float demoMaxSpeed = 100.0f;
+    float demoMaxSpeed = 88.0f;
 
     float demoIncrementTotalDistanceCurrent = 0.0f;
     float demoIncrementTotalDistanceEvery = 10.0;
 
     float demoIncrementTripDistanceCurrent = 0.0f;
     float demoIncrementTripDistanceEvery = demoIncrementTotalDistanceEvery / 10.0f;
-
-
-
 };

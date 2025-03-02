@@ -49,6 +49,10 @@ public:
         j++;
       }
     }
+    //remove trailing spaces
+    while (line.back() == ' ') {
+      line.pop_back();
+    }
     lineIndex++;
     if(lineIndex >= lineCount) {
       lineIndex = 0;

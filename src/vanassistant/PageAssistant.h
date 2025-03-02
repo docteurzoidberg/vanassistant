@@ -3,15 +3,16 @@
 
 #include "DisplayPageManager.h"
 #include "DrzGraphics.h"
+#include "DrzInputs.h"
 
 #define NUM_STARS 750
 
-#include "pages/assistant/widgets/Starfield.h" 
+#include "pages/common/widgets/Starfield.h" 
+
 #include "pages/assistant/widgets/TextAnimator.h"
 #include "pages/assistant/widgets/VerticalTextAnimator.h"
 #include "pages/assistant/widgets/Road.h"
 #include "pages/assistant/widgets/ScoutScene3d.h"
-//#include "pages/assistant/widgets/WidgetScoutScene3d.h"
 
 #include "pages/assistant/AsmText.h"
 
@@ -24,12 +25,30 @@ class PageAssistant : public DisplayPage {
 
 public:
 
-  PageAssistant(IDrzSam* sam) : sam(sam) {}
-  PageAssistant() {}
+  PageAssistant(IDrzSam* sam) : sam(sam), DisplayPage("assistant") {
+    gfx = DrzGraphics::Get();
+    engine = DrzEngine::Get();
+    inputs = DrzInputs::Get();
+  }
+  
+  PageAssistant() : DisplayPage("assistant") {
+    gfx = DrzGraphics::Get();
+    engine = DrzEngine::Get();
+    inputs = DrzInputs::Get();
+  }
 
   void ReadInputs() override{
-        
 
+    if(
+      inputs->GetKey(Key::K1).isPressed || 
+      inputs->GetKey(Key::K2).isPressed || 
+      inputs->GetKey(Key::K3).isPressed || 
+      inputs->GetKey(Key::K4).isPressed
+    ) {
+      //PageMenu* pageMenu = (PageMenu*) DisplayPageManager::GetPage("menu");
+      //pageMenu->StartTimer();
+      DisplayPageManager::GoToPage("menu");
+    }
 
     //R: toggle render mode
     //if(GetKey(drz::Key::R).bPressed) {
@@ -45,16 +64,12 @@ public:
     //if(GetKey(olc::Key::DOWN).bPressed) {
     //  vanassistant->DbgPrevTriangle();
     //}
-
   }
 
 
   ///Load assets, initialize variables, etc
   
   void Load() override { 
-
-    gfx = DrzGraphics::Get();
-    engine = DrzEngine::Get();
 
     if(gfx == nullptr) {
       std::cerr << "gfx is null" << std::endl;
@@ -66,30 +81,27 @@ public:
     asmText = new AsmText();
 
     // Load widgets
-    
-    sceneScout3d = new WidgetScoutScene3d(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight());
+
+    starfield = new Starfield(0,0,gfx->GetScreenWidth(), gfx->GetScreenHeight(), NUM_STARS);
     //road = new Road();
-    //starfield = new Starfield(NUM_STARS);
+    sceneScout3d = new WidgetScoutScene3d(0, 0, gfx->GetScreenWidth(), gfx->GetScreenHeight());
     
     verticalTextAnimator = new VerticalTextAnimator(
       "solidmono4", 
-      8, 
-      0.01f, 
-      0.05f, 
-      0.5f,
-      2,
-      4,
+      9, 
+      0.1f, 
+      1.0f, 
+      0.2f,
+      0,
+      0,
       gfx->GetScreenWidth(), 
-      gfx->GetScreenHeight()-30,
+      gfx->GetScreenHeight(),
       5,
-      8
+      6
     );
     
 
-    //Setup widgets
-
-    
-
+  
     //scout
     //sceneScout3d->SetJawOpening(0.5f);
 
@@ -121,6 +133,10 @@ public:
 
     
   }
+
+  void Activate(DisplayPage* lastPage) override {
+
+  }
   
   /**
   * Update assistant's logic, data, etc
@@ -129,7 +145,10 @@ public:
   */
   void Update(float elapsedTime) override {
 
-    textAnimator->Update(elapsedTime);
+    
+    starfield->Update(elapsedTime);
+
+    //textAnimator->Update(elapsedTime);
     verticalTextAnimator->Update();
     //road->Update(elapsedTime);
     
@@ -152,14 +171,14 @@ public:
     //Clear screen
     gfx->Clear(BLACK);
     
+    starfield->Render(); 
     verticalTextAnimator->DrawText();
-    //starfield->Render();
     //road->Render(); 
     //sceneScout3d->Render();
-    textAnimator->Render();
+    //textAnimator->Render();
     //faceModel->Render(); 
 
-    //DrawTitle();
+    DrawTitle();
     //TODO
     //DrawFPS( gfx->GetFPS());
   }
@@ -200,6 +219,7 @@ public:
 
 private: 
   IDrzEngine* engine;
+  IDrzInputs* inputs;
   IDrzGraphics* gfx;
   IDrzSam* sam;
 

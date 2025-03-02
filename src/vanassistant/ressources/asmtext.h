@@ -11,9 +11,7 @@
 #define STRLEN_P(str) strlen(str)
 #endif
 
-const char asm_text_buffer[] PROGMEM_ATTRIBUTE = R"(
-
-;"Frantic Diamonds"
+const char asm_text_buffer[] PROGMEM_ATTRIBUTE = R"(;"Frantic Diamonds"
 ;Written by Six of Style in 6 hours on May 30, 2006
 ;For the 2006 minigame compo.
 ;

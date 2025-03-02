@@ -1,4 +1,6 @@
 #include "DisplayPageManager.h"
+#include <iostream>
+#include <string>
 
 using namespace drz;
 
@@ -27,17 +29,45 @@ void DisplayPageManager::Load() {
   if(pages.size() > 0) {
     currentPage = pages[0];
   }
+  lastPage = nullptr;
+}
+
+DisplayPage* DisplayPageManager::GetPage(std::string name) {
+  for(auto p : pages) {
+    if(p->name == name) {
+      return p;
+    }
+  }
+  return nullptr;
+}
+
+void DisplayPageManager::GoToPage(std::string name) {
+
+  DisplayPage* pageToGo = GetPage(name);
+  if(pageToGo != nullptr) {
+    GoToPage(pageToGo);
+    return;
+  }
+  std::cout << "Page not found: " << name << std::endl;
 }
 
 void DisplayPageManager::GoToPage(DisplayPage* page) {
   //TODO: check if page is in pages
   //TODO: program full redraw
 
+  lastPage = currentPage;
   if(currentPage != nullptr) {
     currentPage->isVisible = false;
   }
-
   currentPage = page;
+  currentPage->isVisible = true;
+  currentPage->Activate(lastPage);
+}
+
+void DisplayPageManager::Back() {
+  if(lastPage != nullptr) {
+    GoToPage(lastPage);
+  }
 }
 
 void DisplayPageManager::ReadInputs() {

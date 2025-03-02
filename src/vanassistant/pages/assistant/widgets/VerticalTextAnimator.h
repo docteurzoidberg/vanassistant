@@ -35,19 +35,26 @@ public:
   }
 
   void Update() {
+    //std::cout << "Textanimator Update" << std::endl;
     auto now = engine->Now();
+    std::cout << "isTyping: " << isTyping << " textQueue empty: " << textQueue.empty() << std::endl;
+    UpdateCursorBlink(now);
     if (isTyping) {
       UpdateTyping(now);
     } else {
       HandlePause(now);
     }
-    UpdateCursorBlink(now);
+    
   }
 
   void DrawText(Color color = WHITE) {
+    
     if (!displayText) {
+      std::cout << "No text to display" << std::endl;
       return;
     }
+
+    std::cout << "DrawText" << std::endl;
 
     int drawY = rectY - verticalOffset;
 
@@ -60,7 +67,7 @@ public:
       std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight << " i: " << i << " y: " << y << std::endl;
 
       //engine->SetCursorPos(rectX,  drawY + lineHeight * (i+1));
-      gfx->DrawText(drawnLines[i], 0, y, color);
+      gfx->DrawText(drawnLines[i], rectX, y, color);
 
       //TODO: remove lines as it scrolls off the screen
     }
@@ -70,7 +77,9 @@ public:
     auto y = drawY + lineHeight * (drawnLines.size()+1);
     std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight  << " y: " << y << std::endl;
     gfx->DrawText(toDraw, rectX, y, color);
-    DrawCursor(rectX, drawY - cursorHeight + lineHeight * (drawnLines.size()+1), toDraw, color);
+
+    //DrawCursor(rectX,  -(lineHeight * (drawnLines.size()+1)), toDraw, color);
+    DrawCursor(rectX,  y-cursorHeight, toDraw, color);
   }
 
 private:
@@ -93,7 +102,7 @@ private:
   bool cursorVisible;
   bool displayText;
   int currentLine;
-  int verticalOffset;
+  int verticalOffset=0;
   int cursorWidth;
   int cursorHeight;
 
@@ -102,6 +111,7 @@ private:
     textQueue.pop();
     currentIndex = 0;
     isTyping = true;
+    displayText = true;
     lastUpdate = engine->Now();
   }
 
@@ -122,12 +132,13 @@ private:
         
         
         // Scroll logic to remove off-screen lines
-        if (currentLine * lineHeight > rectHeight) {
-          verticalOffset = (currentLine * lineHeight) - rectHeight;
-          if (drawnLines.size() * lineHeight > rectHeight) {
+        //if (currentLine * lineHeight > rectHeight) {
+        if((drawnLines.size()+1) * lineHeight > rectHeight) {
+          verticalOffset = ((drawnLines.size()+1) * lineHeight) - rectHeight;
+          //if (drawnLines.size() * lineHeight > rectHeight) {
             drawnLines.erase(drawnLines.begin()); // Remove the first line that has scrolled off
-            verticalOffset -= lineHeight; // Adjust the vertical offset accordingly
-          }
+            //verticalOffset -= lineHeight; // Adjust the vertical offset accordingly
+          //}
         }
         
         //if (currentLine * lineHeight > rectHeight) {
@@ -144,6 +155,8 @@ private:
       } else {
         displayText = false;
       }
+    } else {
+      //draw cursor ?
     }
   }
 
@@ -155,18 +168,24 @@ private:
   }
 
   void DrawCursor(int x, int y, const std::string& toDraw, Color color) {
-    if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
+    //if (cursorVisible) {
+    //if (cursorVisible && (isTyping || (!isTyping && !textQueue.empty()))) {
       //int cursorX = x + toDraw.length() * cursorWidth; // Use cursorWidth
         
       gfx->SetFont(fontname);
       
       auto textSize = gfx->GetTextBounds(toDraw,x,y);
 
+
       int cursorX = x + textSize.w+2;
       int cursorY = y;
 
+      //if()
+
+      std::cout << "cursorX: " << cursorX << " cursorY: " << cursorY << " cursorWidth: " << cursorWidth << " cursorHeight: " << cursorHeight << "toDraw" << toDraw << std::endl;
+
       gfx->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor using specified width and height
-    }
+    //}
   }
 
   std::vector<std::string> SplitTextIntoLines(const std::string& text) {

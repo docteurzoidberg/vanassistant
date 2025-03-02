@@ -61,7 +61,7 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
       data.lamp_preheat = false;
       data.lamp_notcharging = false;
       data.lamp_oil = false;
-      data.lamp_turnsignals = true;
+      data.lamp_turnsignals = false;
       data.lamp_highbeam = false;
       data.lamp_lowbeam = false;
       data.lamp_warnings = false;
@@ -261,7 +261,7 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
       //Draw dashboard mask
       SetPixelMode(olc::Pixel::MASK);
       if(drawMask)
-        DrawSprite(30, ScreenHeight()-110, sprInstrumentMask);
+        DrawSprite(30, 240-110, sprInstrumentMask);
       SetPixelMode(olc::Pixel::NORMAL);
 
       //Draw FPS
@@ -619,6 +619,16 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
         LogJ7IMUPacketData(*data, 0);
     }
 
+    void ProcessVictronSmartShuntData(VictronSmartShuntData* data) override {
+      if(logData)
+        LogVictronSmartShuntData(*data, 0);
+    }
+
+    void ProcessVictronOrionData(VictronOrionData* data) override {
+      if(logData)
+        LogVictronOrionData(*data, 0);
+    }
+
     std::string to_hex(char c) {
       std::stringstream ss;
       ss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
@@ -628,7 +638,7 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
     void LogJ7DashboardPacketData(J7DashboardPacketData data, int way=0) {
 
       std::string wayPrefix = way ? "->" : "<-";
-      std::cout << wayPrefix << (way ? "Sent: " : "Reveived: ") << "J7DashboardPacketData" << std::endl;
+      std::cout << wayPrefix << (way ? "Sent: " : "Received: ") << "J7DashboardPacketData" << std::endl;
 
       //display each data byte as hex
       std::string hexData = "";
@@ -676,7 +686,7 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
 
     void LogJ7SayTextPacketData(J7SayTextPacketData data, int way=0) {
       std::string wayPrefix = way ? "->" : "<-";
-      std::cout << wayPrefix << (way ? "Sent: " : "Reveived: ") << "J7SayTextPacketData" << std::endl;
+      std::cout << wayPrefix << (way ? "Sent: " : "Received: ") << "J7SayTextPacketData" << std::endl;
       std::cout << wayPrefix << "Text: " << data.text << std::endl;
     }
 
@@ -689,6 +699,16 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
       std::cout << wayPrefix << "Gyro X: " << data.gyro_x << std::endl;
       std::cout << wayPrefix << "Gyro Y: " << data.gyro_y << std::endl;
       std::cout << wayPrefix << "Gyro Z: " << data.gyro_z << std::endl;
+    }
+
+    void LogVictronSmartShuntData(VictronSmartShuntData data, int way=0) {
+      std::string wayPrefix = way ? "->" : "<-";
+      std::cout << wayPrefix << (way ? "Sent: " : "Received: ") << "VictronSmartShuntData" << std::endl;
+    }
+
+    void LogVictronOrionData(VictronOrionData data, int way=0) {
+      std::string wayPrefix = way ? "->" : "<-";
+      std::cout << wayPrefix << (way ? "Sent: " : "Received: ") << "VictronOrionData" << std::endl;
     }
 
     void SendJ7DashboardData() {
@@ -810,7 +830,7 @@ int main(int argc, char* argv[]) {
   SerialProtocol::Use(app);
 
   //pge main
-  if (app->Construct(320, 240, 2, 2)) {
+  if (app->Construct(640, 480, 1, 1)) {
     app->Start();
   }
   return 0;

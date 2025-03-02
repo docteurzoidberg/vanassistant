@@ -5,14 +5,19 @@
 #include "VanAssistantApp.h"
 
 #include "fonts/Solid_Mono8pt7b.h"
+#include "fonts/Solid_Mono6pt7b.h"
 #include "fonts/Solid_Mono4pt7b.h"
+#include "fonts/SevenSeg30pt7b.h"
+#include "fonts/B612Mono_Regular6pt7b.h"
 
 #include "SerialProtocol.h"
 #include "DisplayPageManager.h"
 
 #include "PageMenu.h"
 #include "PageRoad.h"
+#include "PagePark.h"
 #include "PageAssistant.h"
+//#include "PageSettings.h"
 
 #include <iostream>
 
@@ -36,19 +41,28 @@ void VanAssistantApp::Setup() {
 
   //Load fonts
   gfx->LoadFont("solidmono8", const_cast<font*>(&Solid_Mono8pt7b));
+  gfx->LoadFont("solidmono6", const_cast<font*>(&Solid_Mono6pt7b));
   gfx->LoadFont("solidmono4", const_cast<font*>(&Solid_Mono4pt7b));
+  gfx->LoadFont("b612mono6", const_cast<font*>(&B612Mono_Regular6pt7b));
+  gfx->LoadFont("sevenseg30",const_cast<font*>(&SevenSeg30pt7b));
+
   //gfx->LoadFont("...", const_cast<font*>(&...));
 
   //Create display pages
   DisplayPage* menuPage = new PageMenu();
   DisplayPage* roadPage = new PageRoad(); 
   DisplayPage* assistantPage = new PageAssistant();
+  DisplayPage* parkPage = new PagePark();
+  //DisplayPage* settingsPage = new PageSettings();
   //DisplayPage* ... = new ...();
 
   //Add all display pages
   DisplayPageManager::AddPage(menuPage);
   DisplayPageManager::AddPage(roadPage);
+  DisplayPageManager::AddPage(parkPage);
   DisplayPageManager::AddPage(assistantPage);
+  //DisplayPageManager::AddPage(settingsPage);
+
   //DisplayPageManager::AddPage(...);
   //DisplayPageManager::AddPage(...);
 
@@ -56,7 +70,7 @@ void VanAssistantApp::Setup() {
 
   //Initialize all display pages and set default page to first one
   DisplayPageManager::Load();
-  DisplayPageManager::GoToPage(assistantPage);
+  //DisplayPageManager::GoToPage(menuPage);
 
   if(DrzSerial::Get()!=nullptr) {
     std::cout << "DrzSerial is not null" << std::endl;
@@ -103,6 +117,16 @@ void VanAssistantApp::ProcessJ7SayTextPacketData(J7SayTextPacketData* data) {
 
 void VanAssistantApp::ProcessJ7DashboardPacketData(J7DashboardPacketData* data) {
   std::cout << "Dashboard packet received" << std::endl;
+  //TODO
+}
+
+void VanAssistantApp::ProcessVictronSmartShuntData(VictronSmartShuntData* data) {
+  std::cout << "Victron Smart Shunt packet received" << std::endl;
+  //TODO
+}
+
+void VanAssistantApp::ProcessVictronOrionData(VictronOrionData* data) {
+  std::cout << "Victron Orion packet received" << std::endl;
   //TODO
 }
 

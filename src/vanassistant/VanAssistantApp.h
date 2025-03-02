@@ -22,6 +22,8 @@ class VanAssistantApp : public IDrzEngineApp, public ISerialProtocolReceiver {
     void ProcessJ7IMUPacketData(J7IMUPacketData* data) override;
     void ProcessJ7SayTextPacketData(J7SayTextPacketData* data) override;
     void ProcessJ7DashboardPacketData(J7DashboardPacketData* data) override;
+    void ProcessVictronSmartShuntData(VictronSmartShuntData* data) override;
+    void ProcessVictronOrionData(VictronOrionData* data) override;
 
   private:
     IDrzGraphics* gfx;

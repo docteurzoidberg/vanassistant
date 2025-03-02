@@ -6,6 +6,7 @@
 
 #include <DrzSerial.h>
 #include <IDrzSerial.h>
+#include <string>
 
 using namespace drz;
 
@@ -13,6 +14,8 @@ enum J7PacketType {
   J7_SAY_TEXT = 0,
   J7_DASHBOARD = 1,
   J7_IMU = 2,
+  VICTRON_SMART_SHUNT = 3,
+  VICTRON_ORION = 4
 };
 
 struct J7PacketHeader {
@@ -62,11 +65,36 @@ struct J7IMUPacketData {
   float mag_z;
 };
 
+struct VictronSmartShuntData {
+  float timeToGo;
+  float battVoltage;
+  float auxVoltage;
+  float battCurrent;
+  float consumedAh;
+  int state;
+  bool alarm;
+  std::string alarmReason;
+}; 
+
+struct VictronOrionData {
+  bool chargerError;
+  int state;
+  bool deviceStateOff; 
+  bool deviceStateFault;
+  float inputVoltage;
+  float outputVoltage;
+  std::string chargerErrorText;
+  std::string deviceStateText; 
+  std::string offReasonText;
+};
+
 class ISerialProtocolReceiver {
   public:
     virtual void ProcessJ7DashboardPacketData(J7DashboardPacketData* data) = 0;
     virtual void ProcessJ7IMUPacketData(J7IMUPacketData* data) = 0;
     virtual void ProcessJ7SayTextPacketData(J7SayTextPacketData* data) = 0;
+    virtual void ProcessVictronSmartShuntData(VictronSmartShuntData* data) = 0;
+    virtual void ProcessVictronOrionData(VictronOrionData* data) = 0;
 };
 
 class SerialProtocol {
@@ -108,7 +136,7 @@ class SerialProtocol {
       return DrzSerial::Get()->Write(packet, sizeof(packet));
     }
 
-    static bool Write7IMUPacketData(J7IMUPacketData* data) {
+    static bool WriteJ7IMUPacketData(J7IMUPacketData* data) {
       J7PacketHeader header;
       header.type = J7_IMU;
       header.len = sizeof(J7IMUPacketData);
@@ -121,11 +149,39 @@ class SerialProtocol {
       // Send the entire packet
       return DrzSerial::Get()->Write(packet, sizeof(packet));
     }
+
+    static bool WriteVictronSmartShuntData(VictronSmartShuntData* data) {
+      J7PacketHeader header;
+      header.type = VICTRON_SMART_SHUNT;
+      header.len = sizeof(VictronSmartShuntData);
+
+      // Create a buffer to hold the entire packet
+      char packet[sizeof(J7PacketHeader) + sizeof(VictronSmartShuntData)];
+      memcpy(packet, &header, sizeof(J7PacketHeader));
+      memcpy(packet + sizeof(J7PacketHeader), data, sizeof(VictronSmartShuntData));
+
+      // Send the entire packet
+      return DrzSerial::Get()->Write(packet, sizeof(packet));
+    }
+
+    static bool WriteVictronOrionData(VictronOrionData* data) {
+      J7PacketHeader header;
+      header.type = VICTRON_ORION;
+      header.len = sizeof(VictronOrionData);
+
+      // Create a buffer to hold the entire packet
+      char packet[sizeof(J7PacketHeader) + sizeof(VictronOrionData)];
+      memcpy(packet, &header, sizeof(J7PacketHeader));
+      memcpy(packet + sizeof(J7PacketHeader), data, sizeof(VictronOrionData));
+
+      // Send the entire packet
+      return DrzSerial::Get()->Write(packet, sizeof(packet));
+    }
     
     #pragma region READ
 
     static bool ReadSerial() {
-      std::cout << "SerialProtocol::ReadSerial called" << std::endl;
+      //std::cout << "SerialProtocol::ReadSerial called" << std::endl;
 
       IDrzSerial* serial = DrzSerial::Get();
       if(serial==nullptr) {
@@ -216,6 +272,28 @@ class SerialProtocol {
         return false;
       }
       memcpy(imu_data, data + sizeof(J7PacketHeader), sizeof(J7IMUPacketData));
+      return true;
+    }
+
+    static bool ReadVictronSmartShuntData(char* data, VictronSmartShuntData *shunt_data) {
+      J7PacketHeader header;
+      memcpy(&header, data, sizeof(J7PacketHeader));
+      if (header.type != VICTRON_SMART_SHUNT) { 
+        std::cerr << "ReadVictronSmartShuntData: Invalid packet type" << std::endl;
+        return false;
+      }
+      memcpy(shunt_data, data + sizeof(J7PacketHeader), sizeof(VictronSmartShuntData));
+      return true;
+    }
+
+    static bool ReadVictronOrionData(char* data, VictronOrionData *orion_data) {
+      J7PacketHeader header;
+      memcpy(&header, data, sizeof(J7PacketHeader));
+      if (header.type != VICTRON_ORION) { 
+        std::cerr << "ReadVictronOrionData: Invalid packet type" << std::endl;
+        return false;
+      }
+      memcpy(orion_data, data + sizeof(J7PacketHeader), sizeof(VictronOrionData));
       return true;
     }
 

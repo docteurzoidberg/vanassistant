@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
   //engine setup autodetects engine sub parts
   DrzEngine::Setup();  
 
+  drzenginepge->SetTitle("VanAssistant");
+
   //Start engine main loop
   DrzEngine::Start();
 

@@ -1,26 +1,32 @@
-#include <DrzEngine_PGE.h>
+#include "DrzEngine.h"
+#include "DrzEngine_PGE.h"
+
 #include "../../../src/vanassistant/pages/assistant/AsmText.h"
 #include "../../../src/vanassistant/pages/assistant/widgets/VerticalTextAnimator.h"
 #include "../../../src/vanassistant/fonts/Solid_Mono8pt7b.h"
 
+#include <memory>
 
-class TestVerticalTextAnimator : public Drz_PGE_Engine {
+using namespace drz;
+
+
+class TestVerticalTextAnimatorApp : public IDrzEngineApp {
   public:
-    TestVerticalTextAnimator() : Drz_PGE_Engine(this) {
-      sAppName = "TestVerticalTextAnimator";
-      //Load font
-      LoadFont("solidmono8", &Solid_Mono8pt7b);
-      SetFont("solidmono8");
+    TestVerticalTextAnimatorApp() {
+      gfx = DrzGraphics::Get();
+      engine = DrzEngine::Get();
+      inputs = DrzInputs::Get();
     }
 
-    bool OnUserCreate() override {
+    //bool OnUserCreate() override {
+    void Setup() override {
 
-      ConsoleCaptureStdOut(true);
+      //ConsoleCaptureStdOut(true);
+      gfx->LoadFont("solidmono8", (font* )&Solid_Mono8pt7b);
 
       asmText = new AsmText();
 
       verticalTextAnimator = new VerticalTextAnimator(
-        this, 
         "solidmono8", 
         20, 
         0.05f, 
@@ -28,8 +34,8 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
         0.2f,
         2,
         4,
-        ScreenWidth(), 
-        ScreenHeight()-30,
+        gfx->GetScreenWidth(), 
+        gfx->GetScreenHeight()-30,
         8,
         14
       ); 
@@ -41,42 +47,57 @@ class TestVerticalTextAnimator : public Drz_PGE_Engine {
       verticalTextAnimator->QueueText("If this were a real emergency, you would be instructed to...");
       verticalTextAnimator->QueueText("Do something.");
       verticalTextAnimator->QueueText("Do something else.");
-
-      return true;
     }
 
-    bool OnUserUpdate(float fElapsedTime) override {
+    void Update(float elapsedTime) override {
 
       // F1: show console
-      if(GetKey(olc::Key::F1).bPressed) {
-        ConsoleShow(olc::Key::ESCAPE, false);
-      }
+      //if(GetKey(olc::Key::F1).bPressed) {
+      //  ConsoleShow(olc::Key::ESCAPE, false);
+      //}
 
       if(verticalTextAnimator->GetQueueSize() < 4) {
         verticalTextAnimator->QueueText(asmText->GetLine());
       }
 
-      Clear(BLACK);
+      gfx->Clear(BLACK);
       verticalTextAnimator->Update();
+      //DrawText(std::to_string(engine->GetFPS()), 4, 14, YELLOW);
+      //return true;v
       verticalTextAnimator->DrawText();
-      DrawText(std::to_string(GetFPS()), 4, 14, YELLOW);
-      return true;
     }
 
-    bool OnConsoleCommand(const std::string& text) override {
-      return true;
+    bool Command(const std::string& command) override {
+      // Implement the Command method
+      return false;
+    }
+
+    bool Data(const uint8_t* data, size_t size) override {
+      // Implement the Data method
+      return false;
     }
 
   private:
     VerticalTextAnimator* verticalTextAnimator;
     AsmText* asmText;
+    IDrzGraphics* gfx;
+    IDrzEngine* engine;
+    IDrzInputs* inputs;
 
 };
 
+std::unique_ptr<IDrzEngine> drzenginepge = nullptr;
+TestVerticalTextAnimatorApp* app;
+
 int main() {
-  TestVerticalTextAnimator app;
-  if (app.Construct(256, 240, 2, 2)) {
-    app.Start();
-  }
-  return 0;
+
+  //Engine implementation
+  drzenginepge = std::make_unique<DrzEngine_PGE>(320, 240, 2);
+
+
+  app = new TestVerticalTextAnimatorApp();
+
+  DrzEngine::UseApp(app);
+  DrzEngine::Setup();
+  DrzEngine::Start();
 }
