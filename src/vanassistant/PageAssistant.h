@@ -51,9 +51,9 @@ public:
     }
 
     //R: toggle render mode
-    //if(GetKey(drz::Key::R).bPressed) {
-    //  ToggleRenderMode();
-   // }
+    if(inputs->GetKey(drz::Key::R).isPressed) {
+      ToggleRenderMode();
+    }
 
     // UP: show next triangle
     //if(GetKey(olc::Key::UP).bPressed) {
@@ -174,7 +174,7 @@ public:
     starfield->Render(); 
     verticalTextAnimator->DrawText();
     //road->Render(); 
-    //sceneScout3d->Render();
+    sceneScout3d->Render();
     //textAnimator->Render();
     //faceModel->Render(); 
 

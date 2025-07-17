@@ -83,8 +83,8 @@ class PageRoad : public DisplayPage {
       gaugeFuel->SetMask(new Sprite(FUELGAUGEMASK2_SPRITE_WIDTH, FUELGAUGEMASK2_SPRITE_HEIGHT, FUELGAUGEMASK2_SPRITE_DATA));
       gaugeTemp->SetMask(new Sprite(TEMPGAUGEMASK2_SPRITE_WIDTH, TEMPGAUGEMASK2_SPRITE_HEIGHT, TEMPGAUGEMASK2_SPRITE_DATA));
 
-      AddWidget(starfield);
-      AddWidget(road);
+      //AddWidget(starfield);
+      //AddWidget(road);
       AddWidget(compass);
       AddWidget(distance);
       AddWidget(gaugeFuel);

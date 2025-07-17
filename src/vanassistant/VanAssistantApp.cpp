@@ -61,7 +61,9 @@ void VanAssistantApp::Setup() {
   DisplayPageManager::AddPage(roadPage);
   DisplayPageManager::AddPage(parkPage);
   DisplayPageManager::AddPage(assistantPage);
-  //DisplayPageManager::AddPage(settingsPage);
+  //DisplayPageManager::AddPage(settingsPage); 
+
+
 
   //DisplayPageManager::AddPage(...);
   //DisplayPageManager::AddPage(...);
@@ -71,6 +73,8 @@ void VanAssistantApp::Setup() {
   //Initialize all display pages and set default page to first one
   DisplayPageManager::Load();
   //DisplayPageManager::GoToPage(menuPage);
+
+  DisplayPageManager::GoToPage(assistantPage);
 
   if(DrzSerial::Get()!=nullptr) {
     std::cout << "DrzSerial is not null" << std::endl;
@@ -93,6 +97,10 @@ void VanAssistantApp::Update(float elapsedTime) {
 bool VanAssistantApp::Command(const std::string& command) {
   std::cout << "VanAssistantApp::Command called" << std::endl;
   std::cout << "Command: " << command << std::endl;
+  PageAssistant* assistantPage = (PageAssistant*) DisplayPageManager::GetPage("assistant");
+  if(assistantPage != nullptr) {
+    return assistantPage->Say(command);
+  }
   return false;
 }
 

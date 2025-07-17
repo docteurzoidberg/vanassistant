@@ -37,7 +37,7 @@ public:
   void Update() {
     //std::cout << "Textanimator Update" << std::endl;
     auto now = engine->Now();
-    std::cout << "isTyping: " << isTyping << " textQueue empty: " << textQueue.empty() << std::endl;
+    //std::cout << "isTyping: " << isTyping << " textQueue empty: " << textQueue.empty() << std::endl;
     UpdateCursorBlink(now);
     if (isTyping) {
       UpdateTyping(now);
@@ -54,7 +54,7 @@ public:
       return;
     }
 
-    std::cout << "DrawText" << std::endl;
+    //std::cout << "DrawText" << std::endl;
 
     int drawY = rectY - verticalOffset;
 
@@ -64,7 +64,7 @@ public:
 
       auto y = drawY + lineHeight * (i+1);
 
-      std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight << " i: " << i << " y: " << y << std::endl;
+      //std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight << " i: " << i << " y: " << y << std::endl;
 
       //engine->SetCursorPos(rectX,  drawY + lineHeight * (i+1));
       gfx->DrawText(drawnLines[i], rectX, y, color);
@@ -75,7 +75,7 @@ public:
     std::string toDraw = currentText.substr(0, currentIndex);
     //engine->SetCursorPos(rectX,  drawY+ lineHeight * drawnLines.size());
     auto y = drawY + lineHeight * (drawnLines.size()+1);
-    std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight  << " y: " << y << std::endl;
+    //std::cout << "drawY: " << drawY << " lineHeight: " << lineHeight  << " y: " << y << std::endl;
     gfx->DrawText(toDraw, rectX, y, color);
 
     //DrawCursor(rectX,  -(lineHeight * (drawnLines.size()+1)), toDraw, color);
@@ -182,7 +182,7 @@ private:
 
       //if()
 
-      std::cout << "cursorX: " << cursorX << " cursorY: " << cursorY << " cursorWidth: " << cursorWidth << " cursorHeight: " << cursorHeight << "toDraw" << toDraw << std::endl;
+      //std::cout << "cursorX: " << cursorX << " cursorY: " << cursorY << " cursorWidth: " << cursorWidth << " cursorHeight: " << cursorHeight << "toDraw" << toDraw << std::endl;
 
       gfx->FillRect(cursorX, cursorY, cursorWidth, cursorHeight, color); // Draw the cursor using specified width and height
     //}

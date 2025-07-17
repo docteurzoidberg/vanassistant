@@ -1,21 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0077 NEW)
 
-project(vanassistant VERSION 0.1.0 LANGUAGES C CXX)
+project(testproject VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD 99)
 
 # Paths to the libraries
 set(DRZENGINE_LIB_DIR /home/drzoid/dev/drzengine)
-set(FBGRAPHICS_LIB_DIR ${CMAKE_SOURCE_DIR}/lib/fb)
-set(SAM_LIB_DIR ${CMAKE_SOURCE_DIR}/lib/sam)
-
-# Some random paths:
-set(BUILDROOT_COPY_DEST_DIR /home/drzoid/rpi-zero-minimal-buildroot/vanassistant_overlay/opt/vanassistant/)
 
 # Set build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -40,7 +34,7 @@ if(DEFINED PLATFORM)
     elseif(${PLATFORM} STREQUAL "BUILDROOT")
         set(BACKEND "PGEFB")
     elseif(${PLATFORM} STREQUAL "LINUX_FB")
-        set(BACKEND "FB")
+        set(BACKEND "PGEFB")
     elseif(${PLATFORM} STREQUAL "PI_FB")
         set(BACKEND "PGEFB")
     endif()
@@ -49,41 +43,26 @@ else()
 endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
-include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include ${FBGRAPHICS_LIB_DIR}/include ${SAM_LIB_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include)
 
 # Others backend specific source files
 if(${BACKEND} STREQUAL "PGE")
-    #Include the olc::pge multiplatform entry point
-    set(SOURCES src/main_pge.cpp)
+    message(STATUS "Building for PGE backend")
 elseif(${BACKEND} STREQUAL "PGEFB")
-    set(SOURCES src/main_pge.cpp)
-elseif(${BACKEND} STREQUAL "FB")
-    #Include the framebuffer's linux only entry point
-    set(SOURCES src/main_fb.cpp)
-
-    #Include the additional FBG's source directories
-    file(GLOB FBG_SOURCES ${FBGRAPHICS_LIB_DIR}/src/*.c)
-    file(GLOB FBG_SOURCES_LODEPNG ${FBGRAPHICS_LIB_DIR}/src/lodepng/*.c)
-    file(GLOB FBG_SOURCES_NANOJPEG ${FBGRAPHICS_LIB_DIR}/src/nanojpeg/*.c)
-
-    list(APPEND SOURCES ${FBG_SOURCES})
-    list(APPEND SOURCES ${FBG_SOURCES_LODEPNG})
-    list(APPEND SOURCES ${FBG_SOURCES_NANOJPEG})
+    message(STATUS "Building for PGEFB backend")
 else()
     if(NOT DEFINED BACKEND)
-        message(FATAL_ERROR "BACKEND is undefined, This should be automatically set when the right platform is set, or should be command-line provided (e.g., -DBACKEND=PGE or -DBACKEND=FB)")
+        message(FATAL_ERROR "BACKEND is undefined, This should be automatically set when the right platform is set, or should be command-line provided (e.g., -DBACKEND=PGE or -DBACKEND=PGEFB)")
     else()
         message(FATAL_ERROR "Invalid backend: ${BACKEND}")
     endif()
 endif()
 
-# List vanassistant's cpp files
-file(GLOB VANSSISTANT_SOURCES src/vanassistant/*.cpp)
-list(APPEND SOURCES ${VANSSISTANT_SOURCES})
+# add src/*.cpp files to SOURCES
+file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-# List Sam's (c) source files
-#file(GLOB SAM_SOURCES ${SAM_LIB_DIR}/src/*.c)
-#list(APPEND SOURCES ${SAM_SOURCES})
+# Add the main.cpp file to the SOURCES list
+list(APPEND SOURCES main.cpp)
 
 # Set DRZENGINE library options to not build tests, examples, or documentation
 set(BUILD_PGEFBLIB OFF)
@@ -97,8 +76,6 @@ if(${BACKEND} STREQUAL "PGE")
     set(BUILD_PGELIB ON)
 elseif(${BACKEND} STREQUAL "PGEFB")
     set(BUILD_PGEFBLIB ON)
-elseif(${BACKEND} STREQUAL "FB")
-    set(BUILD_FBLIB ON)
 else()
     message(FATAL_ERROR "Invalid backend for the DRZENGINE library: ${BACKEND}")
 endif()
@@ -145,17 +122,7 @@ if(${PLATFORM} STREQUAL "LINUX_X11")
     # dl, for miniaudio
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
 
-elseif(${PLATFORM} STREQUAL "LINUX_FB")  
-    
-    set(PLATFORM_CXX_FLAGS -O2)
 
-    # Threads
-    find_package(Threads REQUIRED)
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} Threads::Threads)
-    include_directories(${Threads_INCLUDE_DIRS})
-
-    # dl, for miniaudio
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} dl)
 
 elseif(${PLATFORM} STREQUAL "WASM")
     #set(PLATFORM_LIBS pthread dl embind)
@@ -306,9 +273,6 @@ if(${BACKEND} STREQUAL "PGE")
 elseif(${BACKEND} STREQUAL "PGEFB")
     # Link the drzenginepgefb library 
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepgefb)
-elseif(${BACKEND} STREQUAL "FB")
-    # Link the drzenginefb library 
-    #target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginefb)
 endif()
 
 # Set the output file for the project
@@ -326,34 +290,5 @@ if(${PLATFORM} STREQUAL "WASM")
     )
 else()
     # Set the output name for the other platforms
-    set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES OUTPUT_NAME "vanassistant.${OUTPUTFILE}")
-endif()
-
-# Post build commands
-if(${PLATFORM} STREQUAL "PI_FB" OR ${PLATFORM} STREQUAL "PI_X11")
-    #copy ssh deploy script to build directory
-    add_custom_command(
-        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/scripts/deploy_pi.sh
-            ${CMAKE_BINARY_DIR}/deploy_pi.sh
-        COMMENT "Copying deploy_pi.sh to build directory"
-    )
-elseif(${PLATFORM} STREQUAL "BUILDROOT")
-    #copy binary to buildroot's vanassistant_overlay directory
-    add_custom_command(
-        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_BINARY_DIR}/vanassistant.${OUTPUTFILE}
-            ${BUILDROOT_COPY_DEST_DIR}/vanassistant.${OUTPUTFILE}
-        COMMENT "Copying vanassistant.${OUTPUTFILE} to build directory"
-    )
-    #copy make_img script to build directory
-    add_custom_command(
-        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/scripts/make_img.sh
-            ${CMAKE_BINARY_DIR}/make_img.sh
-        COMMENT "Copying make_img.sh to build directory"
-    )
+    set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.${OUTPUTFILE}")
 endif()
