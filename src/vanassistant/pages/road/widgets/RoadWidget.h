@@ -5,7 +5,7 @@
 #include <DrzGraphics.h>
 #include <cmath>
 
-#include "../../../Widget.h"
+#include <Widget.h>
 
 #include "../sprites/speedmask.h"
 #include "../sprites/j7sprite.h"

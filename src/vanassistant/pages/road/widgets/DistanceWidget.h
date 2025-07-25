@@ -3,7 +3,7 @@
 #include <DrzGraphics.h>
 #include <vector>
 
-#include "../../../Widget.h"
+#include <Widget.h>
 
 #include "../sprites/distanceback2.h"
 #include "../sprites/counterdigits.h"

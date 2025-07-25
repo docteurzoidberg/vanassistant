@@ -3,7 +3,7 @@
 #include <DrzEngine.h>
 #include <DrzGraphics.h>
 
-#include "../../../Widget.h"
+#include <Widget.h>
 
 #include <queue>
 

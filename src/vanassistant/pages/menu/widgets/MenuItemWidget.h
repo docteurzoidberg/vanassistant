@@ -1,9 +1,8 @@
 #pragma once
 
 #include <DrzGraphics.h>
-
-#include "../../../Widget.h"
-#include "DrzInputs.h"
+#include <DrzInputs.h>
+#include <Widget.h>
 
 using namespace drz;
 

@@ -3,7 +3,7 @@
 #include <DrzGraphics.h>
 #include <gfx3d.h>
 
-#include "../../../Widget.h"
+#include <Widget.h>
 
 #include <vector>
 

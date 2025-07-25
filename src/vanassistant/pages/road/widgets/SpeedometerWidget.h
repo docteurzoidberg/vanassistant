@@ -3,8 +3,7 @@
 #include <DrzGraphics.h>
 #include <string>
 
-#include "../../../Widget.h"
-
+#include <Widget.h>
 
 using namespace drz;
 
