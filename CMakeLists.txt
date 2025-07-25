@@ -29,6 +29,7 @@ endif()
 
 # Platform-determined backend
 if(DEFINED PLATFORM)
+    message(STATUS "Platform: ${PLATFORM}")
     if(${PLATFORM} STREQUAL "LINUX_X11")
         set(BACKEND "PGE")
     elseif(${PLATFORM} STREQUAL "PI_X11")
@@ -40,7 +41,7 @@ if(DEFINED PLATFORM)
     elseif(${PLATFORM} STREQUAL "BUILDROOT")
         set(BACKEND "PGEFB")
     elseif(${PLATFORM} STREQUAL "LINUX_FB")
-        set(BACKEND "FB")
+        set(BACKEND "PGEFB")
     elseif(${PLATFORM} STREQUAL "PI_FB")
         set(BACKEND "PGEFB")
     endif()
@@ -49,7 +50,7 @@ else()
 endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
-include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include ${FBGRAPHICS_LIB_DIR}/include ${SAM_LIB_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include ${DRZENGINE_LIB_DIR}/lib/fb/include ${SAM_LIB_DIR}/include)
 
 # Others backend specific source files
 if(${BACKEND} STREQUAL "PGE")
@@ -57,18 +58,6 @@ if(${BACKEND} STREQUAL "PGE")
     set(SOURCES src/main_pge.cpp)
 elseif(${BACKEND} STREQUAL "PGEFB")
     set(SOURCES src/main_pge.cpp)
-elseif(${BACKEND} STREQUAL "FB")
-    #Include the framebuffer's linux only entry point
-    set(SOURCES src/main_fb.cpp)
-
-    #Include the additional FBG's source directories
-    file(GLOB FBG_SOURCES ${FBGRAPHICS_LIB_DIR}/src/*.c)
-    file(GLOB FBG_SOURCES_LODEPNG ${FBGRAPHICS_LIB_DIR}/src/lodepng/*.c)
-    file(GLOB FBG_SOURCES_NANOJPEG ${FBGRAPHICS_LIB_DIR}/src/nanojpeg/*.c)
-
-    list(APPEND SOURCES ${FBG_SOURCES})
-    list(APPEND SOURCES ${FBG_SOURCES_LODEPNG})
-    list(APPEND SOURCES ${FBG_SOURCES_NANOJPEG})
 else()
     if(NOT DEFINED BACKEND)
         message(FATAL_ERROR "BACKEND is undefined, This should be automatically set when the right platform is set, or should be command-line provided (e.g., -DBACKEND=PGE or -DBACKEND=FB)")
@@ -97,8 +86,6 @@ if(${BACKEND} STREQUAL "PGE")
     set(BUILD_PGELIB ON)
 elseif(${BACKEND} STREQUAL "PGEFB")
     set(BUILD_PGEFBLIB ON)
-elseif(${BACKEND} STREQUAL "FB")
-    set(BUILD_FBLIB ON)
 else()
     message(FATAL_ERROR "Invalid backend for the DRZENGINE library: ${BACKEND}")
 endif()
@@ -265,19 +252,25 @@ elseif(${PLATFORM} STREQUAL "PI_FB")
         
 elseif(${PLATFORM} STREQUAL "PI_X11")
 
+    message(STATUS "Linking for Raspberry Pi X11 platform")
+
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
+
     # Link ATOMIC
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} atomic)
 
-    # OpenGL
-    set(OpenGL_GL_PREFERENCE LEGACY)
-    find_package(OpenGL REQUIRED)
-    include_directories(${OpenGL_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
 
     # X11
     find_package(X11 REQUIRED)
     include_directories(${X11_INCLUDE_DIRS})
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} X11::X11)
+
+        # OpenGL
+    set(OpenGL_GL_PREFERENCE LEGACY)
+    find_package(OpenGL REQUIRED)
+    include_directories(${OpenGL_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${OpenGL_LIBRARIES} OpenGL::GL)
+
 
     # Threads
     find_package(Threads REQUIRED)
@@ -302,13 +295,10 @@ endif()
 # Link DrzEngine library
 if(${BACKEND} STREQUAL "PGE")
     # Link the drzenginepge library 
-    #target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
+    target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
 elseif(${BACKEND} STREQUAL "PGEFB")
     # Link the drzenginepgefb library 
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepgefb)
-elseif(${BACKEND} STREQUAL "FB")
-    # Link the drzenginefb library 
-    #target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginefb)
 endif()
 
 # Set the output file for the project
