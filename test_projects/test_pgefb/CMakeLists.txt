@@ -18,9 +18,10 @@ endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
 include_directories(${CMAKE_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_SOURCE_DIR}/../../../drzengine/lib/fb/include)
 
 #set fbgraphics sources from lib/fb/src
-set(FBGRAPHICS_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/fb)
+set(FBGRAPHICS_LIB_DIR ${CMAKE_SOURCE_DIR}/../../../drzengine/lib/fb)
 
 #Include the additional FBG's source directories
 file(GLOB FBG_SOURCES ${FBGRAPHICS_LIB_DIR}/src/*.c)

@@ -830,7 +830,7 @@ int main(int argc, char* argv[]) {
   SerialProtocol::Use(app);
 
   //pge main
-  if (app->Construct(640, 480, 1, 1)) {
+  if (app->Construct(320, 240, 2, 2)) {
     app->Start();
   }
   return 0;

@@ -96,6 +96,7 @@ add_executable(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${SOURCES})
 # Add the DRZENGINE library as external project
 add_subdirectory(${DRZENGINE_LIB_DIR} ${CMAKE_BINARY_DIR}/drzengine_build)
 
+
 # Select platform libraries and flags
 if(${PLATFORM} STREQUAL "LINUX_X11")
 

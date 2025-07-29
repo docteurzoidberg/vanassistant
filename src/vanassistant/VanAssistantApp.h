@@ -5,6 +5,11 @@
 
 #include "SerialProtocol.h"
 
+#include "PageAssistant.h"
+#include "PageMenu.h"
+#include "PageRoad.h"
+#include "PagePark.h"
+
 using namespace drz;
 
 class VanAssistantApp : public IDrzEngineApp, public ISerialProtocolReceiver {
@@ -25,6 +30,11 @@ class VanAssistantApp : public IDrzEngineApp, public ISerialProtocolReceiver {
     void ProcessVictronSmartShuntData(VictronSmartShuntData* data) override;
     void ProcessVictronOrionData(VictronOrionData* data) override;
 
+  protected:
+    PageAssistant *assistantPage = nullptr;
+    PageMenu *menuPage = nullptr;
+    PageRoad *roadPage = nullptr;
+    PagePark *parkPage = nullptr;
   private:
     IDrzGraphics* gfx;
 };
