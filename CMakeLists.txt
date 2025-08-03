@@ -46,7 +46,7 @@ if(DEFINED PLATFORM)
         set(BACKEND "PGEFB")
     endif()
 else()
-    message(FATAL_ERROR "Please define the PLATFORM option (e.g., -DPLATFORM=PIOS / -DPLATFORM=WSL / -DPLATFORM=WASM / -DPLATFORM=BUILDROOT)")
+    message(FATAL_ERROR "Please define the PLATFORM option (e.g., -DPLATFORM=PI_FB / -DPLATFORM=PI_X11 / -DPLATFORM=LINUX_X11 / -DPLATFORM=LINUX_FB / -DPLATFORM=WIN / -DPLATFORM=WASM / -DPLATFORM=BUILDROOT)")
 endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
@@ -55,12 +55,12 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${DRZENGINE_LIB_DIR}/include ${D
 # Others backend specific source files
 if(${BACKEND} STREQUAL "PGE")
     #Include the olc::pge multiplatform entry point
-    set(SOURCES src/main_pge.cpp)
+    set(SOURCES src/main.cpp)
 elseif(${BACKEND} STREQUAL "PGEFB")
-    set(SOURCES src/main_pge.cpp)
+    set(SOURCES src/main.cpp)
 else()
     if(NOT DEFINED BACKEND)
-        message(FATAL_ERROR "BACKEND is undefined, This should be automatically set when the right platform is set, or should be command-line provided (e.g., -DBACKEND=PGE or -DBACKEND=FB)")
+        message(FATAL_ERROR "BACKEND is undefined, This should be automatically set when the right platform is set, or should be command-line provided (e.g., -DBACKEND=PGE or -DBACKEND=PGEFB)")
     else()
         message(FATAL_ERROR "Invalid backend: ${BACKEND}")
     endif()
@@ -87,7 +87,7 @@ if(${BACKEND} STREQUAL "PGE")
 elseif(${BACKEND} STREQUAL "PGEFB")
     set(BUILD_PGEFBLIB ON)
 else()
-    message(FATAL_ERROR "Invalid backend for the DRZENGINE library: ${BACKEND}")
+    message(FATAL_ERROR "Invalid backend for the DRZENGINE library: ${BACKEND} should be PGE or PGEFB")
 endif()
 
 # Define the executable source files
@@ -294,6 +294,7 @@ else()
 endif()
 
 # Link DrzEngine library
+
 if(${BACKEND} STREQUAL "PGE")
     # Link the drzenginepge library 
     target_link_libraries(${PROJECT_NAME}_${BACKEND}_${PLATFORM} drzenginepge)
@@ -321,7 +322,7 @@ else()
 endif()
 
 # Post build commands
-if(${PLATFORM} STREQUAL "PI_FB" OR ${PLATFORM} STREQUAL "PI_X11")
+if(${PLATFORM} STREQUAL "PI_FB")
 
     add_custom_target(deploy
         COMMAND ssh pizerodev "killall vanassistant.pi_fb || true"
@@ -330,6 +331,14 @@ if(${PLATFORM} STREQUAL "PI_FB" OR ${PLATFORM} STREQUAL "PI_X11")
         COMMENT "Déploiement de vanassistant.pi_fb sur le Pi Zero"
     )
 
+elseif(${PLATFORM} STREQUAL "PI_X11")
+
+    add_custom_target(deploy
+        COMMAND ssh pizerodev "killall vanassistant.pi_x11 || true"
+        COMMAND scp ${CMAKE_BINARY_DIR}/vanassistant.pi_fb pizerodev:/opt/vanassistant
+        COMMAND ssh -f pizerodev "sh -c 'cd /opt/vanassistant; nohup ./vanassistant.pi_x11 /dev/ttyAMA0 115200 > /dev/null 2>&1 &'"
+        COMMENT "Déploiement de vanassistant.pi_x11 sur le Pi Zero"
+    )
 
 elseif(${PLATFORM} STREQUAL "BUILDROOT")
     #copy binary to buildroot's vanassistant_overlay directory
@@ -340,16 +349,8 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
             ${BUILDROOT_COPY_DEST_DIR}/vanassistant.${OUTPUTFILE}
         COMMENT "Copying vanassistant.${OUTPUTFILE} to ${BUILDROOT_COPY_DEST_DIR}vanassistant"
     )
-    #copy make_img script to build directory
-    add_custom_command(
-        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/tools/make_img.sh
-            ${CMAKE_BINARY_DIR}/make_img.sh
-        COMMENT "Copying make_img.sh to build directory"
-    )
 
-    add_custom_target(sdimage
+    add_custom_target(image
         COMMAND ${CMAKE_COMMAND} -E echo "Building Buildroot image..."
         COMMAND make -C /home/drzoid/sdk/buildroot -j4
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -358,4 +359,10 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Génère l'image SD via Buildroot"
     )
+
+    set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES ADDITIONAL_CLEAN_FILES
+        "${CMAKE_BINARY_DIR}/vanassistant.sdcard.img"
+    )
+
+
 endif()
