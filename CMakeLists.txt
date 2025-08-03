@@ -15,7 +15,7 @@ set(FBGRAPHICS_LIB_DIR ${CMAKE_SOURCE_DIR}/lib/fb)
 set(SAM_LIB_DIR ${CMAKE_SOURCE_DIR}/lib/sam)
 
 # Some random paths:
-set(BUILDROOT_COPY_DEST_DIR /home/drzoid/rpi-zero-minimal-buildroot/vanassistant_overlay/opt/vanassistant/)
+set(BUILDROOT_COPY_DEST_DIR /home/drzoid/sdk/buildroot/vanassistant_overlay/opt/vanassistant/)
 
 # Set build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -322,14 +322,15 @@ endif()
 
 # Post build commands
 if(${PLATFORM} STREQUAL "PI_FB" OR ${PLATFORM} STREQUAL "PI_X11")
-    #copy ssh deploy script to build directory
-    add_custom_command(
-        TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/scripts/deploy_pi.sh
-            ${CMAKE_BINARY_DIR}/deploy_pi.sh
-        COMMENT "Copying deploy_pi.sh to build directory"
+
+    add_custom_target(deploy
+        COMMAND ssh pizerodev "killall vanassistant.pi_fb || true"
+        COMMAND scp ${CMAKE_BINARY_DIR}/vanassistant.pi_fb pizerodev:/opt/vanassistant
+        COMMAND ssh -f pizerodev "sh -c 'cd /opt/vanassistant; nohup ./vanassistant.pi_fb /dev/ttyAMA0 115200 > /dev/null 2>&1 &'"
+        COMMENT "Déploiement de vanassistant.pi_fb sur le Pi Zero"
     )
+
+
 elseif(${PLATFORM} STREQUAL "BUILDROOT")
     #copy binary to buildroot's vanassistant_overlay directory
     add_custom_command(
@@ -337,14 +338,24 @@ elseif(${PLATFORM} STREQUAL "BUILDROOT")
         COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_BINARY_DIR}/vanassistant.${OUTPUTFILE}
             ${BUILDROOT_COPY_DEST_DIR}/vanassistant.${OUTPUTFILE}
-        COMMENT "Copying vanassistant.${OUTPUTFILE} to build directory"
+        COMMENT "Copying vanassistant.${OUTPUTFILE} to ${BUILDROOT_COPY_DEST_DIR}vanassistant"
     )
     #copy make_img script to build directory
     add_custom_command(
         TARGET ${PROJECT_NAME}_${BACKEND}_${PLATFORM} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/scripts/make_img.sh
+            ${CMAKE_SOURCE_DIR}/tools/make_img.sh
             ${CMAKE_BINARY_DIR}/make_img.sh
         COMMENT "Copying make_img.sh to build directory"
+    )
+
+    add_custom_target(sdimage
+        COMMAND ${CMAKE_COMMAND} -E echo "Building Buildroot image..."
+        COMMAND make -C /home/drzoid/sdk/buildroot -j4
+        COMMAND ${CMAKE_COMMAND} -E copy
+            /home/drzoid/sdk/buildroot/output/images/sdcard.img
+            ${CMAKE_BINARY_DIR}/vanassistant.sdcard.img
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Génère l'image SD via Buildroot"
     )
 endif()
