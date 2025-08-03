@@ -392,16 +392,16 @@ class TestSerialData : public PixelGameEngine, public ISerialProtocolReceiver {
     const Pixel lampColorBlueOff = Pixel(0, 0, 80);
 
     void LoadSprites() {
-      sprCounterSpritesheet = new olc::Sprite("../sprites/counterdigits.png");
-      sprInstrumentMask = new olc::Sprite("../sprites/dashboard_facemask.png");
-      sprLampPreheat.Load("../sprites/lamp_preheat.png");
-      sprLampNotCharging.Load("../sprites/lamp_notcharging.png");
-      sprLampOil.Load("../sprites/lamp_oil.png");
-      sprLampTurnSignals.Load("../sprites/lamp_turnsignals.png");
-      sprLampHighBeam.Load("../sprites/lamp_highbeam.png");
-      sprLampLowBeam.Load("../sprites/lamp_lowbeam.png");
-      sprLampWarnings.Load("../sprites/lamp_warnings.png");
-      sprLampProblem.Load("../sprites/lamp_problem.png");
+      sprCounterSpritesheet = new olc::Sprite("serial-gui/sprites/counterdigits.png");
+      sprInstrumentMask = new olc::Sprite("serial-gui/sprites/dashboard_facemask.png");
+      sprLampPreheat.Load("serial-gui/sprites/lamp_preheat.png");
+      sprLampNotCharging.Load("serial-gui/sprites/lamp_notcharging.png");
+      sprLampOil.Load("serial-gui/sprites/lamp_oil.png");
+      sprLampTurnSignals.Load("serial-gui/sprites/lamp_turnsignals.png");
+      sprLampHighBeam.Load("serial-gui/sprites/lamp_highbeam.png");
+      sprLampLowBeam.Load("serial-gui/sprites/lamp_lowbeam.png");
+      sprLampWarnings.Load("serial-gui/sprites/lamp_warnings.png");
+      sprLampProblem.Load("serial-gui/sprites/lamp_problem.png");
     }
 
     void SetupGUI() {

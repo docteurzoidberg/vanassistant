@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0077 NEW)
 
-project(va_serialtest VERSION 0.1.0 LANGUAGES CXX)
+project(serialgui VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS -O2)
 
 # Paths to the libraries
 set(DRZENGINE_LIB_DIR /home/drzoid/dev/drzengine)
+set(VANASSISTANT_DIR /home/drzoid/dev/vanassistant)
 
 # Set build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -18,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Include the global include directory + the FBGraphics and SAM include directories
-include_directories(${CMAKE_SOURCE_DIR}/../../include ${DRZENGINE_LIB_DIR}/include)
+include_directories(${VANASSISTANT_DIR}/include ${DRZENGINE_LIB_DIR}/include)
 
 set(SOURCES src/main.cpp)
 
