@@ -12,6 +12,8 @@
 
 using namespace drz;
 
+#include "../../src/vanassistant/pages/menu/models/J7Model.h" // Include the J7Model header
+
 //Base class to load a 3d model
 class ModelA {
   public:
@@ -248,16 +250,17 @@ class TestApp: public IDrzEngineApp {
     void Setup() {
       std::cout << "TestApp::Setup called" << std::endl;
 
-      j7model = new J7Model();
+      //j7model = new J7Model();
+      j7bodymodel = new J7BodyModel();
 
       //LoadOBJFile(model, "J7.obj", false);
       //SaveLBJHFile(model, "J7");
 
-      for (auto &tri : j7model->tris)
-      {
-          std::swap(tri.p[0], tri.p[2]);
-          //std::swap(tri.t[0], tri.t[2]);
-      }
+      //for (auto &tri : j7model->tris)
+      //{
+      //    std::swap(tri.p[0], tri.p[2]);
+      //    //std::swap(tri.t[0], tri.t[2]);
+      // }
       drz::GFX3D::ConfigureDisplay(gfx);
       renderer.SetProjection(90.0f, (float)gfx->GetScreenHeight() / (float)gfx->GetScreenWidth(), 0.1f, 1000.0f, 0.0f, 0.0f, gfx->GetScreenWidth(), gfx->GetScreenHeight());
     }
@@ -290,13 +293,50 @@ class TestApp: public IDrzEngineApp {
 
       gfx->Clear(drz::DARK_CYAN);
 
-      drz::GFX3D::ClearDepth(gfx);
+      drz::GFX3D::ClearDepth();
       renderer.SetTransform(matWorld);
       renderer.SetLightSource(1, drz::GFX3D::LIGHTS::LIGHT_DIRECTIONAL, drz::WHITE, vSun);
 
-      j7model->rotationMatrix = matRotateY;
+      //j7model->rotationMatrix = matRotateY;
 
-      renderer.Render(j7model->tris, drz::GFX3D::RENDERFLAGS::RENDER_FLAT|drz::GFX3D::RENDERFLAGS::RENDER_DEPTH|drz::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
+      //convert triangleref to gfx3d::triangle
+      std::vector<GFX3D::triangle> triangles;
+      for (auto &tri : j7bodymodel->tris) {
+        GFX3D::triangle gfxTri;
+        GFX3D::vec3d p0;
+        GFX3D::vec3d p1;
+        GFX3D::vec3d p2;
+
+        p0.x = tri.p[0]->x;
+        p0.y = tri.p[0]->y;
+        p0.z = tri.p[0]->z;
+
+        p1.x = tri.p[1]->x;
+        p1.y = tri.p[1]->y;
+        p1.z = tri.p[1]->z;
+
+        p2.x = tri.p[2]->x;
+        p2.y = tri.p[2]->y;
+        p2.z = tri.p[2]->z;
+
+        gfxTri.p[0] = p2;
+        gfxTri.p[1] = p1;
+        gfxTri.p[2] = p0;
+
+        gfxTri.t[0] = {0, 0, 0};
+        gfxTri.t[1] = {0, 0, 0};
+        gfxTri.t[2] = {0, 0, 0};
+
+        gfxTri.col[0] = drz::WHITE;
+        gfxTri.col[1] = drz::WHITE;
+        gfxTri.col[2] = drz::WHITE;
+
+        triangles.push_back(gfxTri);
+      }
+      
+      renderer.Render(triangles, drz::GFX3D::RENDERFLAGS::RENDER_FLAT|drz::GFX3D::RENDERFLAGS::RENDER_DEPTH|drz::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
+
+      //renderer.Render(j7model->tris, drz::GFX3D::RENDERFLAGS::RENDER_FLAT|drz::GFX3D::RENDERFLAGS::RENDER_DEPTH|drz::GFX3D::RENDERFLAGS::RENDER_LIGHTS);
         //renderer.Render(model.tris, olc::GFX3D::RENDERFLAGS::RENDER_WIRE|olc::GFX3D::RENDERFLAGS::RENDER_DEPTH|olc::GFX3D::RENDER_CULL_CW);
 
     }
@@ -313,6 +353,7 @@ class TestApp: public IDrzEngineApp {
     }
 
     J7Model* j7model;
+    J7BodyModel* j7bodymodel;
     IDrzGraphics* gfx;
     drz::GFX3D::mesh model;
     drz::GFX3D::PipeLine renderer;
