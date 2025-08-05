@@ -8,4 +8,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_subdirectory(object-to-header)
 add_subdirectory(serial-gui)
 add_subdirectory(png-to-header)
+add_subdirectory(font-to-header)
+add_subdirectory(obj-viewer)
 # etc...
