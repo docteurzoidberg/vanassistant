@@ -59,6 +59,23 @@ d'environnement personnel (dotfiles, PATH…).
   statut du bloc `{ … }`, c'est-à-dire celui du `set +x` final (toujours 0) :
   aucune cible ne pouvait être signalée en échec. Bloc converti en sous-shell
   `( … )` avec `set -ex`, le statut est celui du `cmake --build`.
+- **`README.md` remis d'aplomb** — les instructions de build étaient fausses sur
+  plusieurs points, chacun vérifié contre `CMakeLists.txt` et l'arbre :
+  - `-DPLATFORM=PIOS` n'existe pas (plateformes valides : `LINUX_X11`,
+    `LINUX_FB`, `PI_X11`, `PI_FB`, `BUILDROOT`, `WASM`, `WIN`) → `PI_FB`.
+  - `-CMAKE_TOOLCHAIN_FILE` (simple tiret, donc ignoré par cmake) → `-D…`,
+    et suppression du toolchain file côté WASM, qu'`emcmake` fournit déjà.
+  - `wasm/serve.py` → `wasmserve.py` ; ajout de la raison d'être du serveur
+    (COOP/COEP pour `SharedArrayBuffer`, MIME `application/wasm`).
+  - `./vanassistant.x11` → `./vanassistant.linux_x11` ; ajout de la règle de
+    nommage `vanassistant.<platform en minuscules>` et du tableau des cibles.
+  - `scripts/deploy_pi.sh` et `scripts/make_img.sh` : le dossier `scripts/`
+    n'existe pas → remplacés par les cibles `make deploy` et `make image`
+    réellement définies dans `CMakeLists.txt`.
+  - `scripts/make_sprite_header.py` → `tools/make_sprite_header.py`.
+  - Ajout des sections manquantes (`LINUX_FB`, `WIN`), de la construction des
+    outils `tools/`, et des renvois vers les wrappers `.claude/scripts/`.
+  - Chemins `~/vanasssistant` / `~/vansssistant` → `~/dev/vanassistant`.
 
 ---
 
