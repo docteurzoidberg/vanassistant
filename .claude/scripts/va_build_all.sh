@@ -178,14 +178,18 @@ _build_one() {
     mkdir -p "$build_dir"
 
     log "$target : configure + build → $build_dir (log : $log_file)"
-    {
+    # Sous-shell (et non { }) pour deux raisons :
+    #   - le statut retourné est celui de la dernière commande réelle (cmake --build),
+    #     alors qu'un « set +x » final masquait tout échec derrière son propre rc=0 ;
+    #   - « set -ex » reste confiné au sous-shell, donc pas besoin de le désactiver
+    #     et le configure qui échoue court-circuite le build.
+    (
         echo "=== $(date -Iseconds) — $target ==="
         echo "PLATFORM=${TARGETS[$target]}"
-        set -x
+        set -ex
         eval "$(cmake_cmd_for "$target" "$build_dir")"
         cmake --build "$build_dir" -j"$(nproc_safe)"
-        set +x
-    } >"$log_file" 2>&1
+    ) >"$log_file" 2>&1
 
     local rc=$?
     if [ $rc -eq 0 ]; then

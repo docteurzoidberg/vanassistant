@@ -90,6 +90,15 @@ else()
     message(FATAL_ERROR "Invalid backend for the DRZENGINE library: ${BACKEND} should be PGE or PGEFB")
 endif()
 
+# Emscripten needs its ports (libpng) and -pthread at COMPILE time, not only at
+# link time: without -sUSE_LIBPNG=1 the port is never built and <png.h> is not on
+# the include path, and -pthread changes the ABI so every object must agree.
+# add_compile_options() is inherited by add_subdirectory(), so this also covers
+# the DRZENGINE library added below — target_compile_options() would not.
+if(${PLATFORM} STREQUAL "WASM")
+    add_compile_options(-pthread -sUSE_LIBPNG=1)
+endif()
+
 # Define the executable source files
 add_executable(${PROJECT_NAME}_${BACKEND}_${PLATFORM} ${SOURCES})
 
@@ -147,7 +156,8 @@ elseif(${PLATFORM} STREQUAL "LINUX_FB")
 
 elseif(${PLATFORM} STREQUAL "WASM")
     #set(PLATFORM_LIBS pthread dl embind)
-    set(PLATFORM_CXX_FLAGS -O2 -pthread)
+    # -pthread is set globally via add_compile_options() above (drzengine needs it too)
+    set(PLATFORM_CXX_FLAGS -O2)
     
     #set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/emscripten.cmake)
 
@@ -311,10 +321,14 @@ target_compile_options(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PRIVATE ${PLATFORM
 
 # Set Project's target compiler properties
 if(${PLATFORM} STREQUAL "WASM")
-    # Overwrite the output name for the WASM platform and add the necessary flags
+    # Overwrite the output name for the WASM platform and add the necessary flags.
+    # The .html must come from SUFFIX, not from OUTPUT_NAME: emscripten appends its
+    # own CMAKE_EXECUTABLE_SUFFIX (".js"), so OUTPUT_NAME "vanassistant.html" used to
+    # produce "vanassistant.html.js" and emcc never emitted the shell page at all.
     set_target_properties(${PROJECT_NAME}_${BACKEND}_${PLATFORM} PROPERTIES
-        LINK_FLAGS "-s WASM=1 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG -s ASSERTIONS=1 -s -pthread -s PTHREAD_POOL_SIZE=5 --shell-file ../wasm/vanassistant_shell.html"
-        OUTPUT_NAME "vanassistant.html"
+        LINK_FLAGS "-sWASM=1 -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sMAX_WEBGL_VERSION=2 -sMIN_WEBGL_VERSION=2 -sUSE_LIBPNG=1 -sASSERTIONS=1 -pthread -sPTHREAD_POOL_SIZE=5 --shell-file ${CMAKE_SOURCE_DIR}/wasm/vanassistant_shell.html"
+        OUTPUT_NAME "vanassistant"
+        SUFFIX ".html"
     )
 else()
     # Set the output name for the other platforms

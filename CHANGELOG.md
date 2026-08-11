@@ -22,6 +22,44 @@ d'environnement personnel (dotfiles, PATH…).
 
 <!-- Ajouter ici les changements en cours avant la prochaine "session close" -->
 
+### Ajouté
+- **Skill `vanassistant-wasm-serve`** (`.claude/skills/vanassistant-wasm-serve/SKILL.md`)
+  et wrapper `.claude/scripts/va_wasm_serve.sh` — sert le build WASM pour test
+  navigateur, en local ou depuis un autre appareil du réseau :
+  - Sous-commandes : `start [port]`, `stop`, `status`, `url`, `lan`.
+  - Sert directement le répertoire de build (`build.wasm/` prioritaire, sinon
+    `build.check.wasm/`), donc URL `/vanassistant.html` et pas d'exposition du
+    dépôt entier sur le réseau.
+  - `lan` documente les deux voies d'accès LAN sous WSL2 en mode NAT
+    (portproxy `netsh` ponctuel, ou `networkingMode=mirrored` durable) sans
+    les appliquer — modification réseau à la main de l'utilisateur.
+- **`DrzSerial_Null`** (`~/dev/drzengine/include/DrzSerial_Null.h`, hors repo) —
+  implémentation no-op d'`IDrzSerial` pour les plateformes sans port série.
+  Le `#include <DrzSerial_Null.h>` sous `__EMSCRIPTEN__` existait dans
+  `DrzEngine_PGE.cpp` mais le header n'avait jamais été écrit : le build WASM
+  était donc cassé. Instanciée dans la branche `#elif __EMSCRIPTEN__` du
+  constructeur, qui ne créait aucun backend série et laissait
+  `DrzSerial::Get()` à `nullptr`.
+
+### Corrigé
+- **Build WASM réparé** (`CMakeLists.txt`) — il ne compilait plus du tout :
+  - `-sUSE_LIBPNG=1` et `-pthread` passés via `add_compile_options()` avant
+    l'`add_subdirectory()` de DRZENGINE. Ils n'étaient présents qu'en
+    `LINK_FLAGS` (et en `target_compile_options` de la seule cible app), donc
+    le port libpng n'était jamais construit — `<png.h>` introuvable — et
+    drzengine se compilait sans `-pthread`, en désaccord d'ABI avec l'app.
+  - Coquille `-s -pthread` dans les `LINK_FLAGS` : le `-s` consommait
+    `-pthread` comme argument.
+  - Le `.html` vient désormais de la propriété `SUFFIX` et non d'`OUTPUT_NAME` :
+    emscripten ajoutant son propre suffixe `.js`, la sortie était
+    `vanassistant.html.js` et emcc n'émettait jamais la page shell.
+  - `--shell-file` référencé via `${CMAKE_SOURCE_DIR}` au lieu de `../wasm/`,
+    qui dépendait de la profondeur du répertoire de build.
+- **`va_build_all.sh` rapportait toujours `BUILD OK`** — `rc=$?` capturait le
+  statut du bloc `{ … }`, c'est-à-dire celui du `set +x` final (toujours 0) :
+  aucune cible ne pouvait être signalée en échec. Bloc converti en sous-shell
+  `( … )` avec `set -ex`, le statut est celui du `cmake --build`.
+
 ---
 
 ## 2026-08-11
