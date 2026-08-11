@@ -76,6 +76,9 @@ d'environnement personnel (dotfiles, PATH…).
   - Ajout des sections manquantes (`LINUX_FB`, `WIN`), de la construction des
     outils `tools/`, et des renvois vers les wrappers `.claude/scripts/`.
   - Chemins `~/vanasssistant` / `~/vansssistant` → `~/dev/vanassistant`.
+- **`tools/.gitignore` complété** — `genproject` et `objviewer.linux_x11`
+  (3,2 Mo d'exécutables ELF) n'y figuraient pas et seraient partis dans
+  l'historique au premier `git add -A`.
 
 ---
 
